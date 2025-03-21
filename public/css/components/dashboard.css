@@ -1,0 +1,60 @@
+/* Dashboard Styles */
+.dashboard-card {
+    border: none;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+  }
+  
+  .dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  }
+  
+  .dashboard-icon {
+    font-size: 2.25rem;
+    margin-bottom: 1rem;
+  }
+  
+  .dashboard-stat {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  
+  .dashboard-section {
+    margin-bottom: 2.5rem;
+  }
+  
+  .dashboard-section-title {
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    color: #1a3a61;
+  }
+  
+  .offer-card,
+  .listing-card {
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s;
+  }
+  
+  .offer-card:hover,
+  .listing-card:hover {
+    transform: translateY(-3px);
+  }
+  
+  .status-badge {
+    font-size: 0.8rem;
+    padding: 0.35rem 0.7rem;
+    border-radius: 50px;
+  }
+  
+  .property-image {
+    height: 60px;
+    width: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+  }

@@ -1,0 +1,747 @@
+<%- include('../partials/layout.ejs') %>
+
+<div class="container mt-5">
+    <h2 class="mb-4">Submit a Counter Offer</h2>
+    <form id="counterOfferForm" action="/offers/<%= offer._id %>/counter" method="POST">
+        <!-- Hidden input for offer ID -->
+        <input type="hidden" name="offerId" value="<%= offer._id %>">    
+        
+        <!-- Section 1: Buyer and Property Information -->
+        <div class="card shadow-lg mb-3">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h4 mb-0">1. Buyer and Property Information</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="buyerFullName" class="form-label">Buyer Full Name</label>
+                        <input type="text" class="form-control" id="buyerFullName" name="buyerFullName" value="<%= offer.buyer ? offer.buyer.name : 'Buyer' %>" readonly>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="buyerEmail" class="form-label">Buyer Email</label>
+                        <input type="email" class="form-control" id="buyerEmail" name="buyerEmail" value="<%= offer.buyer ? offer.buyer.email : '' %>" readonly>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="sellerName" class="form-label">Seller Name</label>
+                        <input type="text" class="form-control" id="sellerName" name="sellerName" 
+                               value="<%= offer.seller ? (typeof offer.seller === 'object' ? offer.seller.name : offer.seller) : 'You (Seller)' %>" readonly>
+                    </div>
+                    <!-- Hidden field for offerExpiration -->
+                    <input type="hidden" name="offerExpiration" value="<%= offer.offerExpiration ? new Date(offer.offerExpiration).toISOString().split('T')[0] : new Date(Date.now() + 3*24*60*60*1000).toISOString().split('T')[0] %>" />
+                </div>    
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="propertyAddress" class="form-label">Property Address</label>
+                        <input type="text" class="form-control" id="propertyAddress" name="propertyAddress" 
+                               value="<%= offer.listing ? offer.listing.address : 'Property' %><%= offer.listing && offer.listing.city ? ', ' + offer.listing.city : '' %><%= offer.listing && offer.listing.state ? ', ' + offer.listing.state : '' %><%= offer.listing && offer.listing.zip ? ' ' + offer.listing.zip : '' %>" readonly>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="propertyCounty" class="form-label">County</label>
+                        <input type="text" class="form-control" id="propertyCounty" name="propertyCounty" 
+                               value="<%= offer.listing ? offer.listing.county : '' %>" readonly>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Property Type</label>
+                        <input type="text" class="form-control" id="propertyType" name="propertyType" 
+                               value="<%= offer.listing && offer.listing.propertyType ? (offer.listing.propertyType === 'single_family' ? 'Single-Family Home' : offer.listing.propertyType) : '' %>" readonly>
+                    </div>
+                </div>                
+                <div class="row">            
+                    <div class="mb-3">
+                        <label for="includedPersonalProperty" class="form-label">Included Personal Property</label>
+                        <textarea class="form-control" id="includedPersonalProperty" name="includedPersonalProperty" rows="3" placeholder="List any personal property (appliances, furniture, etc.) to be included in the sale"><%= offer.includedPersonalProperty || '' %></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="excludedPersonalProperty" class="form-label">Excluded Personal Property</label>
+                        <textarea class="form-control" id="excludedPersonalProperty" name="excludedPersonalProperty" rows="3" placeholder="List any personal property to be specifically excluded from the sale"><%= offer.excludedPersonalProperty || '' %></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>    
+        
+        <!-- Section 2: Purchase Price and Financing -->
+        <div class="card shadow-lg mb-3">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h4 mb-0">2. Purchase Price and Financing</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="offerPrice" class="form-label">Offer Price ($)</label>
+                        <input type="number" class="form-control" id="offerPrice" name="offerPrice" 
+                               min="<%= offer.listing && offer.listing.price ? Math.round(offer.listing.price * 0.8) : 0 %>" 
+                               max="<%= offer.listing && offer.listing.price ? Math.round(offer.listing.price * 1.2) : 9999999 %>" 
+                               value="<%= offer.offerPrice || 0 %>" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label d-block">Original Financing Method</label>
+                        <div class="form-control-plaintext">
+                            <% if (offer.financingType === 'cash') { %>
+                                <span class="badge bg-success">All Cash Offer</span>
+                            <% } else if (offer.financingType === 'bank') { %>
+                                <span class="badge bg-info">Bank Financing</span>
+                            <% } else if (offer.financingType === 'seller') { %>
+                                <span class="badge bg-warning">Seller Financing</span>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+                
+                <% if (offer.financingType === 'bank') { %>
+                <!-- Original Financing Details (Read-only) -->
+                <div class="card bg-light mt-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Buyer's Financing Details</h5>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Loan Type:</label>
+                                <div><%= offer.loanType || 'Not specified' %></div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Loan Amount:</label>
+                                <div><%= offer.loanAmount ? '$' + offer.loanAmount.toLocaleString() : 'Not specified' %></div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Interest Rate:</label>
+                                <div><%= offer.interestRate ? offer.interestRate + '%' : 'Not specified' %></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+            </div>
+        </div>    
+        
+        <!-- Section 3: Earnest Money -->
+        <div class="card shadow-lg mb-3">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h4 mb-0">3. Earnest Money</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="earnestMoney" class="form-label">Earnest Money Amount ($)</label>
+                        <input type="number" class="form-control" id="earnestMoney" name="earnestMoney" value="<%= offer.earnestMoney || 0 %>" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="earnestDueDate" class="form-label">Earnest Money Due Date</label>
+                        <input type="date" class="form-control" id="earnestDueDate" name="earnestDueDate" 
+                               value="<%= offer.earnestDueDate ? new Date(offer.earnestDueDate).toISOString().split('T')[0] : '' %>" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="escrowAgent" class="form-label">Title Company</label>
+                    <select class="form-select" id="escrowAgent" name="escrowAgent" required>
+                        <option value="">Select Title Company</option>
+                        <% if (offer.escrowAgent || offer.titleCompany) { %>
+                            <option value="<%- offer.escrowAgent || offer.titleCompany %>" selected><%- offer.escrowAgent || offer.titleCompany %></option>
+                        <% } %>
+                    </select>
+                </div>
+            </div>
+        </div>    
+        
+        <!-- Section 4: Contingencies -->
+        <div class="card shadow-lg mb-3">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h4 mb-0">4. Contingencies</h2>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info mb-3">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Note:</strong> You cannot add or remove contingencies in a counter offer, but you can adjust the timeframes.
+                </div>
+                
+                <div class="row">
+                    <% if (offer.contingencies && offer.contingencies.includes("inspection")) { %>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input contingency-checkbox" type="checkbox" id="inspectionContingency" name="contingencies" value="inspection" checked disabled>
+                                <label class="form-check-label" for="inspectionContingency">
+                                    Inspection Contingency
+                                </label>
+                            </div>
+                            <div id="inspectionDetails" class="mt-2">
+                                <label for="inspectionDeadline" class="form-label">Inspection Deadline (Days)</label>
+                                <input type="number" class="form-control" id="inspectionDeadline" name="inspectionDeadlineDays" 
+                                       value="<%= offer.inspectionDeadlineDays || 10 %>" min="5" max="30">
+                            </div>
+                        </div>
+                    <% } %>
+                    <% if (offer.contingencies && offer.contingencies.includes("appraisal")) { %>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input contingency-checkbox" type="checkbox" id="appraisalContingency" name="contingencies" value="appraisal" checked disabled>
+                                <label class="form-check-label" for="appraisalContingency">
+                                    Appraisal Contingency
+                                </label>
+                            </div>
+                            <div id="appraisalDetails" class="mt-2">
+                                <label for="appraisalDeadline" class="form-label">Appraisal Deadline (Days)</label>
+                                <input type="number" class="form-control" id="appraisalDeadline" name="appraisalDeadlineDays" 
+                                       value="<%= offer.appraisalDeadlineDays || 21 %>" min="10" max="45">
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+                <div class="row mt-3">
+                    <% if (offer.contingencies && offer.contingencies.includes("financing")) { %>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input contingency-checkbox" type="checkbox" id="financingContingency" name="contingencies" value="financing" checked disabled>
+                                <label class="form-check-label" for="financingContingency">
+                                    Financing Contingency
+                                </label>
+                            </div>
+                            <div id="financingDetails" class="mt-2">
+                                <label for="loanApprovalDeadline" class="form-label">Loan Approval Deadline (Days)</label>
+                                <input type="number" class="form-control" id="loanApprovalDeadline" name="loanApprovalDeadlineDays" 
+                                       value="<%= offer.loanApprovalDeadlineDays || 30 %>" min="15" max="60">
+                            </div>
+                        </div>
+                    <% } %>
+                    <% if (offer.contingencies && offer.contingencies.includes("saleOfAnotherHome")) { %>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input contingency-checkbox" type="checkbox" id="saleContingency" name="contingencies" value="saleOfAnotherHome" checked disabled>
+                                <label class="form-check-label" for="saleContingency">
+                                    Sale of Another Property Contingency
+                                </label>
+                            </div>
+                            <div id="saleDetails" class="mt-2">
+                                <label for="saleOfAnotherAddress" class="form-label">Address of Property to be Sold</label>
+                                <input type="text" class="form-control" id="saleOfAnotherAddress" name="saleOfAnotherAddress" 
+                                       value="<%= offer.saleOfAnotherAddress || '' %>" readonly>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+                
+                <% if (!offer.contingencies || offer.contingencies.length === 0) { %>
+                    <div class="alert alert-secondary mt-3">
+                        <i class="bi bi-check-circle me-2"></i>
+                        The original offer does not include any contingencies.
+                    </div>
+                <% } %>
+            </div>
+        </div>
+                
+        <!-- Section 5: Closing Details -->
+        <div class="card shadow-lg mb-3">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h4 mb-0">5. Closing Details</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="closingDate" class="form-label">Proposed Closing Date</label>
+                        <input type="date" class="form-control" id="closingDate" name="closingDate" 
+                               value="<%= offer.closingDate ? new Date(offer.closingDate).toISOString().split('T')[0] : '' %>" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="titleCompany">Title Company</label>
+                        <select id="titleCompany" name="titleCompany" class="form-select" required>
+                            <option value="">Select Title Company</option>
+                            <% if (offer.titleCompany) { %>
+                                <option value="<%- offer.titleCompany %>" selected><%- offer.titleCompany %></option>
+                            <% } %>
+                        </select>
+                    </div>     
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Closing Costs Allocation</label>
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" name="closingCosts" id="buyerPays" value="buyer" 
+                               <%= offer.closingCosts === 'buyer' ? 'checked' : '' %> required>
+                        <label class="btn btn-outline-primary" for="buyerPays">Buyer Pays All</label>
+                
+                        <input type="radio" class="btn-check" name="closingCosts" id="sellerPays" value="seller" 
+                               <%= offer.closingCosts === 'seller' ? 'checked' : '' %>>
+                        <label class="btn btn-outline-primary" for="sellerPays">Seller Pays All</label>
+                
+                        <input type="radio" class="btn-check" name="closingCosts" id="splitCosts" value="split" 
+                               <%= offer.closingCosts === 'split' ? 'checked' : '' %>>
+                        <label class="btn btn-outline-primary" for="splitCosts">Split Costs</label>
+                
+                        <input type="radio" class="btn-check" name="closingCosts" id="each_pays_own" value="each_pays_own" 
+                               <%= offer.closingCosts === 'each_pays_own' || !offer.closingCosts ? 'checked' : '' %>>
+                        <label class="btn btn-outline-primary" for="each_pays_own">Each Pays Own</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section 6: Additional Documents and Riders -->
+        <div class="card shadow-lg mb-3">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h4 mb-0">6. Additional Documents and Riders</h2>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-3">
+                    The following riders are included with this counter offer. Required riders cannot be removed.
+                </p>
+
+                <!-- Required Documents -->
+                <div class="mb-4">
+                    <h6 class="border-bottom pb-2">Required Documents</h6>
+                    
+                    <!-- Wire Fraud Advisory -->
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="wireFraudAdvisory" name="riders.wireFraudAdvisory.included" checked disabled>
+                        <label class="form-check-label" for="wireFraudAdvisory">
+                            Wire Fraud Advisory
+                            <span class="badge bg-danger ms-2">Required</span>
+                        </label>
+                        <div class="form-text">
+                            This document warns about wire fraud risks in real estate transactions and provides guidance on secure fund transfers.
+                        </div>
+                        <div class="form-check mt-2 ms-4">
+                            <input class="form-check-input" type="checkbox" id="wireFraudAcknowledgment" name="riders.wireFraudAdvisory.acknowledged" checked disabled>
+                            <label class="form-check-label" for="wireFraudAcknowledgment">
+                                I acknowledge that I have read and understand the Wire Fraud Advisory
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Home Inspection Advisory -->
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="homeInspectionAdvisory" name="riders.homeInspectionAdvisory.included" checked disabled>
+                        <label class="form-check-label" for="homeInspectionAdvisory">
+                            For Your Protection: Get a Home Inspection
+                            <span class="badge bg-danger ms-2">Required</span>
+                        </label>
+                        <div class="form-text">
+                            This document explains the importance of getting a professional home inspection before completing your purchase.
+                        </div>
+                        <div class="form-check mt-2 ms-4">
+                            <input class="form-check-input" type="checkbox" id="homeInspectionAcknowledgment" name="riders.homeInspectionAdvisory.acknowledged" checked disabled>
+                            <label class="form-check-label" for="homeInspectionAcknowledgment">
+                                I acknowledge that I have read and understand the Home Inspection Advisory
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Platform Fee Disclosure -->
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="feeRider" name="riders.fee.included" checked disabled>
+                        <label class="form-check-label" for="feeRider">
+                            Platform Fee Disclosure
+                            <span class="badge bg-danger ms-2">Required</span>
+                        </label>
+                        <div class="form-text">
+                            This document discloses the platform fees associated with this transaction.
+                        </div>
+                        <div class="form-check mt-2 ms-4">
+                            <input class="form-check-input" type="checkbox" id="feeAcknowledgment" name="riders.fee.feeAcknowledged" checked disabled>
+                            <label class="form-check-label" for="feeAcknowledgment">
+                                I acknowledge and agree to pay the platform fee of <strong>$<span id="platformFeeAmount"><%= offer.riders && offer.riders.fee && offer.riders.fee.platformFee || '250' %></span></strong>
+                            </label>
+                            <input type="hidden" name="riders.fee.platformFee" value="<%= offer.riders && offer.riders.fee && offer.riders.fee.platformFee || '250' %>">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Optional Riders -->
+                <div>
+                    <h6 class="border-bottom pb-2">Optional Riders</h6>
+                    
+                    <!-- Government Loan Rider -->
+                    <div class="form-check mb-3">
+                        <input class="form-check-input rider-checkbox" type="checkbox" id="governmentLoanRider" 
+                            name="riders.governmentLoan.included" data-target="governmentLoanDetails"
+                            <%= offer.riders && offer.riders.governmentLoan && offer.riders.governmentLoan.included ? 'checked' : '' %> 
+                            <%= offer.financingType === 'bank' && ['fha', 'va', 'usda'].includes(offer.loanType) ? 'checked disabled' : '' %>>
+                        <label class="form-check-label" for="governmentLoanRider">
+                            Government Loan Rider
+                            <% if (offer.financingType === 'bank' && ['fha', 'va', 'usda'].includes(offer.loanType)) { %>
+                                <span class="badge bg-warning ms-2">Required for this loan type</span>
+                            <% } %>
+                        </label>
+                        <div class="form-text">
+                            <strong>When to use:</strong> Select this rider if you're financing with an FHA, VA, or USDA loan. This rider includes specific provisions required for government-backed loans, such as the amendatory clause and appraisal requirements.
+                        </div>
+                        
+                        <!-- Government Loan Details -->
+                        <div id="governmentLoanDetails" class="rider-details mt-3 ms-4 p-3 bg-light rounded" 
+                             style="display: <%= offer.riders && offer.riders.governmentLoan && offer.riders.governmentLoan.included ? 'block' : 'none' %>;">
+                            <h6 class="mb-3">Government Loan Details</h6>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Loan Type</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="riders.governmentLoan.loanType" id="fhaLoan" value="FHA"
+                                           <%= offer.riders && offer.riders.governmentLoan && offer.riders.governmentLoan.loanType === 'FHA' ? 'checked' : '' %>>
+                                    <label class="form-check-label" for="fhaLoan">FHA Loan</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="riders.governmentLoan.loanType" id="vaLoan" value="VA"
+                                           <%= offer.riders && offer.riders.governmentLoan && offer.riders.governmentLoan.loanType === 'VA' ? 'checked' : '' %>>
+                                    <label class="form-check-label" for="vaLoan">VA Loan</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="riders.governmentLoan.loanType" id="usdaLoan" value="USDA"
+                                           <%= offer.riders && offer.riders.governmentLoan && offer.riders.governmentLoan.loanType === 'USDA' ? 'checked' : '' %>>
+                                    <label class="form-check-label" for="usdaLoan">USDA/Rural Development Loan</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="riders.governmentLoan.loanType" id="otherGovLoan" value="Other"
+                                           <%= offer.riders && offer.riders.governmentLoan && offer.riders.governmentLoan.loanType === 'Other' ? 'checked' : '' %>>
+                                    <label class="form-check-label" for="otherGovLoan">Other Government Loan</label>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="loanPercentage" class="form-label">Loan Percentage of Purchase Price</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="loanPercentage" 
+                                            name="riders.governmentLoan.loanPercentage" min="1" max="100"
+                                            value="<%= offer.riders && offer.riders.governmentLoan && offer.riders.governmentLoan.loanPercentage || '' %>">
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="loanContingencyDeadline" class="form-label">Loan Contingency Deadline</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="loanContingencyDeadline" 
+                                            name="riders.governmentLoan.loanContingencyDeadline" 
+                                            value="<%= offer.riders && offer.riders.governmentLoan && offer.riders.governmentLoan.loanContingencyDeadline || '25' %>" min="1" max="60">
+                                        <span class="input-group-text">days</span>
+                                    </div>
+                                    <div class="form-text">Days after offer acceptance</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sight Unseen Rider -->
+                    <div class="form-check mb-3">
+                        <input class="form-check-input rider-checkbox" type="checkbox" id="sightUnseenRider" 
+                            name="riders.sightUnseen.included" data-target="sightUnseenDetails"
+                            <%= offer.riders && offer.riders.sightUnseen && offer.riders.sightUnseen.included ? 'checked' : '' %>>
+                        <label class="form-check-label" for="sightUnseenRider">
+                            Sight Unseen Rider
+                        </label>
+                        <div class="form-text">
+                            <strong>When to use:</strong> Select this rider if you're making an offer without having physically visited the property. This rider specifies your rights regarding property viewing before closing and addresses special considerations for remote buying.
+                        </div>
+                        
+                        <!-- Sight Unseen Details -->
+                        <div id="sightUnseenDetails" class="rider-details mt-3 ms-4 p-3 bg-light rounded" 
+                             style="display: <%= offer.riders && offer.riders.sightUnseen && offer.riders.sightUnseen.included ? 'block' : 'none' %>;">
+                            <h6 class="mb-3">Sight Unseen Options</h6>
+                            
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="riders.sightUnseen.reserveRightToView" 
+                                    id="reserveViewingRight" value="true"
+                                    <%= offer.riders && offer.riders.sightUnseen && offer.riders.sightUnseen.reserveRightToView ? 'checked' : '' %>>
+                                <label class="form-check-label" for="reserveViewingRight">
+                                    <strong>OPTION 1:</strong> Reserve right to view property before proceeding
+                                </label>
+                                <div class="form-text">
+                                    Buyer will have a specified period to view the property and can back out if unsatisfied.
+                                </div>
+                                
+                                <div class="mt-2 ms-4">
+                                    <label for="propertyViewingPeriod" class="form-label">Property Viewing Period</label>
+                                    <div class="input-group" style="max-width: 200px;">
+                                        <input type="number" class="form-control" id="propertyViewingPeriod" 
+                                            name="riders.sightUnseen.propertyViewingPeriod" 
+                                            value="<%= offer.riders && offer.riders.sightUnseen && offer.riders.sightUnseen.propertyViewingPeriod || '5' %>" min="1" max="14">
+                                        <span class="input-group-text">days</span>
+                                    </div>
+                                </div>
+                            </div><div class="form-check mt-3">
+                                <input class="form-check-input" type="radio" name="riders.sightUnseen.reserveRightToView" 
+                                    id="waiveViewingRight" value="false" 
+                                    <%= (!offer.riders || !offer.riders.sightUnseen || !offer.riders.sightUnseen.reserveRightToView) ? 'checked' : '' %>>
+                                <label class="form-check-label" for="waiveViewingRight">
+                                    <strong>OPTION 2:</strong> Waive right to view property
+                                </label>
+                                <div class="form-text">
+                                    Buyer acknowledges they're making the offer without viewing the property and waive the right to withdraw based on property condition.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Contingency for Sale of Buyer's Existing Property -->
+                    <div class="form-check mb-3">
+                        <input class="form-check-input rider-checkbox" type="checkbox" id="contingencyForSaleRider" 
+                            name="riders.contingencyForSale.included" data-target="contingencyForSaleDetails"
+                            <%= offer.riders && offer.riders.contingencyForSale && offer.riders.contingencyForSale.included ? 'checked' : '' %>>
+                        <label class="form-check-label" for="contingencyForSaleRider">
+                            Contingency for Sale of Buyer's Existing Property
+                        </label>
+                        <div class="form-text">
+                            <strong>When to use:</strong> Select this rider if the buyer's ability to purchase this property depends on selling their current home. This rider specifies timelines and terms for selling their existing property and includes kickout provisions.
+                        </div>
+                        
+                        <!-- Contingency for Sale Details -->
+                        <div id="contingencyForSaleDetails" class="rider-details mt-3 ms-4 p-3 bg-light rounded" 
+                             style="display: <%= offer.riders && offer.riders.contingencyForSale && offer.riders.contingencyForSale.included ? 'block' : 'none' %>;">
+                            <h6 class="mb-3">Existing Property Sale Details</h6>
+                            
+                            <div class="mb-3">
+                                <label for="existingPropertyAddress" class="form-label">Address of Existing Property</label>
+                                <input type="text" class="form-control" id="existingPropertyAddress" 
+                                    name="riders.contingencyForSale.existingPropertyAddress" 
+                                    value="<%= offer.riders && offer.riders.contingencyForSale && offer.riders.contingencyForSale.existingPropertyAddress || '' %>" required>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="existingPropertyClosingDeadline" class="form-label">Closing Deadline</label>
+                                    <input type="date" class="form-control" id="existingPropertyClosingDeadline" 
+                                        name="riders.contingencyForSale.existingPropertyClosingDeadline" 
+                                        value="<%= offer.riders && offer.riders.contingencyForSale && offer.riders.contingencyForSale.existingPropertyClosingDeadline ? new Date(offer.riders.contingencyForSale.existingPropertyClosingDeadline).toISOString().split('T')[0] : '' %>" required>
+                                    <div class="form-text">Final date by which property must sell</div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="kickOutHours" class="form-label">Kick-Out Period</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="kickOutHours" 
+                                            name="riders.contingencyForSale.kickOutHours" 
+                                            value="<%= offer.riders && offer.riders.contingencyForSale && offer.riders.contingencyForSale.kickOutHours || '72' %>" min="24" max="168" step="24">
+                                        <span class="input-group-text">hours</span>
+                                    </div>
+                                    <div class="form-text">Time buyer has to respond if seller receives another offer</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Contingency for Closing of Buyer's Existing Property -->
+                    <div class="form-check mb-3">
+                        <input class="form-check-input rider-checkbox" type="checkbox" id="contingencyForClosingRider" 
+                            name="riders.contingencyForClosing.included" data-target="contingencyForClosingDetails"
+                            <%= offer.riders && offer.riders.contingencyForClosing && offer.riders.contingencyForClosing.included ? 'checked' : '' %>>
+                        <label class="form-check-label" for="contingencyForClosingRider">
+                            Contingency for Closing of Buyer's Existing Property
+                        </label>
+                        <div class="form-text">
+                            <strong>When to use:</strong> Select this rider if the buyer's current home is already under contract but hasn't closed yet. This rider makes the purchase conditional on the successful closing of their existing property's sale.
+                        </div>
+                        
+                        <!-- Contingency for Closing Details -->
+                        <div id="contingencyForClosingDetails" class="rider-details mt-3 ms-4 p-3 bg-light rounded" 
+                             style="display: <%= offer.riders && offer.riders.contingencyForClosing && offer.riders.contingencyForClosing.included ? 'block' : 'none' %>;">
+                            <h6 class="mb-3">Existing Property Closing Details</h6>
+                            
+                            <div class="mb-3">
+                                <label for="existingPropertyContractDate" class="form-label">Date of Existing Contract</label>
+                                <input type="date" class="form-control" id="existingPropertyContractDate" 
+                                    name="riders.contingencyForClosing.existingPropertyContractDate" 
+                                    value="<%= offer.riders && offer.riders.contingencyForClosing && offer.riders.contingencyForClosing.existingPropertyContractDate ? new Date(offer.riders.contingencyForClosing.existingPropertyContractDate).toISOString().split('T')[0] : '' %>" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="existingPropertyClosingAddress" class="form-label">Address of Existing Property</label>
+                                <input type="text" class="form-control" id="existingPropertyClosingAddress" 
+                                    name="riders.contingencyForClosing.existingPropertyAddress" 
+                                    value="<%= offer.riders && offer.riders.contingencyForClosing && offer.riders.contingencyForClosing.existingPropertyAddress || '' %>" required>
+                            </div>
+                            
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="existingPropertyContainsContingency" 
+                                    name="riders.contingencyForClosing.existingPropertyContainsContingency"
+                                    <%= offer.riders && offer.riders.contingencyForClosing && offer.riders.contingencyForClosing.existingPropertyContainsContingency ? 'checked' : '' %>>
+                                <label class="form-check-label" for="existingPropertyContainsContingency">
+                                    The existing contract contains a contingency for the sale of another property
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Walk-Through Notice -->
+                    <div class="form-check mb-3">
+                        <input class="form-check-input rider-checkbox" type="checkbox" id="walkThroughRider" 
+                            name="riders.walkThrough.included" data-target="walkThroughDetails"
+                            <%= offer.riders && offer.riders.walkThrough && offer.riders.walkThrough.included ? 'checked' : '' %>>
+                        <label class="form-check-label" for="walkThroughRider">
+                            Walk-Through Notice
+                        </label>
+                        <div class="form-text">
+                            <strong>When to use:</strong> Select this rider to add specific terms regarding the final walk-through before closing. This specifies when the walk-through will occur and what conditions must be met.
+                        </div>
+                        
+                        <!-- Walk-Through Details -->
+                        <div id="walkThroughDetails" class="rider-details mt-3 ms-4 p-3 bg-light rounded" 
+                             style="display: <%= offer.riders && offer.riders.walkThrough && offer.riders.walkThrough.included ? 'block' : 'none' %>;">
+                            <h6 class="mb-3">Walk-Through Details</h6>
+                            
+                            <div class="mb-3">
+                                <label for="walkThroughDate" class="form-label">Scheduled Walk-Through Date/Time</label>
+                                <input type="datetime-local" class="form-control" id="walkThroughDate" 
+                                    name="riders.walkThrough.scheduledDate"
+                                    value="<%= offer.riders && offer.riders.walkThrough && offer.riders.walkThrough.scheduledDate ? new Date(offer.riders.walkThrough.scheduledDate).toISOString().slice(0, 16) : '' %>">
+                                <div class="form-text">This can be updated later if needed</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section 7: Acknowledgments -->
+        <div class="card shadow-lg mb-3">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h4 mb-0">7. Acknowledgments</h2>
+            </div>
+            <div class="card-body">
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="legalAcknowledgment" name="acknowledgment" value="true" required>
+                    <label class="form-check-label" for="legalAcknowledgment">
+                        I acknowledge this is a legally binding counter offer and understand its implications
+                    </label>
+                </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="documentAgreement" name="agreeDocuments" value="true" required>
+                    <label class="form-check-label" for="documentAgreement">
+                        I agree to provide all necessary documents as requested
+                    </label>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Form Actions -->
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-5">
+            <a href="/offers/seller" class="btn btn-outline-secondary">
+                <i class="bi bi-x-circle me-1"></i>Cancel
+            </a>
+            <button type="button" class="btn btn-secondary" id="previewContractBtn">
+                Preview Contract
+            </button>
+            <button type="submit" class="btn btn-primary">
+                Submit Counter Offer
+            </button>
+        </div>
+    </form>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle rider checkboxes
+        const riderCheckboxes = document.querySelectorAll('.rider-checkbox');
+        
+        riderCheckboxes.forEach(checkbox => {
+            // Set initial state
+            const targetId = checkbox.dataset.target;
+            const targetDiv = document.getElementById(targetId);
+            
+            if (targetDiv) {
+                updateRequiredState(targetDiv, checkbox.checked);
+                
+                // Add change handler
+                checkbox.addEventListener('change', function() {
+                    targetDiv.style.display = this.checked ? 'block' : 'none';
+                    updateRequiredState(targetDiv, this.checked);
+                    
+                    // Update rider visibility in preview modal
+                    const riderName = this.id.replace('Rider', '');
+                    const riderRow = document.getElementById(`${riderName}Row`);
+                    if (riderRow) {
+                        riderRow.style.display = this.checked ? 'table-row' : 'none';
+                    }
+                });
+            }
+        });
+        
+        // Helper function to update required state of fields
+        function updateRequiredState(container, isRequired) {
+            const inputs = container.querySelectorAll('input[required], select[required], textarea[required]');
+            inputs.forEach(input => {
+                if (isRequired) {
+                    input.setAttribute('required', '');
+                } else {
+                    input.removeAttribute('required');
+                }
+            });
+        }
+        
+        // Initialize rider rows in preview based on checkbox status
+        function initializeRiderRows() {
+            // Government Loan Rider
+            const governmentLoanCheckbox = document.getElementById('governmentLoanRider');
+            const governmentLoanRow = document.getElementById('governmentLoanRiderRow');
+            if (governmentLoanCheckbox && governmentLoanRow) {
+                governmentLoanRow.style.display = governmentLoanCheckbox.checked ? 'table-row' : 'none';
+            }
+            
+            // Sight Unseen Rider
+            const sightUnseenCheckbox = document.getElementById('sightUnseenRider');
+            const sightUnseenRow = document.getElementById('sightUnseenRiderRow');
+            if (sightUnseenCheckbox && sightUnseenRow) {
+                sightUnseenRow.style.display = sightUnseenCheckbox.checked ? 'table-row' : 'none';
+            }
+            
+            // Contingency for Sale Rider
+            const contingencyForSaleCheckbox = document.getElementById('contingencyForSaleRider');
+            const contingencyForSaleRow = document.getElementById('contingencyForSaleRiderRow');
+            if (contingencyForSaleCheckbox && contingencyForSaleRow) {
+                contingencyForSaleRow.style.display = contingencyForSaleCheckbox.checked ? 'table-row' : 'none';
+            }
+            
+            // Contingency for Closing Rider
+            const contingencyForClosingCheckbox = document.getElementById('contingencyForClosingRider');
+            const contingencyForClosingRow = document.getElementById('contingencyForClosingRiderRow');
+            if (contingencyForClosingCheckbox && contingencyForClosingRow) {
+                contingencyForClosingRow.style.display = contingencyForClosingCheckbox.checked ? 'table-row' : 'none';
+            }
+            
+            // Walk Through Rider
+            const walkThroughCheckbox = document.getElementById('walkThroughRider');
+            const walkThroughRow = document.getElementById('walkThroughRiderRow');
+            if (walkThroughCheckbox && walkThroughRow) {
+                walkThroughRow.style.display = walkThroughCheckbox.checked ? 'table-row' : 'none';
+            }
+        }
+        
+        // Initialize rider rows
+        initializeRiderRows();
+        
+        // Preview contract functionality
+        document.getElementById('previewContractBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Get the form
+            const form = document.getElementById('counterOfferForm');
+    
+            // Remove required from hidden sections before validation
+            document.querySelectorAll('.rider-details').forEach(details => {
+            // Check if the element is hidden using its display style
+            if (window.getComputedStyle(details).display === 'none') {
+                // Find required fields within this hidden details section
+                details.querySelectorAll('[required]').forEach(field => {
+                    field.removeAttribute('required');
+                });
+            }
+            });
+    
+            document.querySelectorAll('[id$="Details"]').forEach(details => {
+                // Check if the element is hidden using its display style
+                if (window.getComputedStyle(details).display === 'none') {
+                    // Find required fields within this hidden details section
+                    details.querySelectorAll('[required]').forEach(field => {
+                        field.removeAttribute('required');
+                    });
+                }
+            });
+            
+            if (form.checkValidity()) {
+                // Create a special form data object for preview
+                const formData = new FormData(form);
+                const queryString = new URLSearchParams(formData).toString();
+                
+                // Open preview in new window
+                window.open(`/offers/preview?${queryString}&isCounterOffer=true&originalOfferId=<%= offer._id %>`, '_blank');
+            } else {
+                // Show validation errors
+                form.reportValidity();
+            }
+        });
+    });
+</script>
+<script src="/js/riderValidation.js"></script>
+<%- include('../partials/footer.ejs') %>

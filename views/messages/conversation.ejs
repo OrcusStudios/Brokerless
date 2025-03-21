@@ -1,0 +1,272 @@
+<%- include('../partials/layout.ejs') %>
+
+<div class="container py-4">
+    <div class="row">
+        <!-- Left Sidebar: Back to Inbox -->
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">
+                        <i class="bi bi-chat-dots me-2"></i>Messages
+                    </h4>
+                    <a href="/messages/inbox" class="btn btn-light btn-sm">
+                        <i class="bi bi-arrow-left me-1"></i>Back to Inbox
+                    </a>
+                </div>
+                <div class="card-body">
+                    <!-- Conversation with User -->
+                    <div class="d-flex align-items-center mb-4">
+                        <% if (otherUser.profileImage) { %>
+                            <img src="<%= otherUser.profileImage %>" alt="Profile" class="rounded-circle me-3" width="60" height="60">
+                        <% } else { %>
+                            <div class="avatar-placeholder rounded-circle bg-secondary text-white me-3" style="width: 60px; height: 60px;">
+                                <%= otherUser.name.charAt(0).toUpperCase() %>
+                            </div>
+                        <% } %>
+                        
+                        <div>
+                            <h5 class="mb-1"><%= otherUser.name %></h5>
+                            <p class="mb-0 text-muted"><%= otherUser.email %></p>
+                            
+                            <!-- User Role Badge -->
+                            <% if (otherUser.professionalType) { %>
+                                <span class="badge bg-info text-white">
+                                    <%= otherUser.professionalType %>
+                                </span>
+                            <% } else if (otherUser.roles && otherUser.roles.length > 0) { %>
+                                <% const activeRoles = otherUser.roles.filter(r => r.active); %>
+                                <% if (activeRoles.length > 0) { %>
+                                    <span class="badge bg-secondary text-white">
+                                        <%= activeRoles[0].type.charAt(0).toUpperCase() + activeRoles[0].type.slice(1) %>
+                                    </span>
+                                <% } %>
+                            <% } %>
+                        </div>
+                    </div>
+                    
+                    <!-- Related Listings (if any) -->
+                    <% if (relatedListings && relatedListings.length > 0) { %>
+                        <div class="related-listings mb-4">
+                            <h6 class="border-bottom pb-2">Related Properties</h6>
+                            <% relatedListings.forEach(listing => { %>
+                                <div class="card mb-2">
+                                    <div class="row g-0">
+                                        <div class="col-4">
+                                            <img src="<%= listing.image || '/images/default-home.jpg' %>" 
+                                                 class="img-fluid rounded-start" alt="Property"
+                                                 style="height: 100%; object-fit: cover;">
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body py-2 px-3">
+                                                <p class="card-text small mb-0">
+                                                    <%= listing.address %>
+                                                </p>
+                                                <a href="/listings/<%= listing._id %>" class="stretched-link small">View Property</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } %>
+                    
+                    <!-- Related Offers (if any) -->
+                    <% if (relatedOffers && relatedOffers.length > 0) { %>
+                        <div class="related-offers">
+                            <h6 class="border-bottom pb-2">Related Offers</h6>
+                            <% relatedOffers.forEach(offer => { %>
+                                <div class="card mb-2">
+                                    <div class="card-body py-2 px-3">
+                                        <p class="card-text small mb-1">
+                                            <strong>Price:</strong> $<%= offer.offerPrice.toLocaleString() %>
+                                        </p>
+                                        <p class="card-text small mb-1">
+                                            <strong>Status:</strong> 
+                                            <span class="badge <%= 
+                                                offer.status === 'pending' ? 'bg-warning text-dark' : 
+                                                offer.status === 'accepted' ? 'bg-success' : 
+                                                offer.status === 'countered' ? 'bg-info' : 'bg-danger' 
+                                            %>">
+                                                <%= offer.status.charAt(0).toUpperCase() + offer.status.slice(1) %>
+                                            </span>
+                                        </p>
+                                        <% if (offer.listing) { %>
+                                            <p class="card-text small mb-0">
+                                                <strong>Property:</strong> <%= offer.listing.address %>
+                                            </p>
+                                        <% } %>
+                                        <a href="/offers/<%= offer._id %>" class="stretched-link small">View Offer</a>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Side: Conversation -->
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Conversation with <%= otherUser.name %></h5>
+                </div>
+                <div class="card-body">
+                    <!-- Messages Container -->
+                    <div class="messages-container" id="messages-container">
+                        <% if (messages && messages.length > 0) { %>
+                            <% messages.forEach((message, index) => { 
+                                const isSender = message.sender._id.toString() === user._id.toString();
+                                const showTimestamp = index === 0 || 
+                                    new Date(message.createdAt).toDateString() !== 
+                                    new Date(messages[index-1].createdAt).toDateString();
+                            %>
+                                <% if (showTimestamp) { %>
+                                    <div class="message-date-divider">
+                                        <span><%= new Date(message.createdAt).toLocaleDateString() %></span>
+                                    </div>
+                                <% } %>
+                                
+                                <div class="message <%= isSender ? 'message-sent' : 'message-received' %>">
+                                    <div class="message-content">
+                                        <p><%= message.content %></p>
+                                        
+                                        <!-- Message Attachments -->
+                                        <% if (message.attachments && message.attachments.length > 0) { %>
+                                            <div class="message-attachments">
+                                                <% message.attachments.forEach(attachment => { %>
+                                                    <div class="attachment">
+                                                        <a href="<%= attachment.url %>" target="_blank" class="attachment-link">
+                                                            <% if (attachment.type.startsWith('image/')) { %>
+                                                                <img src="<%= attachment.url %>" alt="<%= attachment.name %>" class="img-thumbnail attachment-preview">
+                                                            <% } else { %>
+                                                                <i class="bi bi-file-earmark"></i>
+                                                            <% } %>
+                                                            <span class="attachment-name"><%= attachment.name %></span>
+                                                        </a>
+                                                    </div>
+                                                <% }); %>
+                                            </div>
+                                        <% } %>
+                                        
+                                        <!-- Message Context (related to listing or offer) -->
+                                        <% if (message.listingId) { %>
+                                            <div class="message-context listing-context">
+                                                <a href="/listings/<%= message.listingId._id %>" class="context-link">
+                                                    <small>RE: Property at <%= message.listingId.address %></small>
+                                                </a>
+                                            </div>
+                                        <% } %>
+                                        
+                                        <% if (message.offerId) { %>
+                                            <div class="message-context offer-context">
+                                                <a href="/offers/<%= message.offerId._id %>" class="context-link">
+                                                    <small>RE: Offer of $<%= message.offerId.offerPrice.toLocaleString() %></small>
+                                                </a>
+                                            </div>
+                                        <% } %>
+                                        
+                                        <div class="message-timestamp">
+                                            <small class="text-muted">
+                                                <%= new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) %>
+                                                <% if (message.isRead && isSender) { %>
+                                                    <i class="bi bi-check2-all ms-1"></i>
+                                                <% } %>
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        <% } else { %>
+                            <div class="no-messages text-center py-5">
+                                <i class="bi bi-chat-square-text display-1 text-muted"></i>
+                                <h4 class="mt-3">No Messages Yet</h4>
+                                <p class="text-muted">Start the conversation by sending a message below</p>
+                            </div>
+                        <% } %>
+                    </div>
+                    
+                    <!-- New Message Form -->
+                    <form id="message-form" action="/messages/send" method="POST" enctype="multipart/form-data" class="mt-4">
+                        <input type="hidden" name="receiverId" value="<%= otherUser._id %>">
+                        
+                        <!-- Related Context (if coming from a listing or offer) -->
+                        <% if (relatedListings && relatedListings.length > 0) { %>
+                            <div class="form-group mb-3">
+                                <label for="listingId" class="form-label">Related Property (optional)</label>
+                                <select name="listingId" id="listingId" class="form-select">
+                                    <option value="">None</option>
+                                    <% relatedListings.forEach(listing => { %>
+                                        <option value="<%= listing._id %>"><%= listing.address %></option>
+                                    <% }); %>
+                                </select>
+                            </div>
+                        <% } %>
+                        
+                        <% if (relatedOffers && relatedOffers.length > 0) { %>
+                            <div class="form-group mb-3">
+                                <label for="offerId" class="form-label">Related Offer (optional)</label>
+                                <select name="offerId" id="offerId" class="form-select">
+                                    <option value="">None</option>
+                                    <% relatedOffers.forEach(offer => { %>
+                                        <option value="<%= offer._id %>">$<%= offer.offerPrice.toLocaleString() %> <%= offer.listing ? `for ${offer.listing.address}` : '' %></option>
+                                    <% }); %>
+                                </select>
+                            </div>
+                        <% } %>
+                        
+                        <!-- Message Input -->
+                        <div class="form-group mb-3">
+                            <textarea class="form-control" id="content" name="content" rows="3" placeholder="Type your message here..." required></textarea>
+                        </div>
+                        
+                        <!-- Attachments -->
+                        <div class="form-group mb-3">
+                            <label for="attachments" class="form-label">Attachments (optional)</label>
+                            <input type="file" class="form-control" id="attachments" name="attachments" multiple>
+                            <div class="form-text">You can attach up to 5 files (images, PDFs, documents)</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send me-2"></i>Send Message
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Scroll to bottom of messages container
+        const messagesContainer = document.getElementById('messages-container');
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        
+        // File attachment preview
+        const attachmentInput = document.getElementById('attachments');
+        const fileList = document.getElementById('file-list');
+        
+        attachmentInput.addEventListener('change', function() {
+            fileList.innerHTML = '';
+            
+            if (this.files.length > 0) {
+                fileList.innerHTML = Array.from(this.files)
+                    .map(file => `<span class="badge bg-secondary me-1">${file.name}</span>`)
+                    .join('');
+            }
+        });
+        
+        // Mark the conversation as read when page loads
+        fetch(`/messages/conversation/<%= otherUser._id %>/read`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).catch(err => console.error('Error marking conversation as read:', err));
+    });
+</script>
+
+<%- include('../partials/footer.ejs') %>

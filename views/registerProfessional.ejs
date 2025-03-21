@@ -1,0 +1,110 @@
+<%- include('./partials/layout.ejs') %>
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="text-center mb-0">Professional Registration</h2>
+                </div>
+                <div class="card-body">
+                    <form action="/professionals/register" method="POST">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label">Full Name *</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email *</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="password" class="form-label">Password *</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="companyName" class="form-label">Company Name *</label>
+                                <input type="text" class="form-control" id="companyName" name="companyName" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="phone" class="form-label">Phone Number *</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="state" class="form-label">State *</label>
+                                <select class="form-select" id="state" name="state" required>
+                                    <option value="">Select State</option>
+                                    <option value="MO">MO</option>
+                                    <option value="IL">IL</option>
+                                    <!-- Add more states as needed -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="address" class="form-label">Business Address *</label>
+                                <input type="text" class="form-control" id="address" name="address" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="professionalType" class="form-label">Professional Type *</label>
+                                <select class="form-select" id="professionalType" name="professionalType" required>
+                                    <option value="">Select Professional Type</option>
+                                    <option value="lender">Lender</option>
+                                    <option value="title">Title Company</option>
+                                    <option value="inspector">Inspector</option>
+                                    <option value="contractor">Contractor</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="licenseNumber" class="form-label">License Number</label>
+                                <input type="text" class="form-control" id="licenseNumber" name="licenseNumber">
+                            </div>
+                        </div>
+
+                        <!-- County Selection for Title, Inspector, Contractor -->
+                        <div id="countySection" class="row mb-3" style="display:none;">
+                            <div class="col-md-12">
+                                <label for="county" class="form-label">Primary Service County *</label>
+                                <select class="form-select" id="county" name="county">
+                                    <option value="">Select County</option>
+                                    <!-- Add more counties -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Lender-specific fields -->
+                        <div id="lenderSection" style="display:none;">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="paymentTier" class="form-label">Payment Tier</label>
+                                    <select class="form-select" id="paymentTier" name="paymentTier">
+                                        <option value="Basic">Basic</option>
+                                        <option value="Preferred">Preferred</option>
+                                        <option value="Ultra-Preferred">Ultra-Preferred</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">Register</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/professionalRegistration.js"></script>
+<%- include('./partials/footer.ejs') %>

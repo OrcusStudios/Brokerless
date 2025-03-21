@@ -1,0 +1,107 @@
+<%- include('../partials/layout.ejs') %>
+
+<div class="container py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">
+                <i class="bi bi-pencil-square me-2"></i>Edit Listing
+            </h2>
+        </div>
+        <div class="card-body">
+            <!-- Display Current Primary Image -->
+            <% if (listing.image) { %>
+                <div class="mb-4 text-center">
+                    <h5 class="text-muted mb-3">Current Thumbnail Image</h5>
+                    <img src="<%= listing.image %>" alt="Listing Image" class="img-fluid rounded shadow" style="max-height: 300px;">
+                </div>
+            <% } %>
+
+            <form action="/listings/<%= listing._id %>?_method=PUT" method="POST" enctype="multipart/form-data">
+                <!-- Address -->
+                <div class="form-floating mb-3">
+                    <input type="text" id="address" name="address" class="form-control" value="<%= listing.address %>" required>
+                    <label for="address">Address</label>
+                </div>
+
+                <!-- Description -->
+                <div class="form-floating mb-3">
+                    <textarea id="description" name="description" class="form-control" style="height: 100px" required><%= listing.description %></textarea>
+                    <label for="description">Description</label>
+                </div>
+
+                <!-- Price -->
+                <div class="form-floating mb-3">
+                    <input type="number" id="price" name="price" class="form-control" value="<%= listing.price %>" required>
+                    <label for="price">Price ($)</label>
+                </div>
+
+                <!-- City -->
+                <div class="form-floating mb-3">
+                    <input type="text" id="city" name="city" class="form-control" value="<%= listing.city %>" required>
+                    <label for="city">City</label>
+                </div>
+
+                <!-- State & ZIP in One Row -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                            <input type="text" id="state" name="state" class="form-control" value="<%= listing.state %>" required>
+                            <label for="state">State</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                            <input type="number" id="zip" name="zip" class="form-control" value="<%= listing.zip %>" required>
+                            <label for="zip">ZIP Code</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bedrooms & Bathrooms in One Row -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                            <input type="number" id="bedrooms" name="bedrooms" class="form-control" value="<%= listing.bedrooms %>" required>
+                            <label for="bedrooms">Bedrooms</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                            <input type="number" id="bathrooms" name="bathrooms" class="form-control" value="<%= listing.bathrooms %>" required>
+                            <label for="bathrooms">Bathrooms</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Square Footage -->
+                <div class="form-floating mb-3">
+                    <input type="number" id="squareFootage" name="squareFootage" class="form-control" value="<%= listing.squareFootage %>" required>
+                    <label for="squareFootage">Square Footage</label>
+                </div>
+
+                <!-- Acres -->
+                <div class="form-floating mb-3">
+                    <input type="number" id="acres" name="acres" class="form-control" value="<%= listing.squareFootage %>" required>
+                    <label for="acres">Acres</label>
+                </div>
+
+                <!-- Image Uploads -->
+                <div class="mb-3">
+                    <label for="image" class="form-label">Upload Primary Image (optional)</label>
+                    <input type="file" id="image" name="image" class="form-control" accept="image/*">
+                </div>
+
+                <div class="mb-3">
+                    <label for="images" class="form-label">Upload Additional Images (optional)</label>
+                    <input type="file" id="images" name="images" class="form-control" accept="image/*" multiple>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary w-100 py-2">
+                    <i class="bi bi-upload me-2"></i>Update Listing
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+<%- include('../partials/footer.ejs') %>

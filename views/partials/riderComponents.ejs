@@ -1,0 +1,262 @@
+<!-- views/partials/riderComponents.ejs -->
+<!-- This file contains reusable components for rendering riders in the preview -->
+
+<% 
+// Helper function to determine if a rider is included
+function isRiderIncluded(offer, riderName) {
+  return offer.riders && 
+         offer.riders[riderName] && 
+         offer.riders[riderName].included;
+}
+%>
+
+<!-- Wire Fraud Advisory Rider -->
+<% if (isRiderIncluded(offer, 'wireFraudAdvisory')) { %>
+<div class="card mb-4 rider-card">
+  <div class="card-header bg-danger text-white">
+    <h5 class="mb-0">WIRE FRAUD ADVISORY</h5>
+  </div>
+  <div class="card-body">
+    <div class="alert alert-danger">
+      <h6><strong>WARNING: WIRE FRAUD RISK</strong></h6>
+      <p><strong>CRIMINALS ARE TARGETING REAL ESTATE TRANSACTIONS</strong></p>
+    </div>
+    
+    <p>All parties to this transaction are hereby advised of the following:</p>
+    
+    <ol>
+      <li><strong>EMAIL HACKING & WIRE FRAUD ARE REAL.</strong> Criminals can hack email accounts and send emails with fake wiring instructions. These emails may look exactly like legitimate emails from parties in the transaction.</li>
+      <li><strong>ALWAYS VERIFY WIRE INSTRUCTIONS IN PERSON OR BY PHONE.</strong> Prior to wiring any funds, you should personally call the intended recipient to verify the wire instructions using a phone number that is independently obtained (not from the email containing the wiring instructions).</li>
+      <li><strong>BE SUSPICIOUS OF ANY CHANGES.</strong> Any request to change wire instructions should be treated with suspicion. Always verify changes through a known, trusted phone number.</li>
+    </ol>
+    
+    <div class="mt-3">
+      <p><strong>Acknowledgement:</strong> 
+        <% if (offer.riders.wireFraudAdvisory.acknowledged) { %>
+          Acknowledged by Buyer
+        <% } else { %>
+          Not acknowledged
+        <% } %>
+      </p>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<!-- Home Inspection Advisory Rider -->
+<% if (isRiderIncluded(offer, 'homeInspectionAdvisory')) { %>
+<div class="card mb-4 rider-card">
+  <div class="card-header bg-warning text-dark">
+    <h5 class="mb-0">HOME INSPECTION ADVISORY</h5>
+  </div>
+  <div class="card-body">
+    <div class="alert alert-warning">
+      <h6><strong>FOR YOUR PROTECTION: GET A HOME INSPECTION</strong></h6>
+    </div>
+    
+    <p>This Home Inspection Advisory is incorporated into and made part of the Residential Real Estate Purchase Agreement between Buyer and Seller.</p>
+    
+    <div class="mb-4">
+      <h6>WHY A BUYER NEEDS A HOME INSPECTION</h6>
+      <p>A home inspection gives the buyer more detailed information about the overall condition of the home prior to purchase. In a home inspection, a qualified inspector takes an in-depth, unbiased look at your potential new home to:</p>
+      <ul>
+        <li>Evaluate the physical condition: structure, construction, and mechanical systems</li>
+        <li>Identify items that need to be repaired or replaced</li>
+        <li>Estimate the remaining useful life of the major systems, equipment, structure, and finishes</li>
+      </ul>
+    </div>
+    
+    <div class="mt-3">
+      <p><strong>Acknowledgement:</strong> 
+        <% if (offer.riders.homeInspectionAdvisory.acknowledged) { %>
+          Acknowledged by Buyer
+        <% } else { %>
+          Not acknowledged
+        <% } %>
+      </p>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<!-- Government Loan Rider -->
+<% if (isRiderIncluded(offer, 'governmentLoan')) { %>
+<div class="card mb-4 rider-card">
+  <div class="card-header bg-info text-white">
+    <h5 class="mb-0">GOVERNMENT LOAN RIDER</h5>
+  </div>
+  <div class="card-body">
+    <p>This Government Loan Rider is incorporated into and made part of the Residential Real Estate Purchase Agreement between Buyer and Seller.</p>
+    
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <p><strong>Loan Type:</strong> <%= offer.riders.governmentLoan.loanType || 'Not specified' %></p>
+      </div>
+      
+      <div class="col-md-4">
+        <p><strong>Loan Percentage:</strong> <%= offer.riders.governmentLoan.loanPercentage ? offer.riders.governmentLoan.loanPercentage + '%' : 'Not specified' %></p>
+      </div>
+      
+      <div class="col-md-4">
+        <p><strong>Loan Contingency Deadline:</strong> <%= offer.riders.governmentLoan.loanContingencyDeadline || '25' %> days after acceptance</p>
+      </div>
+    </div>
+    
+    <div class="alert alert-secondary">
+      <p class="mb-0"><strong>FHA/VA Amendatory Clause:</strong> It is expressly agreed that, notwithstanding any other provisions of this contract, the Buyer shall not be obligated to complete the purchase of the Property or to incur any penalty by forfeiture of earnest money deposits unless the Buyer has been given a written statement by the Federal Housing Commissioner, Department of Veterans Affairs, or a Direct Endorsement lender setting forth the appraised value of the Property of not less than the purchase price.</p>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<!-- Sight Unseen Rider -->
+<% if (isRiderIncluded(offer, 'sightUnseen')) { %>
+<div class="card mb-4 rider-card">
+  <div class="card-header bg-secondary text-white">
+    <h5 class="mb-0">SIGHT UNSEEN RIDER</h5>
+  </div>
+  <div class="card-body">
+    <p>This Sight Unseen Rider is incorporated into and made part of the Residential Real Estate Purchase Agreement between Buyer and Seller.</p>
+    
+    <div class="alert alert-warning">
+      <p><strong>ACKNOWLEDGMENT:</strong> Buyer acknowledges that they are purchasing the Property without having physically visited or viewed it in person.</p>
+    </div>
+    
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <p><strong>Buyer reserves right to view property:</strong> <%= offer.riders.sightUnseen.reserveRightToView ? 'Yes' : 'No' %></p>
+      </div>
+      
+      <% if (offer.riders.sightUnseen.reserveRightToView) { %>
+      <div class="col-md-6">
+        <p><strong>Property Viewing Period:</strong> <%= offer.riders.sightUnseen.propertyViewingPeriod || '5' %> days after acceptance</p>
+      </div>
+      <% } %>
+    </div>
+    
+    <div class="alert alert-secondary">
+      <p class="mb-0"><strong>BUYER RESPONSIBILITIES:</strong> Buyer agrees to rely solely on their own due diligence, including but not limited to inspection reports, appraisals, photographs, videos, virtual tours, and other information provided by Seller or third parties. Buyer acknowledges that the physical condition of the Property may differ from these representations.</p>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<!-- Contingency for Sale of Buyer's Existing Property -->
+<% if (isRiderIncluded(offer, 'contingencyForSale')) { %>
+<div class="card mb-4 rider-card">
+  <div class="card-header bg-primary text-white">
+    <h5 class="mb-0">CONTINGENCY FOR SALE OF BUYER'S EXISTING PROPERTY</h5>
+  </div>
+  <div class="card-body">
+    <p>This Contingency for Sale of Buyer's Existing Property Rider is incorporated into and made part of the Residential Real Estate Purchase Agreement between Buyer and Seller.</p>
+    
+    <div class="row mb-3">
+      <div class="col-md-12">
+        <p><strong>Address of Existing Property To Be Sold:</strong> <%= offer.riders.contingencyForSale.existingPropertyAddress || 'Not provided' %></p>
+      </div>
+    </div>
+    
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <p><strong>Closing Deadline:</strong>
+          <% if (offer.riders.contingencyForSale.existingPropertyClosingDeadline) { %>
+            <% if (offer.riders.contingencyForSale.existingPropertyClosingDeadline instanceof Date) { %>
+              <%= offer.riders.contingencyForSale.existingPropertyClosingDeadline.toLocaleDateString() %>
+            <% } else { %>
+              <%= offer.riders.contingencyForSale.existingPropertyClosingDeadline %>
+            <% } %>
+          <% } else { %>
+            Not specified
+          <% } %>
+        </p>
+      </div>
+      
+      <div class="col-md-6">
+        <p><strong>Kick-Out Period:</strong> <%= offer.riders.contingencyForSale.kickOutHours || '72' %> hours</p>
+      </div>
+    </div>
+    
+    <div class="alert alert-secondary">
+      <p class="mb-0"><strong>KICK-OUT CLAUSE:</strong> If Seller receives another acceptable offer to purchase the Property while this Agreement is pending, Seller shall give Buyer written notice of such offer. Buyer shall then have <%= offer.riders.contingencyForSale.kickOutHours || '72' %> hours from receipt of such notice to remove this Sale of Property Contingency in writing. If Buyer does not remove this contingency within the specified time, this Agreement shall terminate and Earnest Money shall be returned to Buyer.</p>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<!-- Contingency for Closing of Buyer's Existing Property -->
+<% if (isRiderIncluded(offer, 'contingencyForClosing')) { %>
+<div class="card mb-4 rider-card">
+  <div class="card-header bg-primary text-white">
+    <h5 class="mb-0">CONTINGENCY FOR CLOSING OF BUYER'S EXISTING PROPERTY</h5>
+  </div>
+  <div class="card-body">
+    <p>This Contingency for Closing of Buyer's Existing Property Rider is incorporated into and made part of the Residential Real Estate Purchase Agreement between Buyer and Seller.</p>
+    
+    <div class="row mb-3">
+      <div class="col-md-12">
+        <p><strong>Address of Existing Property Under Contract:</strong> <%= offer.riders.contingencyForClosing.existingPropertyAddress || 'Not provided' %></p>
+      </div>
+    </div>
+    
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <p><strong>Date of Existing Contract:</strong>
+          <% if (offer.riders.contingencyForClosing.existingPropertyContractDate) { %>
+            <% if (offer.riders.contingencyForClosing.existingPropertyContractDate instanceof Date) { %>
+              <%= offer.riders.contingencyForClosing.existingPropertyContractDate.toLocaleDateString() %>
+            <% } else { %>
+              <%= offer.riders.contingencyForClosing.existingPropertyContractDate %>
+            <% } %>
+          <% } else { %>
+            Not specified
+          <% } %>
+        </p>
+      </div>
+      
+      <div class="col-md-6">
+        <p><strong>Contains Contingency:</strong> <%= offer.riders.contingencyForClosing.existingPropertyContainsContingency ? 'Yes' : 'No' %></p>
+      </div>
+    </div>
+    
+    <div class="alert alert-secondary">
+      <p class="mb-0"><strong>CONTINGENCY TERMS:</strong> This Agreement is contingent upon the closing of Buyer's property currently under contract. If the closing of Buyer's existing property does not occur by the Closing Date specified in this Agreement, the Seller may, at Seller's option, terminate this Agreement, and all Earnest Money shall be returned to Buyer.</p>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<!-- Walk-Through Notice -->
+<% if (isRiderIncluded(offer, 'walkThrough')) { %>
+<div class="card mb-4 rider-card">
+  <div class="card-header bg-success text-white">
+    <h5 class="mb-0">WALK-THROUGH NOTICE</h5>
+  </div>
+  <div class="card-body">
+    <p>This Walk-Through Notice is incorporated into and made part of the Residential Real Estate Purchase Agreement between Buyer and Seller.</p>
+    
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <p><strong>Scheduled Walk-Through Date:</strong>
+          <% if (offer.riders.walkThrough.scheduledDate) { %>
+            <% if (offer.riders.walkThrough.scheduledDate instanceof Date) { %>
+              <%= offer.riders.walkThrough.scheduledDate.toLocaleDateString() %>
+            <% } else { %>
+              <%= offer.riders.walkThrough.scheduledDate %>
+            <% } %>
+          <% } else { %>
+            To be determined prior to closing
+          <% } %>
+        </p>
+      </div>
+      
+      <div class="col-md-6">
+        <p><strong>Walk-Through Status:</strong> <%= offer.riders.walkThrough.completed ? 'Completed' : 'Not Completed' %></p>
+      </div>
+    </div>
+    
+    <div class="alert alert-secondary">
+      <p class="mb-0"><strong>PURPOSE OF WALK-THROUGH:</strong> Buyer shall have the right to verify the condition of the Property prior to closing to confirm that (1) the Property is in substantially the same condition as on the Effective Date, and (2) all required repairs have been completed as agreed in the Purchase Agreement.</p>
+    </div>
+  </div>
+</div>
+<% } %>

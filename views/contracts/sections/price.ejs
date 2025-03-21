@@ -1,0 +1,71 @@
+<div class="contractSection mb-4">
+    <h4>3. PURCHASE PRICE AND FINANCING</h4>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label class="form-label fw-bold">Purchase Price:</label>
+                <div class="form-control-plaintext">
+                    $<%= typeof offer.offerPrice === 'number' 
+                        ? offer.offerPrice.toLocaleString() 
+                        : (offer.offerPrice ? offer.offerPrice.replace(/[^\d.]/g, '') : '') %>
+                </div>
+            </div>
+            
+            <% if (showExplanations) { %>
+                <div class="explanationPanel mb-3">
+                    The purchase price is the total amount the buyer agrees to pay for the property, including any downpayment and financing.
+                </div>
+            <% } %>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label class="form-label fw-bold">Financing Method:</label>
+                <div class="form-control-plaintext">
+                    <% if (offer.financingType === 'cash') { %>
+                        All Cash Offer
+                    <% } else if (offer.financingType === 'bank') { %>
+                        Bank Financing
+                    <% } else if (offer.financingType === 'seller') { %>
+                        Seller Financing
+                    <% } %>
+                </div>
+            </div>
+            
+            <% if (showExplanations) { %>
+                <div class="explanationPanel mb-3">
+                    <% if (offer.financingType === 'cash') { %>
+                        A cash offer means the buyer will pay the entire purchase price without a mortgage loan.
+                    <% } else if (offer.financingType === 'bank') { %>
+                        The buyer will obtain a mortgage loan from a financial institution to finance this purchase.
+                    <% } else if (offer.financingType === 'seller') { %>
+                        The seller will act as the lender, with the buyer making payments directly to the seller.
+                    <% } %>
+                </div>
+            <% } %>
+        </div>
+    </div>
+    
+    <% if (offer.financingType === 'bank') { %>
+        <div class="card bg-light mt-3">
+            <div class="card-body">
+                <h5 class="card-title">Financing Details</h5>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Loan Type:</label>
+                        <div style="text-transform:uppercase"><%= offer.loanType || 'Not specified' %></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Loan Amount:</label>
+                        <div><%= offer.loanAmount || 'Not specified' %></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Interest Rate:</label>
+                        <div><%= offer.interestRate || 'Not specified' %></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% } %>
+</div>

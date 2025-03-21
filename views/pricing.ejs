@@ -1,0 +1,178 @@
+<%- include('./partials/layout.ejs') %>
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4">Simple, Transparent Pricing</h1>
+        <p class="lead text-muted">Buyer and Seller Fees are only due at closing!</p>
+    </div>
+
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-white text-center py-4">
+                    <h3 class="mb-0">Buyer</h3>
+                    <div class="badge bg-primary mt-2">Most Popular</div>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <span class="display-5 fw-bold">$1,000</span>
+                        <p class="text-muted">One-time fee</p>
+                    </div>
+                    <ul class="list-group list-group-flush mb-4">
+                        <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>Unlimited property searches</li>
+                        <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>Make offers on any listing</li>
+                        <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>Offer management system</li>
+                        <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>Digital closing tracking</li>
+                        <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>Free lender directory access</li>
+                        <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>Free title directory access</li>                        
+                        <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>Free inspector directory access</li>
+                    </ul>
+                    <div class="text-center">
+                        <a href="/users/register" class="btn btn-primary btn-lg">Get Started</a>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0 py-4">
+                    <p class="text-center text-muted mb-0">One-time fee to use buyer tools and services</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-white text-center py-4">
+                    <h3 class="mb-0">Seller</h3>
+                    <div class="badge bg-success mt-2">Best Value</div>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <span class="display-5 fw-bold">$1,500</span>
+                        <p class="text-muted">One-time platform fee</p>
+                    </div>
+                    <ul class="list-group list-group-flush mb-4">
+                        <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>List your property on our platform</li>
+                        <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>Professional listing with photos</li>
+                        <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>Offer management system</li>
+                        <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>Secure Message System Buyer <-> Seller</li>
+                        <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>Digital closing tracking</li>
+                    </ul>
+                    <div class="text-center">
+                        <a href="/users/register" class="btn btn-success btn-lg">List Your Property</a>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0 py-4">
+                    <p class="text-center text-muted mb-0">Save thousands compared to traditional real estate commissions</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-white text-center py-4">
+                    <h3 class="mb-0">Professional</h3>
+                    <div class="badge bg-success mt-2">Login Required</div>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <span class="display-5 fw-bold">Account Required</span>
+                        <p class="text-muted">Create an account to view pricing</p>
+                    </div>
+                    <ul class="list-group list-group-flush mb-4">
+                        <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>Lender directory listing</li>
+                        <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>Title company services</li>
+                        <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>Home inspector directory</li>
+                        <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>Digital document processing</li>
+                        <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>Client management tools</li>
+                        <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>Transaction analytics</li>
+                    </ul>
+                    <div class="text-center">
+                        <a href="/professionals/register" class="btn btn-outline-dark btn-lg">Contact Sales</a>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0 py-4">
+                    <p class="text-center text-muted mb-0">Tiered pricing available for high-volume partners</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">Frequently Asked Questions</h3>
+                    
+                    <div class="accordion" id="pricingFAQ">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                    How does your pricing compare to traditional real estate services?
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#pricingFAQ">
+                                <div class="accordion-body">
+                                    Our platform offers significant savings compared to traditional real estate services. Sellers pay a flat $1,500 fee instead of the traditional percentage-based commission that can run into tens of thousands. Buyers pay a one-time $1,000 fee for access to our platform's tools and services.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    Are there any hidden fees?
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#pricingFAQ">
+                                <div class="accordion-body">
+                                    No hidden fees! For sellers, the $1,500 fee is only charged when your property is listed on our platform. For buyers, the $1,000 fee is charged when you create an account. Standard closing costs still apply as they would in any real estate transaction.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    Do I still need to pay for a buyer's agent?
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#pricingFAQ">
+                                <div class="accordion-body">
+                                    Our platform streamlines the buying and selling process, reducing the need for traditional agents. However, you can still choose to work with a buyer's agent outside our platform if you prefer. As a seller, you decide what commission (if any) to offer to buyer's agents.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingFour">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                    What's included in the professional services pricing?
+                                </button>
+                            </h2>
+                            <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#pricingFAQ">
+                                <div class="accordion-body">
+                                    Professional pricing varies by service type. Lenders, title companies, and inspectors have different pricing tiers based on volume and service level. To view the specific pricing structure for professionals, you'll need to create an account on our platform. Once logged in, you'll have access to our tiered pricing system and can choose the option that best fits your business needs.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingFive">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                                    How do I get started?
+                                </button>
+                            </h2>
+                            <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#pricingFAQ">
+                                <div class="accordion-body">
+                                    Simply create an account as a buyer, seller, or professional. Our platform will guide you through the setup process based on your user type. You can list a property, browse listings, or set up your professional profile in minutes.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-5">
+        <h3>Have more questions?</h3>
+        <p class="lead">Our team is here to help you find the right solution for your real estate needs.</p>
+        <a href="/contact" class="btn btn-lg btn-outline-primary mt-2">Contact Us</a>
+    </div>
+</div>
+
+<%- include('./partials/footer.ejs') %>

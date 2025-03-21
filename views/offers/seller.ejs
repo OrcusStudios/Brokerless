@@ -1,0 +1,372 @@
+<!-- views/offers/seller.ejs -->
+<%- include('../partials/layout.ejs') %>
+
+<div class="container py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">
+                <i class="bi bi-file-earmark-text me-2"></i>Received Offers
+            </h2>
+            <div>
+                <% if (isSeller && isBuyer) { %>
+                    <div class="btn-group me-2">
+                        <a href="/offers?viewAs=buyer" class="btn btn-light <%= viewAs === 'buyer' ? 'active' : '' %>">
+                            <i class="bi bi-person me-1"></i>Buyer View
+                        </a>
+                        <a href="/offers?viewAs=seller" class="btn btn-success <%= viewAs === 'seller' ? 'active' : '' %>">
+                            <i class="bi bi-house me-1"></i>Seller View
+                        </a>
+                    </div>
+                <% } %>
+                <a href="/users/dashboard" class="btn btn-light btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <% if (offers.length === 0) { %>
+                <div class="text-center py-5">
+                    <i class="bi bi-file-earmark-x display-1 text-muted"></i>
+                    <h3 class="mt-3">No Offers Yet</h3>
+                    <p class="text-muted">You haven't received any offers on your properties yet.</p>
+                    <a href="/listings/manage" class="btn btn-primary mt-2">
+                        <i class="bi bi-house-gear me-2"></i>Manage Listings
+                    </a>
+                </div>
+            <% } else { %>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Property</th>
+                                <th>Buyer</th>
+                                <th>Offer Price</th>
+                                <th>Status</th>
+                                <th>Documents</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% offers.forEach(offer => { %>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <% if (offer.listing && offer.listing.image) { %>
+                                                <img src="<%= offer.listing.image %>" alt="Property" class="me-2 rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                                            <% } else { %>
+                                                <div class="bg-secondary me-2 rounded d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                                    <i class="bi bi-house text-white"></i>
+                                                </div>
+                                            <% } %>
+                                            <div>
+                                                <%= offer.listing ? offer.listing.address : 'Unknown Property' %><br>
+                                                <small class="text-muted">
+                                                    <%= offer.listing ? `${offer.listing.city}, ${offer.listing.state}` : '' %>
+                                                    <br>
+                                                    <i class="bi bi-calendar-date"></i> <%= new Date(offer.createdAt).toLocaleDateString() %>
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><%= offer.buyer.name %></td>
+                                    <td>
+                                        <strong>$<%= offer.offerPrice.toLocaleString() %></strong>
+                                        <% if (offer.status === 'countered' && offer.offerHistory && offer.offerHistory.length > 0) { %>
+                                            <div class="small text-primary">
+                                                <i class="bi bi-arrow-left-right"></i> Last counter: $<%= offer.offerHistory[offer.offerHistory.length-1].newPrice.toLocaleString() %>
+                                            </div>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <% if (offer.status === "pending") { %>
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                        <% } else if (offer.status === "accepted") { %>
+                                            <span class="badge bg-success">Accepted</span>
+                                        <% } else if (offer.status === "countered") { %>
+                                            <span class="badge bg-info">Countered</span>
+                                        <% } else if (offer.status === "rejected") { %>
+                                            <span class="badge bg-danger">Rejected</span>
+                                        <% } else if (offer.status === "withdrawn") { %>
+                                            <span class="badge bg-secondary">Withdrawn</span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <%
+                                        // Count total and unsigned riders
+                                        let totalRiders = 0;
+                                        let unsignedRiders = 0;
+                                        
+                                        // Function to check if a rider is included
+                                        function riderIncluded(riderType) {
+                                            return offer.riders && 
+                                                   offer.riders[riderType] && 
+                                                   offer.riders[riderType].included;
+                                        }
+                                        
+                                        // Function to check if a rider needs seller signature
+                                        function needsSellerSignature(riderType) {
+                                            // Fee and Home Inspection Advisory are buyer-only
+                                            if (riderType === 'fee' || riderType === 'homeInspectionAdvisory') 
+                                                return false;
+                                                
+                                            return riderIncluded(riderType) && 
+                                                   (!offer.signatures || 
+                                                    !offer.signatures.riders || 
+                                                    !offer.signatures.riders[riderType] || 
+                                                    !offer.signatures.riders[riderType].sellerSigned);
+                                        }
+                                        
+                                        // Check required riders
+                                        ['wireFraudAdvisory', 'homeInspectionAdvisory', 'fee'].forEach(riderType => {
+                                            if (riderIncluded(riderType)) {
+                                                totalRiders++;
+                                                if (needsSellerSignature(riderType)) {
+                                                    unsignedRiders++;
+                                                }
+                                            }
+                                        });
+                                        
+                                        // Check optional riders
+                                        ['governmentLoan', 'sightUnseen', 'contingencyForSale', 
+                                         'contingencyForClosing', 'walkThrough'].forEach(riderType => {
+                                            if (riderIncluded(riderType)) {
+                                                totalRiders++;
+                                                if (needsSellerSignature(riderType)) {
+                                                    unsignedRiders++;
+                                                }
+                                            }
+                                        });
+                                        %>
+                                        
+                                        <% if (totalRiders > 0) { %>
+                                            <div class="d-flex align-items-center">
+                                                <span class="badge bg-secondary me-1"><%= totalRiders %> document<%= totalRiders !== 1 ? 's' : '' %></span>
+                                                <% if (unsignedRiders > 0) { %>
+                                                    <span class="badge bg-danger ms-1"><%= unsignedRiders %> to sign</span>
+                                                <% } else { %>
+                                                    <span class="badge bg-success ms-1">All signed</span>
+                                                <% } %>
+                                            </div>
+                                        <% } else { %>
+                                            <span class="badge bg-light text-dark">No documents</span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <!-- Action Buttons -->
+                                        <div class="btn-group">
+                                            <a href="/offers/<%= offer._id %>" class="btn btn-sm btn-primary">
+                                                <i class="bi bi-eye me-1"></i>View
+                                            </a>
+                                            
+                                            <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <span class="visually-hidden">Toggle Dropdown</span>
+                                            </button>
+                                            
+                                            <ul class="dropdown-menu">
+                                                <% if ((offer.status === "pending" || offer.status === "countered") && offer.status !== "withdrawn") { %>
+                                                    <li>
+                                                        <a href="/offers/<%= offer._id %>/counter" class="dropdown-item">
+                                                            <i class="bi bi-reply me-1"></i>Counter
+                                                        </a>
+                                                    </li>
+                                                    
+                                                    <li>
+                                                        <a href="#" class="dropdown-item text-success accept-offer-button" data-offer-id="<%= offer._id %>">
+                                                            <i class="bi bi-check-circle me-1"></i>Accept
+                                                        </a>
+                                                    </li>
+                                                    
+                                                    <li>
+                                                        <a href="#" class="dropdown-item text-danger reject-offer-button" data-offer-id="<%= offer._id %>">
+                                                            <i class="bi bi-x-circle me-1"></i>Reject
+                                                        </a>
+                                                    </li>
+                                                    
+                                                    <li><hr class="dropdown-divider"></li>
+                                                <% } %>
+                                                
+                                                <li>
+                                                    <a href="/offers/<%= offer._id %>/pdf" class="dropdown-item">
+                                                        <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF
+                                                    </a>
+                                                </li>
+                                                
+                                                <% if (offer.status === "accepted") { %>
+                                                    <li>
+                                                        <a href="/closing/<%= offer._id %>" class="dropdown-item">
+                                                            <i class="bi bi-check2-square me-1"></i>View Closing
+                                                        </a>
+                                                    </li>
+                                                <% } %>
+                                                
+                                                <% if (unsignedRiders > 0) { %>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li>
+                                                        <a href="/offers/<%= offer._id %>#documents" class="dropdown-item text-primary">
+                                                            <i class="bi bi-pen me-1"></i>Sign Documents (<%= unsignedRiders %>)
+                                                        </a>
+                                                    </li>
+                                                <% } %>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <!-- Counter Offer History Section -->
+                                <% if (offer.offerHistory && offer.offerHistory.length > 0) { %>
+                                    <tr class="counter-history-row">
+                                        <td colspan="6" class="p-0">
+                                            <div class="accordion" id="accordionHistory<%= offer._id %>">
+                                                <div class="accordion-item border-0">
+                                                    <h2 class="accordion-header" id="headingHistory<%= offer._id %>">
+                                                        <button class="accordion-button collapsed bg-light py-2" type="button" 
+                                                                data-bs-toggle="collapse" data-bs-target="#collapseHistory<%= offer._id %>" 
+                                                                aria-expanded="false" aria-controls="collapseHistory<%= offer._id %>">
+                                                            <small><i class="bi bi-clock-history me-2"></i>Negotiation History (<%= offer.offerHistory.length %> counters)</small>
+                                                        </button>
+                                                    </h2>
+                                                    <div id="collapseHistory<%= offer._id %>" class="accordion-collapse collapse" 
+                                                         aria-labelledby="headingHistory<%= offer._id %>" 
+                                                         data-bs-parent="#accordionHistory<%= offer._id %>">
+                                                        <div class="accordion-body p-0">
+                                                            <div class="table-responsive">
+                                                                <table class="table table-sm mb-0">
+                                                                    <thead class="table-light">
+                                                                        <tr>
+                                                                            <th>Date</th>
+                                                                            <th>By</th>
+                                                                            <th>Previous Price</th>
+                                                                            <th>New Price</th>
+                                                                            <th>Change</th>
+                                                                            <th>Deadlines (Days)</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        <% offer.offerHistory.forEach(history => { %>
+                                                                            <tr>
+                                                                                <td><%= history.counterDate ? new Date(history.counterDate).toLocaleDateString() : new Date(history.timestamp).toLocaleDateString() %></td>
+                                                                                <td><%= history.counteredBy.name %></td>
+                                                                                <td class="text-danger">$<%= history.previousPrice.toLocaleString() %></td>
+                                                                                <td class="text-success">$<%= history.newPrice.toLocaleString() %></td>
+                                                                                <td>
+                                                                                    <% 
+                                                                                    const diff = history.newPrice - history.previousPrice;
+                                                                                    const percentChange = ((diff / history.previousPrice) * 100).toFixed(1);
+                                                                                    const isPositive = diff > 0;
+                                                                                    %>
+                                                                                    <span class="<%= isPositive ? 'text-success' : 'text-danger' %>">
+                                                                                        <%= isPositive ? '+' : '' %><%= percentChange %>%
+                                                                                    </span>
+                                                                                </td>
+                                                                                <td>
+                                                                                    <small>
+                                                                                        <% if (history.newDeadlines) { %>
+                                                                                            <span title="Appraisal"><i class="bi bi-building me-1"></i><%= history.newDeadlines.appraisalDeadlineDays || "N/A" %></span> | 
+                                                                                            <span title="Financing"><i class="bi bi-cash me-1"></i><%= history.newDeadlines.loanApprovalDeadlineDays || "N/A" %></span> | 
+                                                                                            <span title="Inspection"><i class="bi bi-clipboard-check me-1"></i><%= history.newDeadlines.inspectionDeadlineDays || "N/A" %></span>
+                                                                                        <% } else { %>
+                                                                                            No deadline changes
+                                                                                        <% } %>
+                                                                                    </small>
+                                                                                </td>
+                                                                            </tr>
+                                                                        <% }); %>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% } %>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<!-- Accept Confirmation Modal -->
+<div class="modal fade" id="acceptOfferModal" tabindex="-1" aria-labelledby="acceptOfferLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="acceptOfferLabel">Confirm Accept Offer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <strong>Important:</strong> Accepting this offer will reject all other offers on this property.
+                </div>
+                <p>Are you sure you want to accept this offer? This action is final.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="acceptOfferForm" method="POST">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle me-2"></i>Yes, Accept Offer
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Confirmation Modal -->
+<div class="modal fade" id="rejectOfferModal" tabindex="-1" aria-labelledby="rejectOfferLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rejectOfferLabel">Confirm Reject Offer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to reject this offer? This action is final.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="rejectOfferForm" method="POST">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-x-circle me-2"></i>Yes, Reject Offer
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contract Preview Modal -->
+<div class="modal fade" id="contractPreviewModal" tabindex="-1">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Missouri Residential Real Estate Purchase Agreement</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4" id="contractPreviewContent">
+                <!-- Content will be loaded dynamically -->
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="#" id="downloadPdfBtn" class="btn btn-primary">
+                    <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include the external JS files -->
+<script src="/js/sellerOffer.js"></script>
+<script src="/js/riderValidation.js"></script>
+<%- include('../partials/footer.ejs') %>

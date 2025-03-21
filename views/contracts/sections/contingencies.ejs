@@ -1,0 +1,84 @@
+<div class="contractSection mb-4">
+    <h4 class="border-bottom pb-2 mb-3">5. CONTINGENCIES</h4>
+    
+    <% if (showExplanations) { %>
+        <div class="explanationPanel mb-3 bg-light p-3 border rounded">
+            Contingencies are conditions that must be satisfied for the contract to proceed to closing. If a contingency is not satisfied or waived within the specified timeframe, the buyer typically has the right to terminate the contract and receive a refund of the earnest money.
+        </div>
+    <% } %>
+    
+    <% if (Array.isArray(offer.contingencies) && offer.contingencies.length > 0) { %>
+        <h5 class="mb-3">The Buyer's performance under this Agreement is contingent upon the following conditions:</h5>
+        
+        <div class="row mt-3">
+            <% offer.contingencies.forEach(contingency => { %>
+                <div class="col-md-6 mb-3">
+                    <% if (contingency === 'inspection') { %>
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header text-white">Inspection Contingency</div>
+                            <div class="card-body">
+                                <p>Buyer has <strong><%= offer.inspectionDeadlineDays || '10' %></strong> days to complete inspections</p>
+                                <% if (showExplanations) { %>
+                                    <div class="note-text border-top mt-2 pt-2 text-muted">The Buyer shall have <%= offer.inspectionDeadlineDays %> days from the Effective Date to inspect the property. If the Buyer finds material defects and provides written notice to the Seller within this period. The Seller has <strong>10</strong> days to respond. If an agreement is not reached, the Buyer may terminate this Agreement and receive a refund of the earnest money.</div>
+                                <% } %>
+                            </div>
+                        </div>
+                    <% } else if (contingency === 'appraisal') { %>
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header text-white">Appraisal Contingency</div>
+                            <div class="card-body">
+                                <p>Property must appraise at or above purchase price within <%= offer.appraisalDeadlineDays || '21' %> days</p>
+                                <% if (showExplanations) { %>
+                                    <div class="note-text border-top mt-2 pt-2 text-muted">The Buyer''s obligation to proceed with this Contract depends on the Property being appraised at or above the agreed Purchase Price. The appraisal must be conducted by a licensed Missouri appraiser chosen by either the Buyer or the Buyer's lender. The Seller agrees to grant reasonable access to the Property for this purpose, provided the Buyer gives reasonable advance notice.
+
+                                        If the appraised value comes in lower than the Purchase Price, the Buyer has the option to request a price reduction, though the adjusted price cannot be below the appraised value. To invoke this contingency, the Buyer must submit a written request, along with a copy of the appraisal, to the Seller no later than ong> days from the Effective Date. Failure to provide this notice within the required timeframe will result in the automatic waiver of this contingency.
+                                        
+                                        If the Buyer requests a price reduction and both parties do not reach a written agreement within five days of the Seller receiving the request (the "Appraisal Resolution Deadline"), the Contract will be automatically terminated. In that case, the Earnest Money will be refunded to the Buyer, unless the Buyer formally waives the contingency by notifying the Seller before the Appraisal Resolution Deadline. If the Purchase Price is adjusted, the loan amount specified in the Buyer's financing contingency (if applicable) will be proportionally reduced.</div>
+                                <% } %>
+                            </div>
+                        </div>
+                    <% } else if (contingency === 'financing') { %>
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header text-white">Financing Contingency</div>
+                            <div class="card-body">
+                                <p>Buyer has <%= offer.loanApprovalDeadlineDays || '30' %> days to secure financing</p>
+                                <% if (showExplanations) { %>
+                                    <div class="note-text border-top mt-2 pt-2 text-muted">The Buyer agrees to take all reasonable steps necessary to secure financing, including but not limited to submitting a loan application, paying for a credit report, appraisal, and any other required fees, as well as providing all requested information and fully cooperating with the lender in good faith.
+
+                                        If the Buyer is unable to obtain a loan under the specified terms, they must provide written notice from their lender to the Seller by 5:00 p.m. on the deadline, which is <strong><%= offer.loanApprovalDeadlineDays || '30' %></strong> from the Effective Date. If no such notice is delivered by the deadline, this financing contingency will be considered waived, and the Buyer's obligation under this Contract will no longer depend on obtaining financing. However, if the lender refuses to provide the required notice, the Buyer may instead submit a notarized affidavit to the Seller before the deadline, affirming that all reasonable efforts were made to secure financing but the required notice could not be obtained.
+                                        
+                                        If the Buyer has complied with these requirements and properly notified the Seller of their inability to secure financing, the Contract will be terminated, and the Earnest Money will be refunded to the Buyer, subject to the terms outlined elsewhere in the agreement.</div>
+                                <% } %>
+                            </div>
+                        </div>
+                    <% } else if (contingency === 'saleOfAnotherHome') { %>
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header text-white">Sale of Another Property</div>
+                            <div class="card-body">
+                                <p>Buyer must sell property at <%= offer.saleOfAnotherAddress || 'address not provided' %></p>
+                                <% if (showExplanations) { %>
+                                    <div class="note-text border-top mt-2 pt-2 text-muted">This makes your purchase contingent on selling your current property first.</div>
+                                <% } %>
+                            </div>
+                        </div>
+                    <% } else { %>
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header bg-primary text-white"><%= contingency %></div>
+                            <div class="card-body">
+                                <p>Details not provided</p>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            <% }); %>
+        </div>
+    <% } else { %>
+        <div class="alert alert-info">
+            <p class="mb-0">No contingencies are included in this offer.</p>
+        </div>
+    <% } %>
+    
+    <div class="alert alert-secondary mt-3">
+        <small>Failure to satisfy or waive any contingency within the specified timeframe shall constitute grounds for Contract termination, with Earnest Money to be returned to the Buyer.</small>
+    </div>
+</div>

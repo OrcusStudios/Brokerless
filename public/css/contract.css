@@ -1,0 +1,68 @@
+/* Contract Styling */
+.contractSection {
+  margin-bottom: 2rem;
+}
+
+.explanationPanel {
+  background-color: #f8f9fa;
+  border-left: 3px solid #6c757d;
+  padding: 0.75rem;
+  font-size: 0.9rem;
+  color: #495057;
+  margin-top: 0.5rem;
+}
+
+.keyTerm {
+  font-weight: bold;
+  text-decoration: underline;
+  cursor: help;
+}
+
+.signatureArea {
+  border: 1px solid #dee2e6;
+  padding: 1rem;
+  min-height: 100px;
+  margin-top: 1rem;
+}
+
+.riderSection {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px dashed #dee2e6;
+}
+
+.note-text {
+  font-size: 0.9rem;
+  color: #6c757d;
+  font-style: italic;
+  margin-top: 5px;
+}
+
+/* PDF-specific styling */
+@media print {
+  body {
+      font-size: 12pt;
+      font-family: 'Times New Roman', Times, serif;
+      line-height: 1.4;
+  }
+  
+  .explanationPanel {
+      display: none !important;
+  }
+  
+  .contractSection {
+      page-break-inside: avoid;
+      margin-bottom: 1.5rem;
+  }
+  
+  .signatureArea {
+      margin-top: 30px;
+  }
+  
+  h2 {
+      font-size: 14pt;
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid #000;
+  }
+}

@@ -1,0 +1,111 @@
+/* Messaging System Styles */
+.conversation-list {
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  border-radius: 10px;
+}
+
+.conversation-item {
+  padding: 1rem;
+  border-bottom: 1px solid #e9ecef;
+  transition: background-color 0.2s;
+}
+
+.conversation-item:hover {
+  background-color: #f8f9fa;
+}
+
+.conversation-item.active {
+  background-color: #e9f0f9;
+  border-left: 3px solid #1a3a61;
+}
+
+.conversation-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #6c757d;
+}
+
+.conversation-name {
+  font-weight: 600;
+  color: #212529;
+}
+
+.conversation-preview {
+  color: #6c757d;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+
+.messages-container {
+  height: calc(100vh - 280px);
+  overflow-y: auto;
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+}
+
+.message-bubble {
+  max-width: 75%;
+  padding: 1rem;
+  border-radius: 18px;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.message-outgoing {
+  background-color: #1a3a61;
+  color: white;
+  margin-left: auto;
+  border-bottom-right-radius: 4px;
+}
+
+.message-incoming {
+  background-color: white;
+  border: 1px solid #e9ecef;
+  border-bottom-left-radius: 4px;
+}
+
+.message-time {
+  font-size: 0.75rem;
+  color: rgba(108, 117, 125, 0.8);
+  text-align: right;
+  margin-top: 0.5rem;
+}
+
+.message-outgoing .message-time {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.message-form {
+  position: relative;
+  margin-top: 1rem;
+}
+
+.message-input {
+  border-radius: 24px;
+  padding-right: 4rem;
+}
+
+.message-send-btn {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

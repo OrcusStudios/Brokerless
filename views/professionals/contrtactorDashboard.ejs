@@ -1,0 +1,79 @@
+<div class="container mt-4">
+    <div class="row">
+      <div class="col-12">
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Contractor Dashboard</h4>
+          </div>
+          <div class="card-body">
+            <!-- Job Requests -->
+            <h5>New Job Requests</h5>
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead class="table-light">
+                  <tr>
+                    <th>Property</th>
+                    <th>Requested By</th>
+                    <th>Description</th>
+                    <th>Requested Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% pendingJobs.forEach(job => { %>
+                    <tr>
+                      <td><%= job.property.address %></td>
+                      <td><%= job.requestedBy.name %></td>
+                      <td><%= job.description %></td>
+                      <td><%= new Date(job.requestedDate).toLocaleDateString() %></td>
+                      <td>
+                        <button class="btn btn-sm btn-success">Accept</button>
+                        <button class="btn btn-sm btn-danger">Decline</button>
+                      </td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+            
+            <!-- Active Jobs -->
+            <h5 class="mt-4">Active Jobs</h5>
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead class="table-light">
+                  <tr>
+                    <th>Property</th>
+                    <th>Start Date</th>
+                    <th>Status</th>
+                    <th>Progress</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% activeJobs.forEach(job => { %>
+                    <tr>
+                      <td><%= job.property.address %></td>
+                      <td><%= new Date(job.startDate).toLocaleDateString() %></td>
+                      <td><%= job.status %></td>
+                      <td>
+                        <div class="progress">
+                          <div class="progress-bar" role="progressbar" style="width: <%= job.progress %>%;" 
+                               aria-valuenow="<%= job.progress %>" aria-valuemin="0" aria-valuemax="100">
+                            <%= job.progress %>%
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <button class="btn btn-sm btn-info">Update</button>
+                        <button class="btn btn-sm btn-success">Complete</button>
+                      </td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

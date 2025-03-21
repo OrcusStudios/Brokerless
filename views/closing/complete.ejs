@@ -1,0 +1,172 @@
+<!-- views/closing/complete.ejs -->
+<%- include('../partials/layout.ejs') %>
+
+<div class="container py-4">
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+      <h2 class="mb-0">
+        <i class="bi bi-check-circle me-2"></i>Transaction Complete
+      </h2>
+      <span class="badge bg-light text-dark">CLOSED</span>
+    </div>
+    
+    <div class="card-body">
+      <!-- Celebratory Message -->
+      <div class="text-center mb-4">
+        <i class="bi bi-trophy display-1 text-warning"></i>
+        <h3 class="mt-3">Congratulations!</h3>
+        <p class="lead">
+          <% if (user._id.equals(offer.buyer._id)) { %>
+            You have successfully purchased this property!
+          <% } else if (user._id.equals(offer.seller._id)) { %>
+            You have successfully sold this property!
+          <% } else { %>
+            This transaction has been successfully completed!
+          <% } %>
+        </p>
+      </div>
+      
+      <!-- Transaction Summary -->
+      <div class="card mb-4">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Transaction Summary</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="d-flex mb-3">
+                <img src="<%= offer.listing.image || '/images/default-home.jpg' %>" 
+                     alt="Property" class="img-thumbnail me-3" style="width: 120px; height: 120px; object-fit: cover;">
+                <div>
+                  <h5><%= offer.listing.address %></h5>
+                  <p class="text-muted"><%= offer.listing.city %>, <%= offer.listing.state %> <%= offer.listing.zip %></p>
+                </div>
+              </div>
+              
+              <div class="row mb-2">
+                <div class="col-5 text-muted">Purchase Price:</div>
+                <div class="col-7 fw-bold">$<%= offer.offerPrice.toLocaleString() %></div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-5 text-muted">Closing Date:</div>
+                <div class="col-7"><%= new Date(offer.closingDate).toLocaleDateString() %></div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-5 text-muted">Recording Date:</div>
+                <div class="col-7"><%= offer.recordingDetails ? new Date(offer.recordingDetails.recordingDate).toLocaleDateString() : 'Not available' %></div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-5 text-muted">Recording #:</div>
+                <div class="col-7"><%= offer.recordingDetails ? offer.recordingDetails.recordingNumber : 'Not available' %></div>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <h6>Transaction Parties</h6>
+              <div class="row mb-2">
+                <div class="col-4 text-muted">Buyer:</div>
+                <div class="col-8"><%= offer.buyer.name %></div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-4 text-muted">Seller:</div>
+                <div class="col-8"><%= offer.seller.name %></div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-4 text-muted">Title Co:</div>
+                <div class="col-8"><%= offer.escrowAccount.agent ? offer.escrowAccount.agent.companyName : 'Not assigned' %></div>
+              </div>
+              
+              <h6 class="mt-3">Important Dates</h6>
+              <div class="row mb-2">
+                <div class="col-4 text-muted">Offer Date:</div>
+                <div class="col-8"><%= new Date(offer.createdAt).toLocaleDateString() %></div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-4 text-muted">Accepted:</div>
+                <div class="col-8"><%= new Date(offer.updatedAt).toLocaleDateString() %></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Documents Archive -->
+      <div class="card mb-4">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Document Archive</h5>
+        </div>
+        <div class="card-body">
+          <p class="text-muted mb-3">All transaction documents have been archived and can be accessed below:</p>
+          
+          <div class="table-responsive">
+            <table class="table table-sm table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>Document</th>
+                  <th>Category</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (documents && documents.length > 0) { %>
+                  <% documents.forEach(doc => { %>
+                    <tr>
+                      <td><%= doc.name %></td>
+                      <td><span class="badge bg-secondary"><%= doc.category %></span></td>
+                      <td><%= new Date(doc.createdAt).toLocaleDateString() %></td>
+                      <td>
+                        <a href="<%= doc.url %>" target="_blank" class="btn btn-sm btn-outline-primary">
+                          <i class="bi bi-file-earmark-text me-1"></i>View
+                        </a>
+                        <a href="<%= doc.url %>" download class="btn btn-sm btn-outline-secondary">
+                          <i class="bi bi-download me-1"></i>Download
+                        </a>
+                      </td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="4" class="text-center py-3">No documents available</td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Next Steps -->
+      <div class="card">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Next Steps</h5>
+        </div>
+        <div class="card-body">
+          <% if (user._id.equals(offer.buyer._id)) { %>
+            <h6>As the new owner, here are some steps you might consider:</h6>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">Update your address with USPS and other service providers</li>
+              <li class="list-group-item">Set up utilities in your name</li>
+              <li class="list-group-item">Change locks and security codes</li>
+              <li class="list-group-item">Meet your neighbors</li>
+              <li class="list-group-item">Consider a home warranty for added protection</li>
+            </ul>
+          <% } else if (user._id.equals(offer.seller._id)) { %>
+            <h6>As the seller, here are some steps you might consider:</h6>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">Cancel utilities and services at this address</li>
+              <li class="list-group-item">Forward your mail to your new address</li>
+              <li class="list-group-item">Notify your insurance company</li>
+              <li class="list-group-item">Keep your closing documents safe for tax purposes</li>
+            </ul>
+          <% } else { %>
+            <h6>All required closing steps have been completed.</h6>
+            <p>The transaction records have been archived and are available for future reference.</p>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer.ejs') %>

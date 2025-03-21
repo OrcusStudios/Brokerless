@@ -1,0 +1,33 @@
+<div class="contractSection mb-4">
+    <h4>2. PROPERTY DESCRIPTION</h4>
+    
+    <div class="property-info p-3 bg-light rounded">
+        <p><strong>PROPERTY ADDRESS:</strong> <%= offer.propertyAddress %></p>
+        <p><strong>COUNTY:</strong> <%= offer.propertyCounty || 'Not specified' %></p>
+        <p><strong>PROPERTY TYPE:</strong> <%= offer.propertyType || 'Not specified' %></p>
+        <p><strong>LEGAL DESCRIPTION:</strong> To be provided in the final contract</p>
+    </div>
+    
+    <% if (showExplanations) { %>
+        <div class="explanationPanel mt-2 mb-3">
+            The legal description is the official property description recorded with the county. This will be provided by the title company before closing.
+        </div>
+    <% } %>
+    
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <h6>INCLUDED PERSONAL PROPERTY:</h6>
+            <p><%= offer.includedPersonalProperty || 'None specified' %></p>
+            <% if (showExplanations) { %>
+                <div class="note-text">Personal property refers to movable items that are included in the sale, such as appliances or furniture specifically listed here.</div>
+            <% } %>
+        </div>
+        <div class="col-md-6">
+            <h6>EXCLUDED PERSONAL PROPERTY:</h6>
+            <p><%= offer.excludedPersonalProperty || 'None specified' %></p>
+            <% if (showExplanations) { %>
+                <div class="note-text">Items specifically excluded from the sale will be removed from the property and ownership shall remain the seller by or before closing date.</div>
+            <% } %>
+        </div>
+    </div>
+</div>

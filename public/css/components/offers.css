@@ -1,0 +1,104 @@
+/* Offers Process Styles */
+.offer-form-section {
+    margin-bottom: 2.5rem;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  }
+  
+  .offer-form-header {
+    background-color: #1a3a61;
+    color: white;
+    padding: 1.25rem 1.5rem;
+    font-weight: 600;
+  }
+  
+  .offer-form-body {
+    padding: 2rem;
+    background-color: white;
+  }
+  
+  .form-section-title {
+    color: #1a3a61;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 0.75rem;
+  }
+  
+  .input-with-icon {
+    position: relative;
+  }
+  
+  .input-with-icon .form-control {
+    padding-left: 2.5rem;
+  }
+  
+  .input-with-icon i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+  }
+  
+  .contingency-option {
+    padding: 1.25rem;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    transition: all 0.2s;
+  }
+  
+  .contingency-option:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .contingency-option.selected {
+    border-color: #1a3a61;
+    background-color: rgba(26, 58, 97, 0.05);
+  }
+  
+  .rider-card {
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+  }
+  
+  .rider-header {
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+  }
+  
+  .offer-detail-card {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  }
+  
+  .offer-status-badge {
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+  }
+  
+  .offer-timeline {
+    padding-left: 2rem;
+    border-left: 2px dashed #dee2e6;
+    margin-left: 1rem;
+  }
+  
+  .timeline-item {
+    position: relative;
+    padding-bottom: 2rem;
+  }
+  
+  .timeline-point {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: #1a3a61;
+    left: -2.5rem;
+    top: 0.5rem;
+  }

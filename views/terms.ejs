@@ -1,0 +1,34 @@
+<%- include("./partials/layout.ejs") %>
+    <div class="container">
+        <h1>Terms of Service</h1>
+        <p><strong>Effective Date:</strong> <%= effectiveDate %></p>
+
+        <h2>1. Introduction</h2>
+        <p>Welcome to <%= companyName %> (“Company,” “we,” “our,” or “us”). By accessing and using our platform (the “Service”), you agree to be bound by these Terms of Service.</p>
+
+        <h2>2. No Agency Relationship</h2>
+        <p><%= companyName %> is a technology platform that facilitates property transactions but does <strong>not</strong> act as a real estate broker, agent, or legal advisor. No fiduciary, agency, or brokerage relationship is created between the Company and users of this Service.</p>
+
+        <h2>3. User Responsibilities</h2>
+        <ul>
+            <li>Users are responsible for conducting their own due diligence before entering any real estate transaction.</li>
+            <li>We do not verify property listings, financing approvals, or contract terms.</li>
+            <li>Buyers and sellers are responsible for independently verifying all aspects of their transaction, including financing, inspections, and legal documents.</li>
+        </ul>
+
+        <h2>4. Payment and Fees</h2>
+        <p>The Service is available for a flat fee. This fee is for platform access and <strong>not</strong> for real estate brokerage services. No commissions or referral fees are collected from real estate transactions.</p>
+
+        <h2>5. No Legal or Financial Advice</h2>
+        <p>The forms and documents provided on the platform are for informational purposes only and do not constitute legal or financial advice. Users should consult a licensed attorney or financial professional before making any legal decisions.</p>
+
+        <h2>6. Limitation of Liability</h2>
+        <p>We provide this platform "as is" without warranties of any kind. We are not liable for any direct or indirect losses resulting from the use of this Service.</p>
+
+        <h2>7. Governing Law</h2>
+        <p>These Terms are governed by the laws of the State of Missouri, without regard to its conflict of law provisions.</p>
+
+        <h2>8. Contact Information</h2>
+        <p>If you have any questions about these Terms, you can contact us at <a href="mailto:<%= contactEmail %>"><%= contactEmail %></a>.</p>
+    </div>
+<%- include('./partials/footer.ejs') %>

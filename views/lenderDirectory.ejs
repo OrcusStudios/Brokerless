@@ -1,0 +1,261 @@
+<%- include('./partials/layout.ejs') %>
+
+<div class="container py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">
+                <i class="bi bi-credit-card me-2"></i>Lender Directory
+            </h2>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col">
+                    <p class="text-muted">
+                        Total Lenders: <span id="totalLenders"><%= lenders.count %></span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <form id="lenderFilterForm">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="form-floating">
+                                    <select id="state" name="state" class="form-select">
+                                        <option value="">All States</option>
+                                        <% states.forEach(state => { %>
+                                            <option value="<%= state %>"><%= state %></option>
+                                        <% }); %>
+                                    </select>
+                                    <label for="state">State</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-floating">
+                                    <select id="rating" name="rating" class="form-select">
+                                        <option value="">Any Rating</option>
+                                        <option value="5">5 Stars</option>
+                                        <option value="4">4+ Stars</option>
+                                        <option value="3">3+ Stars</option>
+                                    </select>
+                                    <label for="rating">Minimum Rating</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-floating">
+                                    <select id="loanType" name="loanType" class="form-select">
+                                        <option value="">All Loan Types</option>
+                                        <option value="Conventional">Conventional</option>
+                                        <option value="FHA">FHA</option>
+                                        <option value="VA">VA</option>
+                                        <option value="Jumbo">Jumbo</option>
+                                        <option value="USDA">USDA</option>
+                                    </select>
+                                    <label for="loanType">Loan Type</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12 d-flex justify-content-center gap-3">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-filter me-2"></i>Filter
+                                </button>
+                                <button type="reset" class="btn btn-secondary">
+                                    <i class="bi bi-arrow-clockwise me-2"></i>Reset
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <h4 class="mb-3">Available Lenders</h4>
+            <div id="lenderList"></div>
+            
+            <!-- Pagination Controls -->
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <button id="prevPage" class="btn btn-outline-primary" disabled>
+                    <i class="bi bi-arrow-left me-2"></i>Previous
+                </button>
+                <span>Page <span id="currentPage">1</span> of <span id="totalPages">1</span></span>
+                <button id="nextPage" class="btn btn-outline-primary">
+                    Next<i class="bi bi-arrow-right ms-2"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentPage = 1;
+    const resultsPerPage = 5;
+
+    function fetchFilteredLenders(page = 1) {
+    const state = document.getElementById("state").value;
+    const rating = document.getElementById("rating").value;
+    const loanType = document.getElementById("loanType").value;
+
+    console.log("Fetching lenders with parameters:", {
+        state, 
+        rating, 
+        loanType, 
+        page, 
+        limit: resultsPerPage
+    });
+
+    fetch(`/lenderDirectory/filter?state=${state}&rating=${rating}&loanType=${loanType}&page=${page}&limit=${resultsPerPage}`)
+        .then(response => {
+            console.log("Full response:", response);
+            return response.json();
+        })
+        .then(data => {
+            console.log("Received data:", data);
+            
+            // Detailed logging of lenders
+            console.log("Lenders:", data.lenders);
+            console.log("Total Lenders:", data.totalLenders);
+
+            // Update total lenders count
+            document.getElementById("totalLenders").textContent = data.totalLenders || 0;
+            document.getElementById("totalPages").textContent = Math.ceil(data.totalLenders / resultsPerPage);
+            document.getElementById("currentPage").textContent = page;
+
+            // Render lenders or show a message if no lenders
+            const lenderListEl = document.getElementById("lenderList");
+            if (data.lenders && data.lenders.length > 0) {
+                lenderListEl.innerHTML = data.lenders.map(lender => `
+                    <div class="card mb-3 shadow-sm">
+                        <div class="row g-0">
+                            <div class="col-md-3 d-flex align-items-center justify-content-center p-3">
+                                <img src="${lender.profileImage || '/images/lenderimage.jpg'}" 
+                                    alt="Lender Image" 
+                                    class="img-fluid rounded-circle" 
+                                    style="max-width: 150px; max-height: 150px; object-fit: cover;">
+                            </div>
+                            <div class="col-md-9">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        ${lender.companyName} 
+                                        ${lender.paymentTier ? `<span class="badge bg-success ms-2">${lender.paymentTier}</span>` : ""}
+                                    </h5>
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <p class="card-text mb-1">
+                                                <strong>Lender:</strong> ${lender.name}
+                                            </p>
+                                            <p class="card-text mb-1">
+                                                <strong>Loan Types:</strong> ${lender.loanTypes ? lender.loanTypes.join(", ") : 'Not Specified'}
+                                            </p>
+                                            <p class="card-text">
+                                                <strong>Rating:</strong> ${lender.rating || 'Not Rated'} ⭐
+                                            </p>
+                                        </div>
+                                        <div class="col-md-4 text-end d-flex flex-column justify-content-center">
+                                            <a href="/lender/${lender._id}" class="btn btn-outline-info btn-sm mb-2">
+                                                <i class="bi bi-eye me-2"></i>View
+                                            </a>
+                                            ${lender.preApprovalLink ? 
+                                                `<button class="btn btn-primary btn-sm apply-financing-btn" data-lender-id="${lender._id}">
+                                                    <i class="bi bi-file-earmark-text me-2"></i>Apply
+                                                </button>` : 
+                                                `<button class="btn btn-secondary btn-sm" disabled>
+                                                    No Application Link
+                                                </button>`
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join("");
+            } else {
+                lenderListEl.innerHTML = `
+                    <div class="alert alert-info text-center">
+                        No lenders found matching your criteria.
+                    </div>
+                `;
+            }
+
+            // Pagination button state
+            document.getElementById("prevPage").disabled = page === 1;
+            document.getElementById("nextPage").disabled = page >= Math.ceil(data.totalLenders / resultsPerPage);
+
+            attachApplyFinancingEventListeners();
+        })
+        .catch(error => {                
+            console.error("Detailed error:", error);
+            document.getElementById("lenderList").innerHTML = `
+            <div class="alert alert-danger">
+                Failed to load lenders. Please try again later.
+                Error: ${error.message}
+            </div>
+        `;
+        });
+}
+
+    function attachApplyFinancingEventListeners() {
+    document.querySelectorAll(".apply-financing-btn").forEach(button => {
+        button.addEventListener("click", function () {
+            const lenderId = this.dataset.lenderId;
+            const buttonRef = this;
+            
+            buttonRef.disabled = true;
+            buttonRef.textContent = "Processing...";
+
+            fetch("/lender/apply", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({ lenderId })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Request failed. Please try again.");
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    // Redirect to the lender's application URL
+                    window.location.href = data.applicationUrl;
+                } else {
+                    throw new Error(data.message || "Unknown error occurred");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert(error.message || "Error applying for financing. Please try again.");
+                buttonRef.disabled = false;
+                buttonRef.textContent = "Apply";
+            });
+        });
+    });
+}
+    document.getElementById("lenderFilterForm").addEventListener("submit", function (event) {
+        event.preventDefault();
+        currentPage = 1;
+        fetchFilteredLenders(currentPage);
+    });
+
+    document.getElementById("prevPage").addEventListener("click", function () {
+        if (currentPage > 1) {
+            currentPage--;
+            fetchFilteredLenders(currentPage);
+        }
+    });
+
+    document.getElementById("nextPage").addEventListener("click", function () {
+        currentPage++;
+        fetchFilteredLenders(currentPage);
+    });
+
+    fetchFilteredLenders();
+</script>
+
+
+<%- include('./partials/footer.ejs') %>

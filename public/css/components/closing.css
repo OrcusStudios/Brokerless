@@ -1,0 +1,81 @@
+/* Closing Process Styles */
+.closing-progress {
+    height: 10px;
+    border-radius: 5px;
+    margin-bottom: 2rem;
+  }
+  
+  .step-card {
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+  }
+  
+  .step-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  }
+  
+  .step-header {
+    padding: 1.25rem;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .step-body {
+    padding: 1.5rem;
+    background-color: white;
+  }
+  
+  .step-complete .step-header {
+    background-color: #27ae60;
+    color: white;
+  }
+  
+  .step-in-progress .step-header {
+    background-color: #1a3a61;
+    color: white;
+  }
+  
+  .step-pending .step-header {
+    background-color: #e9ecef;
+    color: #6c757d;
+  }
+  
+  .step-issue .step-header {
+    background-color: #e74c3c;
+    color: white;
+  }
+  
+  .document-card {
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    border: 1px solid #e9ecef;
+    transition: all 0.2s;
+  }
+  
+  .document-card:hover {
+    background-color: #f8f9fa;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  }
+  
+  .document-icon {
+    font-size: 2rem;
+    color: #6c757d;
+  }
+  
+  .document-type-pdf .document-icon {
+    color: #e74c3c;
+  }
+  
+  .document-type-image .document-icon {
+    color: #3498db;
+  }
+  
+  .document-type-contract .document-icon {
+    color: #27ae60;
+  }

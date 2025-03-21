@@ -1,0 +1,65 @@
+/* Profile Page Styles */
+.profile-header {
+    padding: 3rem 0;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+  }
+  
+  .profile-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid white;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+  
+  .profile-name {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 1rem 0 0.5rem;
+  }
+  
+  .profile-role {
+    font-size: 1rem;
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+  }
+  
+  .profile-tab-content {
+    background-color: white;
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    padding: 2rem;
+  }
+  
+  .profile-nav-tabs {
+    border-bottom: none;
+  }
+  
+  .profile-nav-tabs .nav-link {
+    border: none;
+    border-radius: 0;
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+    color: #495057;
+  }
+  
+  .profile-nav-tabs .nav-link.active {
+    color: #1a3a61;
+    background-color: white;
+    border-bottom: 3px solid #1a3a61;
+  }
+  
+  .profile-section {
+    margin-bottom: 2.5rem;
+  }
+  
+  .profile-section-title {
+    font-weight: 600;
+    color: #1a3a61;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e9ecef;
+  }

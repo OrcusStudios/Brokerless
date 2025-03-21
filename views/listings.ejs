@@ -1,0 +1,333 @@
+<%- include('./partials/layout.ejs') %>
+
+<div class="container-fluid px-4 py-2">
+    <div class="card shadow-sm mb-3">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0"><i class="bi bi-building me-2"></i>Property Listings</h2>
+        </div>
+        <div class="card-body">
+            <!-- Filter & Sorting Form -->
+            <form id="filterForm" class="mb-4">
+                <div class="row g-3">
+                    <div class="col-md-2">
+                        <div class="form-floating">
+                            <input type="text" id="location" name="location" class="form-control" placeholder="Enter location">
+                            <label for="location">Location</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-floating">
+                            <input type="number" id="minPrice" name="minPrice" class="form-control" placeholder="Min Price">
+                            <label for="minPrice">Min Price</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-floating">
+                            <input type="number" id="maxPrice" name="maxPrice" class="form-control" placeholder="Max Price">
+                            <label for="maxPrice">Max Price</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-floating">
+                            <select id="bedrooms" name="bedrooms" class="form-select">
+                                <option value="">Bedrooms</option>
+                                <option value="1">1+</option>
+                                <option value="2">2+</option>
+                                <option value="3">3+</option>
+                                <option value="4">4+</option>
+                                <option value="5">5+</option>
+                            </select>
+                            <label for="bedrooms">Bedrooms</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-floating">
+                            <select id="bathrooms" name="bathrooms" class="form-select">
+                                <option value="">Bathrooms</option>
+                                <option value="1">1+</option>
+                                <option value="2">2+</option>
+                                <option value="3">3+</option>
+                                <option value="4">4+</option>
+                                <option value="5">5+</option>
+                            </select>
+                            <label for="bathrooms">Bathrooms</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-floating">
+                            <select id="sort" name="sort" class="form-select">
+                                <option value="">Sort by</option>
+                                <option value="priceAsc">Price: Low to High</option>
+                                <option value="priceDesc">Price: High to Low</option>
+                            </select>
+                            <label for="sort">Sort Options</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12 d-flex justify-content-center gap-3">
+                        <button type="submit" id="filterButton" class="btn btn-primary">
+                            <i class="bi bi-filter me-2"></i>Filter
+                        </button>
+                        <button type="reset" id="resetButton" class="btn btn-secondary">
+                            <i class="bi bi-arrow-clockwise me-2"></i>Reset
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <!-- Listings Container on the Left -->
+        <div class="col-md-3" id="listingsContainer">
+            <% listings.forEach(listing => { %>
+                <div class="card mb-3 shadow-sm">
+                    <div class="row g-0">
+                        <div class="col-md-4">
+                            <img src="<%= listing.image || '/images/default-home.jpg' %>" 
+                                 class="img-fluid rounded-start" 
+                                 alt="Home Image" 
+                                 onclick="openGallery('<%= listing._id %>')"
+                                 style="object-fit: cover; height: 100%;">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <h6 class="card-title"><%= listing.address %></h6>
+                                <p class="card-text text-muted small">
+                                    <%= listing.city %>, <%= listing.state %> <%= listing.zip %>
+                                </p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <p class="card-text">
+                                        <i class="bi bi-bed me-1"></i><%= listing.squareFootage %> Sq Feet
+                                    </p>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <p class="card-text">
+                                        <i class="bi bi-bed me-1"></i><%= listing.bedrooms %> Beds /
+                                        <i class="bi bi-shower ms-2 me-1"></i><%= listing.bathrooms %> Baths
+                                    </p>
+                                    <p class="card-text h5 text-primary">
+                                        $<%= listing.price.toLocaleString() %>
+                                    </p>
+                                </div>
+                                <a href="/listings/<%= listing._id %>" class="btn btn-sm btn-outline-primary mt-2">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+        
+        <!-- Map Container on the Right -->
+        <div class="col-md-9">
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    <div id="map" style="height: 70vh; width: 100%;"></div>
+                </div>
+                <div class="card-footer">
+                    <button id="clearPolygon" class="btn btn-danger" style="display: none;">
+                        <i class="bi bi-x-circle me-2"></i>Clear Polygon
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let map, drawingManager, selectedPolygon = null; 
+    let markers = []
+    function initMap() {
+        map = new google.maps.Map(document.getElementById("map"), {
+            center: { lat: 38.573936, lng: -92.603760 }, // Central Missouri
+            zoom: 8,
+            mapId: "64697088a5f523d3"
+        });
+
+        const listings = <%- JSON.stringify(listings) %>;
+
+        // Initialize Drawing Manager for Polygon Selection
+        drawingManager = new google.maps.drawing.DrawingManager({
+            drawingControl: true,
+            polygonOptions: { fillColor: "#FF0000", fillOpacity: 0.35 }
+        });
+
+        drawingManager.setMap(map);
+        google.maps.event.addListener(drawingManager, "overlaycomplete", function(event) {
+            if (selectedPolygon) selectedPolygon.setMap(null);
+            selectedPolygon = event.overlay;
+            document.getElementById("clearPolygon").style.display = "block";
+        });
+
+        document.getElementById("clearPolygon").addEventListener("click", function() {
+            if (selectedPolygon) selectedPolygon.setMap(null);
+            selectedPolygon = null;
+            document.getElementById("clearPolygon").style.display = "none";
+        });
+
+        listings.forEach(listing => {
+            if (listing.lat && listing.lng) {
+                const marker = new google.maps.marker.AdvancedMarkerElement({
+                    position: { lat: listing.lat, lng: listing.lng },
+                    map: map,
+                    title: listing.address
+                });
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `
+                        <div style="max-width: 250px;">
+                            <h6>${listing.address}</h6>
+                            <p><strong>Price:</strong> $${listing.price.toLocaleString()}</p>
+                            <p><strong>Beds:</strong> ${listing.bedrooms} | <strong>Baths:</strong> ${listing.bathrooms}</p>
+                            <a href="/listings/${listing._id}" class="btn btn-sm btn-primary">View Details</a>
+                        </div>
+                    `
+                });
+
+                marker.addListener("click", () => {
+                    infoWindow.open(map, marker);
+                });
+                markers.push(marker);
+            }
+        });
+    }
+        // ✅ Filtering & Map Update Script (Place Below Your Existing Marker Script)
+        document.getElementById("filterForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent page reload
+            fetchFilteredListings();
+        });
+
+    // ✅ Function to fetch filtered listings & update the page
+    function fetchFilteredListings(polygonCoords = null) {
+    const location = document.getElementById("location").value;
+    const minPrice = document.getElementById("minPrice").value;
+    const maxPrice = document.getElementById("maxPrice").value;
+    const bedrooms = document.getElementById("bedrooms").value;
+    const bathrooms = document.getElementById("bathrooms").value;
+    const sort = document.getElementById("sort").value;
+    const body = JSON.stringify({
+        location,
+        minPrice,
+        maxPrice,
+        bedrooms,
+        bathrooms,
+        sort,
+        polygon: polygonCoords
+    });
+
+    fetch(`/filter`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: body
+    })
+    .then(response => response.json())
+    .then(data => {
+        updateListingsOnPage(data);  // Update the left-side listings
+        updateMapMarkers(data);      // Update the map markers ✅
+    })
+    .catch(error => console.error("❌ Error loading filtered listings:", error));
+    }
+
+    // ✅ Updates Sidebar Listings
+    function updateListingsOnPage(listings) {
+        const listingsContainer = document.getElementById("listingsContainer");
+        listingsContainer.innerHTML = ""; // Clear old listings
+
+        listings.forEach(listing => {
+            const listingHtml = `
+                <div class="card mb-2">
+                    <div class="row g-0">
+                        <div class="col-md-4">
+                            <img src="${listing.image || '/images/default-home.jpg'}" class="img-fluid rounded-start" alt="Listing Image">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <h6 class="card-title">${listing.address}, ${listing.city}</h6>
+                                <p class="card-text"><strong>Beds:</strong> ${listing.bedrooms} | <strong>Baths:</strong> ${listing.bathrooms}</p>
+                                <p class="card-text"><strong>Price:</strong> $${listing.price.toLocaleString()}</p>
+                                <a href="/listings/${listing._id}" class="btn btn-sm btn-info">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            listingsContainer.innerHTML += listingHtml;
+        });
+    }
+
+    // ✅ Function to update markers on the map after filtering
+    function updateMapMarkers(listings) {
+    if (!map) return;
+
+    markers.forEach(marker => {
+        marker.map = null;
+    });
+    markers.length = 0;
+    
+    // ✅ If no listings exist, exit
+    if (listings.length === 0) {
+        return;
+    }
+
+    // ✅ ADD NEW MARKERS using AdvancedMarkerElement
+    listings.forEach(listing => {
+        if (listing.lat && listing.lng) {
+            const marker = new google.maps.marker.AdvancedMarkerElement({
+                position: { lat: listing.lat, lng: listing.lng },
+                map: map,
+                title: listing.address
+            });
+
+            const infoWindow = new google.maps.InfoWindow({
+                content: `
+                    <div style="max-width: 250px;">
+                        <h6>${listing.address}</h6>
+                        <img src="${listing.image || '/images/default-home.jpg'}" class="img-fluid rounded-start" alt="Listing Image">
+                        <p><strong>Price:</strong> $${listing.price.toLocaleString()}</p>
+                        <p><strong>Beds:</strong> ${listing.bedrooms} | <strong>Baths:</strong> ${listing.bathrooms}</p>
+                        <a href="/listings/${listing._id}" class="btn btn-sm btn-primary">View Details</a>
+                    </div>
+                `
+            });
+
+            marker.addListener("click", () => {
+                infoWindow.open(map, marker);
+            });
+            markers.push(marker);
+        }
+    });
+    }
+</script>
+
+<script>
+    function openGallery(listingId) {
+    const listing = <%- JSON.stringify(listings) %>.find(l => l._id === listingId);
+    if (!listing || !listing.image) {
+        alert("No images available for this listing.");
+        return;
+    }
+
+    const carouselImages = document.getElementById("carouselImages");
+    carouselImages.innerHTML = "";
+
+    listing.images.forEach((image, index) => {
+        const activeClass = index === 0 ? "active" : "";
+        carouselImages.innerHTML += `
+            <div class="carousel-item ${activeClass}">
+                <img src="${image}" class="d-block w-100 img-fluid" alt="Listing Image">
+            </div>
+        `;
+    });
+
+    const modal = new bootstrap.Modal(document.getElementById("imageGalleryModal"));
+    modal.show();
+}
+</script>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=<%= googleMapsApiKey %>&libraries=drawing,marker&callback=initMap" async defer></script>
+
+<%- include('./partials/footer.ejs') %>

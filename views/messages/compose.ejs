@@ -1,0 +1,214 @@
+<%- include('../partials/layout.ejs') %>
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">
+                        <i class="bi bi-pencil-square me-2"></i>New Message
+                    </h4>
+                    <a href="/messages/inbox" class="btn btn-light btn-sm">
+                        <i class="bi bi-arrow-left me-1"></i>Back to Inbox
+                    </a>
+                </div>
+                <div class="card-body">
+                    <form action="/messages/send" method="POST" enctype="multipart/form-data">
+                        <% if (recipient) { %>
+                            <!-- If recipient is predetermined -->
+                            <div class="form-group mb-4">
+                                <label class="form-label">Recipient</label>
+                                <div class="d-flex align-items-center">
+                                    <input type="hidden" name="receiverId" value="<%= recipient._id %>">
+                                    
+                                    <% if (recipient.profileImage) { %>
+                                        <img src="<%= recipient.profileImage %>" alt="Profile" class="rounded-circle me-2" width="40" height="40">
+                                    <% } else { %>
+                                        <div class="avatar-placeholder rounded-circle bg-secondary text-white me-2" style="width: 40px; height: 40px;">
+                                            <%= recipient.name.charAt(0).toUpperCase() %>
+                                        </div>
+                                    <% } %>
+                                    
+                                    <div>
+                                        <strong><%= recipient.name %></strong>
+                                        <small class="d-block text-muted"><%= recipient.email %></small>
+                                    </div>
+                                    
+                                    <!-- User Role Badge -->
+                                    <% if (recipient.professionalType) { %>
+                                        <span class="badge bg-info text-white ms-2">
+                                            <%= recipient.professionalType %>
+                                        </span>
+                                    <% } else if (recipient.roles && recipient.roles.length > 0) { %>
+                                        <% const activeRoles = recipient.roles.filter(r => r.active); %>
+                                        <% if (activeRoles.length > 0) { %>
+                                            <span class="badge bg-secondary text-white ms-2">
+                                                <%= activeRoles[0].type %>
+                                            </span>
+                                        <% } %>
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% } else { %>
+                            <!-- If recipient needs to be selected -->
+                            <div class="form-group mb-4">
+                                <label for="receiverId" class="form-label">Select Recipient</label>
+                                <select name="receiverId" id="receiverId" class="form-select" required>
+                                    <option value="">-- Select a recipient --</option>
+                                    
+                                    <!-- Transaction Partners -->
+                                    <% if (transactionPartners && transactionPartners.length > 0) { %>
+                                        <optgroup label="Your Transaction Partners">
+                                            <% transactionPartners.forEach(user => { %>
+                                                <option value="<%= user._id %>"><%= user.name %> 
+                                                    <% if (user.roles && user.roles.length > 0) { %>
+                                                        <% const activeRoles = user.roles.filter(r => r.active); %>
+                                                        <% if (activeRoles.length > 0) { %>
+                                                            (<%= activeRoles[0].type %>)
+                                                        <% } %>
+                                                    <% } %>
+                                                </option>
+                                            <% }); %>
+                                        </optgroup>
+                                    <% } %>
+                                    
+                                    <!-- Professionals by type -->
+                                    <% 
+                                    if (professionals && professionals.length > 0) {
+                                        // Group professionals by type
+                                        const professionalsByType = {
+                                            'lender': [],
+                                            'title': [],
+                                            'inspector': [],
+                                            'contractor': []
+                                        };
+                                        
+                                        // Sort professionals into their respective groups
+                                        professionals.forEach(pro => {
+                                            if (professionalsByType[pro.professionalType]) {
+                                                professionalsByType[pro.professionalType].push(pro);
+                                            }
+                                        });
+                                        
+                                        // Display each professional type group
+                                        const typeLabels = {
+                                            'lender': 'Lenders',
+                                            'title': 'Title Companies',
+                                            'inspector': 'Home Inspectors',
+                                            'contractor': 'Contractors'
+                                        };
+                                        
+                                        Object.keys(professionalsByType).forEach(type => {
+                                            const professionals = professionalsByType[type];
+                                            if (professionals.length > 0) {
+                                    %>
+                                        <optgroup label="<%= typeLabels[type] %>">
+                                            <% professionals.forEach(pro => { %>
+                                                <option value="<%= pro._id %>"><%= pro.name %> 
+                                                    <% if (pro.companyName) { %>
+                                                        (<%= pro.companyName %>)
+                                                    <% } %>
+                                                </option>
+                                            <% }); %>
+                                        </optgroup>
+                                    <%
+                                            }
+                                        });
+                                    }
+                                    %>
+                                </select>
+                            </div>
+                        <% } %>
+                        
+                        <!-- Offer Context (if applicable) -->
+                        <% if (offer) { %>
+                            <div class="form-group mb-4">
+                                <label class="form-label">Related Offer</label>
+                                <input type="hidden" name="offerId" value="<%= offer._id %>">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Offer of $<%= offer.offerPrice.toLocaleString() %></h5>
+                                        <p class="card-text">
+                                            Status: 
+                                            <span class="badge <%= 
+                                                offer.status === 'pending' ? 'bg-warning text-dark' : 
+                                                offer.status === 'accepted' ? 'bg-success' : 
+                                                offer.status === 'countered' ? 'bg-info' : 'bg-danger' 
+                                            %>">
+                                                <%= offer.status.charAt(0).toUpperCase() + offer.status.slice(1) %>
+                                            </span>
+                                        </p>
+                                        <% if (offer.listing) { %>
+                                            <p class="card-text">
+                                                Property: <%= offer.listing.address %>
+                                            </p>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                        <% } else { %>
+                            <!-- Option to select an offer if applicable -->
+                            <div class="form-group mb-4">
+                                <label for="offerId" class="form-label">Related Offer (optional)</label>
+                                <select name="offerId" id="offerId" class="form-select">
+                                    <option value="">None</option>
+                                    <% if (userOffers && userOffers.length > 0) { %>
+                                        <% userOffers.forEach(offer => { %>
+                                            <option value="<%= offer._id %>">
+                                                $<%= offer.offerPrice.toLocaleString() %> 
+                                                <%= offer.listing ? `for ${offer.listing.address}` : '' %>
+                                            </option>
+                                        <% }); %>
+                                    <% } %>
+                                </select>
+                            </div>
+                        <% } %>
+                        
+                        <!-- Message Content -->
+                        <div class="form-group mb-4">
+                            <label for="content" class="form-label">Message</label>
+                            <textarea class="form-control" id="content" name="content" rows="5" placeholder="Type your message here..." required></textarea>
+                        </div>
+                        
+                        <!-- Attachments -->
+                        <div class="form-group mb-4">
+                            <label for="attachments" class="form-label">Attachments (optional)</label>
+                            <input type="file" class="form-control" id="attachments" name="attachments" multiple>
+                            <div class="form-text">You can attach up to 5 files (images, PDFs, documents)</div>
+                            <div id="file-list" class="mt-2"></div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="/messages/inbox" class="btn btn-secondary">
+                                <i class="bi bi-x me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send me-1"></i>Send Message
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // File attachment preview
+        const attachmentInput = document.getElementById('attachments');
+        const fileList = document.getElementById('file-list');
+        
+        attachmentInput.addEventListener('change', function() {
+            fileList.innerHTML = '';
+            
+            if (this.files.length > 0) {
+                fileList.innerHTML = Array.from(this.files)
+                    .map(file => `<span class="badge bg-secondary me-1">${file.name}</span>`)
+                    .join('');
+            }
+        });
+    });
+</script>
+
+<%- include('../partials/footer.ejs') %>

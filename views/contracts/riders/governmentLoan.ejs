@@ -1,0 +1,31 @@
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Government Loan Rider</h5>
+    </div>
+    <div class="card-body">
+        <p>This Government Loan Rider is incorporated into and made part of the Residential Real Estate Purchase Agreement between Buyer and Seller.</p>
+        
+        <div class="container">
+            <h5>Government Loan Rider</h5>
+            <p><strong>This document has legal consequences. If you do not understand it, consult your attorney.</strong></p>
+    
+            <div class="section">
+                <p>All defined terms of the Contract carry over to this Government Loan Rider (“Rider”). If any provision herein conflicts with applicable law or regulation governing the government loan program, the terms of such program control.</p>
+            </div>
+    
+            <h6>Government Loan Program</h6>
+            <p>Applicable government financing: <strong style="text-transform:uppercase"><%= offer.loanType %></strong></p>
+                
+            <h6>Loan Contingency</h6>
+            <p>This contract is subject to Buyer's ability to obtain a government-insured, guaranteed, or subsidized loan in the amount of:</p>
+            <p>$ <%= offer.offerPrice %> payable at an interest rate not exceeding <%= offer.interestRate %>% per annum.</p>
+            <p>Buyer agrees to complete all necessary steps, including submitting a loan application, paying for credit reports and appraisals, and providing required documents.</p>
+    
+            <h6>Loan Approval & Termination</h6>
+            <p>If Buyer does not deliver Notice of inability to obtain financing by 5:00 p.m. on the Loan Contingency Deadline: <%= offer.loanApprovalDeadline %>, this contingency is waived. If financing cannot be obtained and proper Notice is provided, this Contract terminates with Earnest Money returned to Buyer.</p>
+    
+            <h6>Amendatory Clause (FHA & VA Loans)</h6>
+            <p>Buyer shall not be obligated to complete the purchase if the appraised value is less than the purchase price. Buyer may proceed regardless of the appraisal amount.</p>
+        </div>
+    </div>
+</div>

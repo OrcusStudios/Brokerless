@@ -1,0 +1,833 @@
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0"><%= user.title %></h4>
+        </div>
+        <div class="card-body">
+          <!-- Summary Statistics -->
+          <div class="row mb-4">
+            <div class="col-md-3">
+              <div class="card bg-light">
+                <div class="card-body text-center">
+                  <h5>Pending Closings</h5>
+                  <h2 class="text-warning"><%= pendingClosings.length %></h2>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card bg-light">
+                <div class="card-body text-center">
+                  <h5>This Week</h5>
+                  <h2 class="text-info"><%= upcomingClosings.length %></h2>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card bg-light">
+                <div class="card-body text-center">
+                  <h5>Title Searches</h5>
+                  <h2 class="text-primary"><%= pendingClosings.filter(c => c.closingStatus === 'in_progress').length %></h2>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card bg-light">
+                <div class="card-body text-center">
+                  <h5>Completed</h5>
+                  <h2 class="text-success"><%= completedClosings.length %></h2>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Tabs for different workflow stages -->
+          <ul class="nav nav-tabs mb-3" id="closingTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button" role="tab" aria-controls="active" aria-selected="true">
+                Active Closings
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="earnest-tab" data-bs-toggle="tab" data-bs-target="#earnest" type="button" role="tab" aria-controls="earnest" aria-selected="false">
+                Earnest Money
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="title-work-tab" data-bs-toggle="tab" data-bs-target="#title-work" type="button" role="tab" aria-controls="title-work" aria-selected="false">
+                Title Work
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="closing-docs-tab" data-bs-toggle="tab" data-bs-target="#closing-docs" type="button" role="tab" aria-controls="closing-docs" aria-selected="false">
+                Closing Docs
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" type="button" role="tab" aria-controls="completed" aria-selected="false">
+                Completed
+              </button>
+            </li>
+          </ul>
+          
+          <div class="tab-content" id="closingTabsContent">
+            <!-- Active Closings Tab -->
+            <div class="tab-pane fade show active" id="active" role="tabpanel" aria-labelledby="active-tab">
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Property</th>
+                      <th>Buyer/Seller</th>
+                      <th>Closing Date</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% if (pendingClosings && pendingClosings.length > 0) { %>
+                      <% pendingClosings.forEach(closing => { %>
+                        <tr>
+                          <td>
+                            <div class="d-flex align-items-center">
+                              <% if (closing.listing.image) { %>
+                                <img src="<%= closing.listing.image %>" alt="Property" class="me-2 rounded" style="width: 40px; height: 40px; object-fit: cover;">
+                              <% } else { %>
+                                <div class="bg-light rounded me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                  <i class="bi bi-house"></i>
+                                </div>
+                              <% } %>
+                              <div>
+                                <div class="fw-medium"><%= closing.listing.address %></div>
+                                <small class="text-muted"><%= closing.listing.city %>, <%= closing.listing.state %></small>
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <div>B: <%= closing.buyer.name %></div>
+                            <div>S: <%= closing.seller.name %></div>
+                          </td>
+                          <td><%= new Date(closing.closingDate).toLocaleDateString() %></td>
+                          <td>
+                            <span class="badge bg-<%= getStatusBadgeClass(closing.closingStatus) %>">
+                              <%= formatClosingStatus(closing.closingStatus) %>
+                            </span>
+                          </td>
+                          <td>
+                            <div class="btn-group">
+                              <a href="/closing/<%= closing._id %>" class="btn btn-sm btn-info">
+                                <i class="bi bi-eye"></i> Details
+                              </a>
+                              <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="visually-hidden">Toggle Dropdown</span>
+                              </button>
+                              <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                  <a class="dropdown-item update-status-btn" href="#" 
+                                     data-bs-toggle="modal" 
+                                     data-bs-target="#updateStatusModal"
+                                     data-id="<%= closing._id %>"
+                                     data-address="<%= closing.listing.address %>"
+                                     data-current-status="<%= closing.closingStatus %>">
+                                    <i class="bi bi-arrow-clockwise me-2"></i>Update Status
+                                  </a>
+                                </li>
+                                <li>
+                                  <a class="dropdown-item" href="/closing/<%= closing._id %>/documents">
+                                    <i class="bi bi-file-earmark-text me-2"></i>Documents
+                                  </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                  <a class="dropdown-item" href="#" 
+                                     data-bs-toggle="modal" 
+                                     data-bs-target="#emailSettlementModal"
+                                     data-id="<%= closing._id %>"
+                                     data-buyer="<%= closing.buyer.name %>"
+                                     data-buyer-email="<%= closing.buyer.email %>"
+                                     data-seller="<%= closing.seller.name %>"
+                                     data-seller-email="<%= closing.seller.email %>"
+                                     data-address="<%= closing.listing.address %>">
+                                    <i class="bi bi-envelope me-2"></i>Send Settlement Statements
+                                  </a>
+                                </li>
+                                <li>
+                                  <a class="dropdown-item text-success" href="#" 
+                                     data-bs-toggle="modal" 
+                                     data-bs-target="#completeClosingModal"
+                                     data-id="<%= closing._id %>"
+                                     data-address="<%= closing.listing.address %>">
+                                    <i class="bi bi-check-circle me-2"></i>Mark as Completed
+                                  </a>
+                                </li>
+                              </ul>
+                            </div>
+                          </td>
+                        </tr>
+                      <% }); %>
+                    <% } else { %>
+                      <tr>
+                        <td colspan="5" class="text-center py-3">No active closings</td>
+                      </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            
+            <!-- Earnest Money Tab -->
+            <div class="tab-pane fade" id="earnest" role="tabpanel" aria-labelledby="earnest-tab">
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Property</th>
+                      <th>Buyer</th>
+                      <th>Amount</th>
+                      <th>Due Date</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% 
+                      // Get earnest money transactions that are pending or received
+                      const earnestMoneyTransactions = pendingClosings.filter(closing => 
+                        closing.earnestMoney > 0
+                      );
+                    %>
+                    <% if (earnestMoneyTransactions && earnestMoneyTransactions.length > 0) { %>
+                      <% earnestMoneyTransactions.forEach(closing => { %>
+                        <tr>
+                          <td><%= closing.listing.address %></td>
+                          <td><%= closing.buyer.name %></td>
+                          <td>$<%= closing.earnestMoney.toLocaleString() %></td>
+                          <td>
+                            <% const dueDate = new Date(closing.earnestDueDate); %>
+                            <span class="<%= dueDate < new Date() ? 'text-danger' : '' %>">
+                              <%= dueDate.toLocaleDateString() %>
+                            </span>
+                          </td>
+                          <td>
+                            <% if (closing.titleCompanyDetails?.earnestMoneyReceived?.status) { %>
+                              <span class="badge bg-success">Received</span>
+                            <% } else { %>
+                              <span class="badge bg-warning">Pending</span>
+                            <% } %>
+                          </td>
+                          <td>
+                            <% if (!closing.titleCompanyDetails?.earnestMoneyReceived?.status) { %>
+                              <button class="btn btn-sm btn-success confirm-earnest-btn" 
+                                      data-bs-toggle="modal" 
+                                      data-bs-target="#confirmEarnestMoneyModal" 
+                                      data-offer-id="<%= closing._id %>"
+                                      data-amount="<%= closing.earnestMoney %>"
+                                      data-address="<%= closing.listing.address %>">
+                                <i class="bi bi-check-circle me-1"></i>Confirm Receipt
+                              </button>
+                            <% } else { %>
+                              <button class="btn btn-sm btn-outline-secondary" disabled>
+                                Received <%= new Date(closing.titleCompanyDetails.earnestMoneyReceived.date).toLocaleDateString() %>
+                              </button>
+                            <% } %>
+                          </td>
+                        </tr>
+                      <% }); %>
+                    <% } else { %>
+                      <tr>
+                        <td colspan="6" class="text-center py-3">No earnest money transactions</td>
+                      </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            
+            <!-- Title Work Tab -->
+            <div class="tab-pane fade" id="title-work" role="tabpanel" aria-labelledby="title-work-tab">
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Property</th>
+                      <th>Open Date</th>
+                      <th>Status</th>
+                      <th>Notes</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% 
+                      // Get transactions that need title work
+                      const titleWorkTransactions = pendingClosings.filter(closing => 
+                        closing.closingStatus === 'in_progress' || 
+                        closing.closingStatus === 'title_review'
+                      );
+                    %>
+                    <% if (titleWorkTransactions && titleWorkTransactions.length > 0) { %>
+                      <% titleWorkTransactions.forEach(closing => { %>
+                        <% 
+                          const titleStep = closing.closingSteps.find(step => 
+                            step.name.includes('Title') || step.name.includes('title')
+                          );
+                        %>
+                        <tr>
+                          <td><%= closing.listing.address %></td>
+                          <td><%= new Date(closing.createdAt).toLocaleDateString() %></td>
+                          <td>
+                            <% if (titleStep) { %>
+                              <span class="badge bg-<%= getTaskStatusBadge(titleStep.status) %>">
+                                <%= formatTaskStatus(titleStep.status) %>
+                              </span>
+                            <% } else { %>
+                              <span class="badge bg-secondary">Not Started</span>
+                            <% } %>
+                          </td>
+                          <td>
+                            <% if (titleStep && titleStep.notes) { %>
+                              <%= titleStep.notes.length > 30 ? titleStep.notes.substring(0, 30) + '...' : titleStep.notes %>
+                            <% } else { %>
+                              <span class="text-muted">No notes</span>
+                            <% } %>
+                          </td>
+                          <td>
+                            <button class="btn btn-sm btn-primary title-work-btn" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#titleWorkModal"
+                                    data-id="<%= closing._id %>"
+                                    data-address="<%= closing.listing.address %>"
+                                    data-status="<%= titleStep ? titleStep.status : 'pending' %>"
+                                    data-notes="<%= titleStep ? titleStep.notes || '' : '' %>"
+                                    data-step-index="<%= closing.closingSteps.findIndex(step => step.name.includes('Title') || step.name.includes('title')) %>">
+                              <i class="bi bi-pencil-square me-1"></i>Update Title Work
+                            </button>
+                          </td>
+                        </tr>
+                      <% }); %>
+                    <% } else { %>
+                      <tr>
+                        <td colspan="5" class="text-center py-3">No title work transactions</td>
+                      </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            
+            <!-- Closing Documents Tab -->
+            <div class="tab-pane fade" id="closing-docs" role="tabpanel" aria-labelledby="closing-docs-tab">
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Property</th>
+                      <th>Closing Date</th>
+                      <th>Settlement Statements</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% 
+                      // Get transactions ready for closing documents
+                      const closingDocTransactions = pendingClosings.filter(closing => 
+                        closing.closingStatus === 'title_review' || 
+                        closing.closingStatus === 'documents_ready' ||
+                        closing.closingStatus === 'signing_scheduled'
+                      );
+                    %>
+                    <% if (closingDocTransactions && closingDocTransactions.length > 0) { %>
+                      <% closingDocTransactions.forEach(closing => { %>
+                        <tr>
+                          <td><%= closing.listing.address %></td>
+                          <td><%= new Date(closing.closingDate).toLocaleDateString() %></td>
+                          <td>
+                            <% 
+                              // Check for settlement statement flags
+                              const buyerStatementSent = closing.settlementStatements?.buyerSent;
+                              const sellerStatementSent = closing.settlementStatements?.sellerSent;
+                            %>
+                            <div>
+                              Buyer: 
+                              <% if (buyerStatementSent) { %>
+                                <span class="badge bg-success">Sent</span>
+                              <% } else { %>
+                                <span class="badge bg-warning">Pending</span>
+                              <% } %>
+                            </div>
+                            <div>
+                              Seller: 
+                              <% if (sellerStatementSent) { %>
+                                <span class="badge bg-success">Sent</span>
+                              <% } else { %>
+                                <span class="badge bg-warning">Pending</span>
+                              <% } %>
+                            </div>
+                          </td>
+                          <td>
+                            <div class="btn-group">
+                              <button class="btn btn-sm btn-primary" 
+                                      data-bs-toggle="modal" 
+                                      data-bs-target="#emailSettlementModal"
+                                      data-id="<%= closing._id %>"
+                                      data-buyer="<%= closing.buyer.name %>"
+                                      data-buyer-email="<%= closing.buyer.email %>"
+                                      data-seller="<%= closing.seller.name %>"
+                                      data-seller-email="<%= closing.seller.email %>"
+                                      data-address="<%= closing.listing.address %>">
+                                <i class="bi bi-envelope me-1"></i>Settlement Statements
+                              </button>
+                              <a href="/closing/<%= closing._id %>/documents" class="btn btn-sm btn-info">
+                                <i class="bi bi-file-earmark-text me-1"></i>Manage Documents
+                              </a>
+                            </div>
+                          </td>
+                        </tr>
+                      <% }); %>
+                    <% } else { %>
+                      <tr>
+                        <td colspan="4" class="text-center py-3">No transactions ready for closing documents</td>
+                      </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            
+            <!-- Completed Closings Tab -->
+            <div class="tab-pane fade" id="completed" role="tabpanel" aria-labelledby="completed-tab">
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Property</th>
+                      <th>Buyer/Seller</th>
+                      <th>Closing Date</th>
+                      <th>Completed On</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% if (completedClosings && completedClosings.length > 0) { %>
+                      <% completedClosings.forEach(closing => { %>
+                        <tr>
+                          <td><%= closing.listing.address %></td>
+                          <td>
+                            <div>B: <%= closing.buyer.name %></div>
+                            <div>S: <%= closing.seller.name %></div>
+                          </td>
+                          <td><%= new Date(closing.closingDate).toLocaleDateString() %></td>
+                          <td>
+                            <% 
+                              // Find completion timestamp
+                              let completionDate;
+                              if (closing.recordingDetails && closing.recordingDetails.recordingDate) {
+                                completionDate = new Date(closing.recordingDetails.recordingDate);
+                              } else {
+                                // Check for completed closing step
+                                const completedStep = closing.closingSteps.find(step => 
+                                  step.name.includes('Closing') && step.status === 'complete' && step.completedDate
+                                );
+                                completionDate = completedStep ? new Date(completedStep.completedDate) : null;
+                              }
+                            %>
+                            <%= completionDate ? completionDate.toLocaleDateString() : 'Unknown' %>
+                          </td>
+                          <td>
+                            <a href="/closing/<%= closing._id %>/complete" class="btn btn-sm btn-outline-success">
+                              <i class="bi bi-eye me-1"></i>View Summary
+                            </a>
+                          </td>
+                        </tr>
+                      <% }); %>
+                    <% } else { %>
+                      <tr>
+                        <td colspan="5" class="text-center py-3">No completed closings</td>
+                      </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Earnest Money Modal -->
+<div class="modal fade" id="confirmEarnestMoneyModal" tabindex="-1" aria-labelledby="confirmEarnestMoneyModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmEarnestMoneyModalLabel">Confirm Earnest Money Receipt</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="earnestMoneyForm" action="/closing/earnest-money-confirm" method="POST">
+        <div class="modal-body">
+          <input type="hidden" id="earnestOfferId" name="offerId">
+          
+          <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            Confirming earnest money for: <strong id="earnestPropertyAddress"></strong>
+          </div>
+          
+          <div class="mb-3">
+            <label for="earnestAmount" class="form-label">Amount Received</label>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <input type="number" class="form-control" id="earnestAmount" name="amount" required>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="earnestReceivedDate" class="form-label">Date Received</label>
+            <input type="date" class="form-control" id="earnestReceivedDate" name="receivedDate" required>
+          </div>
+          
+          <div class="mb-3">
+            <label for="earnestConfirmationNumber" class="form-label">Receipt/Reference Number</label>
+            <input type="text" class="form-control" id="earnestConfirmationNumber" name="confirmationNumber" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">
+            <i class="bi bi-check-circle me-1"></i>Confirm Receipt
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Update Title Work Modal -->
+<div class="modal fade" id="titleWorkModal" tabindex="-1" aria-labelledby="titleWorkModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="titleWorkModalLabel">Update Title Work Status</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="titleWorkForm" action="/closing/title-work-update" method="POST">
+        <div class="modal-body">
+          <input type="hidden" id="titleWorkOfferId" name="offerId">
+          <input type="hidden" id="titleWorkStepIndex" name="stepIndex">
+          
+          <div class="mb-3">
+            <label for="titleWorkPropertyAddress" class="form-label">Property</label>
+            <input type="text" class="form-control" id="titleWorkPropertyAddress" readonly>
+          </div>
+          
+          <div class="mb-3">
+            <label for="titleWorkStatus" class="form-label">Status</label>
+            <select class="form-select" id="titleWorkStatus" name="status" required>
+              <option value="pending">Pending</option>
+              <option value="in_progress">In Progress</option>
+              <option value="complete">Complete</option>
+              <option value="issue">Issue Identified</option>
+            </select>
+          </div>
+          
+          <div class="mb-3">
+            <label for="titleWorkNotes" class="form-label">Notes</label>
+            <textarea class="form-control" id="titleWorkNotes" name="notes" rows="3"></textarea>
+          </div>
+          
+          <div class="mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="titleWorkNotifyParties" name="notifyParties" checked>
+              <label class="form-check-label" for="titleWorkNotifyParties">
+                Notify buyer and seller of this update
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-save me-1"></i>Save Update
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Email Settlement Statements Modal -->
+<div class="modal fade" id="emailSettlementModal" tabindex="-1" aria-labelledby="emailSettlementModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="emailSettlementModalLabel">Send Settlement Statements</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="settlementStatementsForm" action="/closing/send-settlement-statements" method="POST" enctype="multipart/form-data">
+        <div class="modal-body">
+          <input type="hidden" id="settlementOfferId" name="offerId">
+          
+          <div class="mb-3">
+            <label for="settlementPropertyAddress" class="form-label">Property</label>
+            <input type="text" class="form-control" id="settlementPropertyAddress" readonly>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card mb-3">
+                <div class="card-header bg-light">
+                  <h6 class="mb-0">Buyer Settlement Statement</h6>
+                </div>
+                <div class="card-body">
+                  <div class="mb-3">
+                    <label for="buyerName" class="form-label">Buyer</label>
+                    <input type="text" class="form-control" id="buyerName" readonly>
+                    <input type="hidden" id="buyerEmail" name="buyerEmail">
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label for="buyerSettlementFile" class="form-label">Upload Buyer Settlement Statement</label>
+                    <input type="file" class="form-control" id="buyerSettlementFile" name="buyerSettlementFile" accept=".pdf,.doc,.docx">
+                  </div>
+                  
+                  <div class="mb-3">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="sendToBuyer" name="sendToBuyer" checked>
+                      <label class="form-check-label" for="sendToBuyer">
+                        Send to Buyer via Email
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="card mb-3">
+                <div class="card-header bg-light">
+                  <h6 class="mb-0">Seller Settlement Statement</h6>
+                </div>
+                <div class="card-body">
+                  <div class="mb-3">
+                    <label for="sellerName" class="form-label">Seller</label>
+                    <input type="text" class="form-control" id="sellerName" readonly>
+                    <input type="hidden" id="sellerEmail" name="sellerEmail">
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label for="sellerSettlementFile" class="form-label">Upload Seller Settlement Statement</label>
+                    <input type="file" class="form-control" id="sellerSettlementFile" name="sellerSettlementFile" accept=".pdf,.doc,.docx">
+                  </div>
+                  
+                  <div class="mb-3">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="sendToSeller" name="sendToSeller" checked>
+                      <label class="form-check-label" for="sendToSeller">
+                        Send to Seller via Email
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="settlementMessage" class="form-label">Email Message</label>
+            <textarea class="form-control" id="settlementMessage" name="message" rows="3">Please find attached your settlement statement for the upcoming closing. Please review and let me know if you have any questions.</textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-envelope me-1"></i>Send Statements
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Update Status Modal -->
+<div class="modal fade" id="updateStatusModal" tabindex="-1" aria-labelledby="updateStatusModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="updateStatusModalLabel">Update Closing Status</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="updateStatusForm" action="/closing/update-status" method="POST">
+        <div class="modal-body">
+          <input type="hidden" id="statusOfferId" name="offerId">
+          
+          <div class="mb-3">
+            <label for="statusPropertyAddress" class="form-label">Property</label>
+            <input type="text" class="form-control" id="statusPropertyAddress" readonly>
+          </div>
+          
+          <div class="mb-3">
+            <label for="closingStatus" class="form-label">Status</label>
+            <select class="form-select" id="closingStatus" name="status" required>
+              <option value="in_progress">In Progress</option>
+              <option value="title_review">Title Review Complete</option>
+              <option value="documents_ready">Documents Ready</option>
+              <option value="signing_scheduled">Signing Scheduled</option>
+              <option value="signed">Documents Signed</option>
+              <option value="funded">Funded</option>
+              <option value="recorded">Deed Recorded</option>
+              <option value="closed">Closed</option>
+            </select>
+          </div>
+          
+          <div class="mb-3">
+            <label for="statusNotes" class="form-label">Notes</label>
+            <textarea class="form-control" id="statusNotes" name="notes" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-save me-1"></i>Update Status
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Complete Closing Modal -->
+<div class="modal fade" id="completeClosingModal" tabindex="-1" aria-labelledby="completeClosingModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="completeClosingModalLabel">Complete Closing</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="completeClosingForm" action="/closing/complete-closing" method="POST">
+        <div class="modal-body">
+          <input type="hidden" id="completeOfferId" name="offerId">
+          
+          <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <strong>This action will mark the closing as complete.</strong> Please confirm all steps have been completed.
+          </div>
+          
+          <div class="mb-3">
+            <label for="completePropertyAddress" class="form-label">Property</label>
+            <input type="text" class="form-control" id="completePropertyAddress" readonly>
+          </div>
+          
+          <div class="mb-3">
+            <label for="recordingDate" class="form-label">Recording Date</label>
+            <input type="date" class="form-control" id="recordingDate" name="recordingDate" required>
+          </div>
+          
+          <div class="mb-3">
+            <label for="recordingNumber" class="form-label">Recording Number</label>
+            <input type="text" class="form-control" id="recordingNumber" name="recordingNumber" required>
+          </div>
+          
+          <div class="mb-3">
+            <label for="countyRecorded" class="form-label">County</label>
+            <input type="text" class="form-control" id="countyRecorded" name="county" required>
+          </div>
+          
+          <div class="mb-3">
+            <label for="completionNotes" class="form-label">Notes</label>
+            <textarea class="form-control" id="completionNotes" name="notes" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">
+            <i class="bi bi-check-circle me-1"></i>Complete Closing
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize earnest money modal
+    const confirmEarnestBtns = document.querySelectorAll('.confirm-earnest-btn');
+    confirmEarnestBtns.forEach(button => {
+      button.addEventListener('click', function() {
+        const offerId = this.getAttribute('data-offer-id');
+        const amount = this.getAttribute('data-amount');
+        const propertyAddress = this.getAttribute('data-address');
+        
+        document.getElementById('earnestOfferId').value = offerId;
+        document.getElementById('earnestAmount').value = amount;
+        document.getElementById('earnestPropertyAddress').textContent = propertyAddress;
+        document.getElementById('earnestReceivedDate').value = new Date().toISOString().split('T')[0];
+      });
+    });
+    
+    // Initialize title work modal
+    const titleWorkBtns = document.querySelectorAll('.title-work-btn');
+    titleWorkBtns.forEach(button => {
+      button.addEventListener('click', function() {
+        const offerId = this.getAttribute('data-id');
+        const propertyAddress = this.getAttribute('data-address');
+        const status = this.getAttribute('data-status');
+        const notes = this.getAttribute('data-notes');
+        const stepIndex = this.getAttribute('data-step-index');
+        
+        document.getElementById('titleWorkOfferId').value = offerId;
+        document.getElementById('titleWorkPropertyAddress').value = propertyAddress;
+        document.getElementById('titleWorkStatus').value = status;
+        document.getElementById('titleWorkNotes').value = notes;
+        document.getElementById('titleWorkStepIndex').value = stepIndex;
+      });
+    });
+    
+    // Initialize settlement statements modal
+    const settlementBtns = document.querySelectorAll('[data-bs-target="#emailSettlementModal"]');
+    settlementBtns.forEach(button => {
+      button.addEventListener('click', function() {
+        const offerId = this.getAttribute('data-id');
+        const propertyAddress = this.getAttribute('data-address');
+        const buyerName = this.getAttribute('data-buyer');
+        const buyerEmail = this.getAttribute('data-buyer-email');
+        const sellerName = this.getAttribute('data-seller');
+        const sellerEmail = this.getAttribute('data-seller-email');
+        
+        document.getElementById('settlementOfferId').value = offerId;
+        document.getElementById('settlementPropertyAddress').value = propertyAddress;
+        document.getElementById('buyerName').value = buyerName;
+        document.getElementById('buyerEmail').value = buyerEmail;
+        document.getElementById('sellerName').value = sellerName;
+        document.getElementById('sellerEmail').value = sellerEmail;
+      });
+    });
+    
+    // Initialize status update modal
+    const updateStatusBtns = document.querySelectorAll('.update-status-btn');
+    updateStatusBtns.forEach(button => {
+      button.addEventListener('click', function() {
+        const offerId = this.getAttribute('data-id');
+        const propertyAddress = this.getAttribute('data-address');
+        const currentStatus = this.getAttribute('data-current-status');
+        
+        document.getElementById('statusOfferId').value = offerId;
+        document.getElementById('statusPropertyAddress').value = propertyAddress;
+        document.getElementById('closingStatus').value = currentStatus;
+      });
+    });
+    
+    // Initialize complete closing modal
+    const completeClosingBtns = document.querySelectorAll('[data-bs-target="#completeClosingModal"]');
+    completeClosingBtns.forEach(button => {
+      button.addEventListener('click', function() {
+        const offerId = this.getAttribute('data-id');
+        const propertyAddress = this.getAttribute('data-address');
+        
+        document.getElementById('completeOfferId').value = offerId;
+        document.getElementById('completePropertyAddress').value = propertyAddress;
+        document.getElementById('recordingDate').value = new Date().toISOString().split('T')[0];
+      });
+    });
+  });
+</script>

@@ -1,0 +1,108 @@
+<%- include('./partials/layout.ejs') %>
+
+<div class="container py-3">
+    <div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-primary text-white text-center py-3">
+                    <h2 class="mb-0">Create Your Account</h2>
+                    <p class="text-white-50 mt-1 mb-0">Join our real estate platform</p>
+                </div>
+                <div class="card-body p-4">
+                    <% if (locals.errors && errors.length > 0) { %>
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                <% errors.forEach(error => { %>
+                                    <li><%= error %></li>
+                                <% }) %>
+                            </ul>
+                        </div>
+                    <% } %>
+
+                    <form action="/users/register" method="POST">
+                        <!-- Personal Information Section -->
+                        <h5 class="mb-3 border-bottom pb-2">Personal Information</h5>
+                        
+                        <!-- Name Field -->
+                        <div class="form-floating mb-3">
+                            <input type="text" id="name" name="name" class="form-control" placeholder="Full Name" required>
+                            <label for="name">Full Name</label>
+                        </div>
+
+                        <!-- Email Field -->
+                        <div class="form-floating mb-3">
+                            <input type="email" id="email" name="email" class="form-control" placeholder="Email" required>
+                            <label for="email">Email Address</label>
+                        </div>
+                        
+                        <!-- Phone Number Field -->
+                        <div class="form-floating mb-3">
+                            <input type="tel" id="phoneNumber" name="phoneNumber" class="form-control" placeholder="Phone Number">
+                            <label for="phoneNumber">Phone Number (optional)</label>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="form-floating mb-3">
+                            <input type="password" id="password" name="password" class="form-control" placeholder="Password" required minlength="8">
+                            <label for="password">Password</label>
+                            <div class="form-text">Password must be at least 8 characters</div>
+                        </div>
+                        
+                        <!-- Confirm Password Field -->
+                        <div class="form-floating mb-4">
+                            <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="Confirm Password" required>
+                            <label for="confirmPassword">Confirm Password</label>
+                        </div>
+
+                        <!-- Role Selection Section -->
+                        <h5 class="mb-3 border-bottom pb-2">I want to use this platform as:</h5>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="roleBuyer" name="roles[]" value="buyer" checked>
+                                    <label class="form-check-label" for="roleBuyer">
+                                        <strong>Buyer</strong> - I want to purchase property
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="roleSeller" name="roles[]" value="seller">
+                                    <label class="form-check-label" for="roleSeller">
+                                        <strong>Seller</strong> - I want to sell property
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3 text-center">
+                            <p class="mb-2">Are you a real estate professional?</p>
+                            <a href="/professionals/register" class="btn btn-outline-secondary">
+                                Register as a Professional Instead
+                            </a>
+                        </div>
+
+                        <!-- Terms of Service Agreement -->
+                        <div class="form-check mb-4 mt-4">
+                            <input class="form-check-input" type="checkbox" id="agreeTOS" name="agreeTOS" required>
+                            <label class="form-check-label" for="agreeTOS">
+                                I agree to the <a href="/terms" target="_blank">Terms of Service</a> and <a href="/privacy" target="_blank">Privacy Policy</a>
+                            </label>
+                        </div>
+                    
+                        <button type="submit" class="btn btn-primary w-100 py-2">Create Account</button>
+                    </form>
+                </div>
+                <div class="card-footer text-center py-3 bg-light">
+                    <p class="mb-2">Already have an account?</p>
+                    <a href="/users/login" class="btn btn-outline-primary">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('./partials/footer.ejs') %>

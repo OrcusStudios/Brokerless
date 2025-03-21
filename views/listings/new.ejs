@@ -1,0 +1,288 @@
+<%- include('../partials/layout.ejs') %>
+
+<div class="container py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">
+                <i class="bi bi-house-add me-2"></i>Create a New Listing
+            </h2>
+        </div>
+        <div class="card-body">
+            <form action="/listings" method="POST" enctype="multipart/form-data">
+                <!-- Address Section -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0">Property Location</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-floating mb-3">
+                            <input type="text" id="autocomplete" class="form-control" name="address" autocomplete="new-address" required>
+                            <label for="autocomplete">Street Address</label>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="text" id="city" class="form-control" name="city" autocomplete="new-city" required>
+                                    <label for="city">City</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-floating">
+                                    <input type="text" id="state" class="form-control" name="state" autocomplete="new-state" required>
+                                    <label for="state">State</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-floating">
+                                    <input type="number" id="zip" class="form-control" name="zip" autocomplete="new-zip" required>
+                                    <label for="zip">ZIP Code</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-floating mt-3">
+                            <input type="text" id="county" class="form-control" name="county" autocomplete="new-county" required>
+                            <label for="county">County</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Property Details Section -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0">Property Details</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-floating mb-3">
+                            <input type="number" id="price" class="form-control" name="price" required>
+                            <label for="price">Price ($)</label>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="number" id="bedrooms" class="form-control" name="bedrooms" required>
+                                    <label for="bedrooms">Bedrooms</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="number" id="bathrooms" class="form-control" name="bathrooms" required>
+                                    <label for="bathrooms">Bathrooms</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-floating mt-3">
+                            <input type="number" id="squareFootage" class="form-control" name="squareFootage" required>
+                            <label for="squareFootage">Square Footage</label>
+                        </div>
+                        <div class="row g-3 mt-3">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <select class="form-select form-control" id="propertyType" name="propertyType" required>
+                                        <option value="">Property Type</option>
+                                        <option value="single_family">Single-Family Home</option>
+                                        <option value="condominium">Condominium</option>
+                                        <option value="townhouse">Townhouse</option>
+                                        <option value="duplex">Duplex</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="number" id="acres" class="form-control" step="0.01" name="acres" required>
+                                    <label for="acres">Acres</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description Section -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0">Property Description</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-floating">
+                            <textarea id="description" class="form-control" name="description" style="height: 150px" required></textarea>
+                            <label for="description">Describe your property in detail</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image Upload Section -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0">Property Images</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Upload Primary Image</label>
+                            <input type="file" id="image" name="image" class="form-control" accept="image/*">
+                        </div>
+                        <div class="mb-3">
+                            <label for="images" class="form-label">Upload Additional Images (optional)</label>
+                            <input type="file" id="images" name="images" class="form-control" accept="image/*" multiple>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary w-100 py-2">
+                    <i class="bi bi-plus-circle me-2"></i>Create Listing
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Google Places Autocomplete Script (keep existing script) -->
+<script>
+        // Modified Google Places Autocomplete Script
+        function initAutocomplete() {
+        var input = document.getElementById("autocomplete");
+        
+        if (!input) {
+            console.error("Google Places Autocomplete input field not found");
+            return;
+        }
+        
+        // Prevent browser's default autocomplete from interfering
+        input.setAttribute("autocomplete", "new-address");
+        
+        // Initialize Google Places Autocomplete
+        var autocomplete = new google.maps.places.Autocomplete(input, { 
+            types: ['geocode'],
+            componentRestrictions: { country: 'us' } // Restrict to US addresses only
+        });
+        
+        // Handle place selection
+        autocomplete.addListener('place_changed', function() {
+            // Get the place details
+            var place = autocomplete.getPlace();
+            
+            // Validate place has components
+            if (!place || !place.address_components) {
+                console.error("Invalid place selected or missing address components");
+                return;
+            }
+            
+            console.log("Selected place:", place);
+            
+            // Initialize variables for address components
+            var streetNumber = '';
+            var route = '';
+            var city = '';
+            var state = '';
+            var zip = '';
+            var county = '';
+            
+            // Extract address components
+            place.address_components.forEach(function(component) {
+                var types = component.types;
+                
+                // Street number
+                if (types.includes('street_number')) {
+                    streetNumber = component.long_name;
+                }
+                
+                // Street name
+                if (types.includes('route')) {
+                    route = component.long_name;
+                }
+                
+                // City
+                if (types.includes('locality')) {
+                    city = component.long_name;
+                }
+                
+                // State
+                if (types.includes('administrative_area_level_1')) {
+                    state = component.short_name;
+                }
+                
+                // ZIP code
+                if (types.includes('postal_code')) {
+                    zip = component.long_name;
+                }
+                
+                // County
+                if (types.includes('administrative_area_level_2')) {
+                    county = component.long_name;
+                }
+            });
+            
+            // Combine street number and route for complete street address
+            var address = (streetNumber ? streetNumber + ' ' : '') + route;
+            
+            // Clean up county name (remove the word "County" if present)
+            if (county) {
+                county = county.replace(/ County$/i, '');
+                console.log("Found county:", county);
+            }
+            
+            // Use reverse geocoding as fallback if county is missing
+            if (!county && place.geometry && place.geometry.location) {
+                var lat = place.geometry.location.lat();
+                var lng = place.geometry.location.lng();
+                
+                console.log("County not found in address components, attempting reverse geocoding");
+                
+                var geocoder = new google.maps.Geocoder();
+                geocoder.geocode({
+                    'location': {lat: lat, lng: lng}
+                }, function(results, status) {
+                    if (status === 'OK' && results[0]) {
+                        console.log("Reverse geocoding results:", results);
+                        
+                        // Look for county in reverse geocoding results
+                        for (var i = 0; i < results.length; i++) {
+                            var result = results[i];
+                            
+                            for (var j = 0; j < result.address_components.length; j++) {
+                                var component = result.address_components[j];
+                                
+                                if (component.types.includes('administrative_area_level_2')) {
+                                    county = component.long_name.replace(/ County$/i, '');
+                                    console.log("County from reverse geocoding:", county);
+                                    document.getElementById('county').value = county;
+                                    break;
+                                }
+                            }
+                            
+                            if (county) break;
+                        }
+                    } else {
+                        console.error("Reverse geocoding failed:", status);
+                    }
+                });
+            }
+            
+            // Check for any missing required fields
+            if (!address) console.warn("Street address not found in place data");
+            if (!city) console.warn("City not found in place data");
+            if (!state) console.warn("State not found in place data");
+            if (!zip) console.warn("ZIP code not found in place data");
+            if (!county) console.warn("County not found in place data");
+            
+            // Update form fields
+            document.getElementById('autocomplete').value = address;
+            document.getElementById('city').value = city;
+            document.getElementById('state').value = state;
+            document.getElementById('zip').value = zip;
+            document.getElementById('county').value = county;
+            
+            // Store coordinates for potential use later
+            if (place.geometry && place.geometry.location) {
+                // You could add hidden fields for these if needed
+                console.log("Coordinates:", {
+                    lat: place.geometry.location.lat(),
+                    lng: place.geometry.location.lng()
+                });
+            }
+        });
+    }
+</script>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=<%= googleMapsApiKey %>&libraries=places&callback=initAutocomplete" async defer></script>
+
+<%- include('../partials/footer.ejs') %>

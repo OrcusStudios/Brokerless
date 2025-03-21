@@ -1,0 +1,414 @@
+<!-- views/offers/view.ejs -->
+<%- include('../partials/layout.ejs') %>
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Main Offer Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0 h4">
+                        <i class="bi bi-file-earmark-text me-2"></i>Offer Details
+                    </h2>
+                    <div>
+                        <% if (user._id.equals(offer.buyer._id)) { %>
+                            <span class="badge bg-info me-2">Buyer</span>
+                        <% } else if (user._id.equals(offer.seller._id)) { %>
+                            <span class="badge bg-success me-2">Seller</span>
+                        <% } %>
+                        <a href="<%= user._id.equals(offer.buyer._id) ? '/offers/buyer' : '/offers/seller' %>" class="btn btn-light btn-sm">
+                            <i class="bi bi-arrow-left me-1"></i>Back
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Offer Status Banner -->
+                    <div class="alert 
+                        <%= offer.status === 'pending' ? 'alert-warning' : 
+                        offer.status === 'accepted' ? 'alert-success' : 
+                        offer.status === 'countered' ? 'alert-info' : 
+                        offer.status === 'withdrawn' ? 'alert-secondary' :
+                        'alert-danger' %>">
+                        <div class="d-flex align-items-center">
+                            <% if (offer.status === 'pending') { %>
+                                <i class="bi bi-hourglass-split fs-4 me-3"></i>
+                                <div>
+                                    <strong>Pending Review</strong>
+                                    <p class="mb-0">This offer is currently awaiting a response.</p>
+                                </div>
+                            <% } else if (offer.status === 'accepted') { %>
+                                <i class="bi bi-check-circle fs-4 me-3"></i>
+                                <div>
+                                    <strong>Offer Accepted!</strong>
+                                    <p class="mb-0">This offer has been accepted. Proceed to closing steps.</p>
+                                </div>
+                            <% } else if (offer.status === 'countered') { %>
+                                <i class="bi bi-arrow-left-right fs-4 me-3"></i>
+                                <div>
+                                    <strong>Counter Offer</strong>
+                                    <p class="mb-0">A counter offer has been made. Please review the terms.</p>
+                                </div>
+                            <% } else if (offer.status === 'withdrawn') { %>
+                                <i class="bi bi-x-circle fs-4 me-3"></i>
+                                <div>
+                                    <strong>Offer Withdrawn</strong>
+                                    <p class="mb-0">This offer has been withdrawn by the buyer.</p>
+                                </div>
+                            <% } else { %>
+                                <i class="bi bi-x-circle fs-4 me-3"></i>
+                                <div>
+                                    <strong>Offer Rejected</strong>
+                                    <p class="mb-0">This offer has been rejected.</p>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <!-- Property Information -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="d-flex">
+                                <% if (offer.listing.image) { %>
+                                    <img src="<%= offer.listing.image %>" alt="Property" class="img-thumbnail me-3" style="width: 120px; height: 120px; object-fit: cover;">
+                                <% } else { %>
+                                    <div class="bg-secondary me-3 rounded d-flex align-items-center justify-content-center" style="width: 120px; height: 120px;">
+                                        <i class="bi bi-house text-white fs-1"></i>
+                                    </div>
+                                <% } %>
+                                <div>
+                                    <h5><%= offer.listing.address %></h5>
+                                    <p class="mb-1"><%= offer.listing.city %>, <%= offer.listing.state %> <%= offer.listing.zip %></p>
+                                    <p class="mb-0 text-muted">Listed: $<%= offer.listing.price.toLocaleString() %></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body bg-light">
+                                    <h5 class="card-title">Offer Summary</h5>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span>Offer Price:</span>
+                                        <span class="fw-bold fs-4">$<%= offer.offerPrice.toLocaleString() %></span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>Financing:</span>
+                                        <span><%= offer.financingType.charAt(0).toUpperCase() + offer.financingType.slice(1) %></span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>Closing Date:</span>
+                                        <span><%= new Date(offer.closingDate).toLocaleDateString() %></span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Submitted:</span>
+                                        <span><%= new Date(offer.createdAt).toLocaleDateString() %></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Offer Details -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="border-bottom pb-2 mb-3">Buyer Information</h5>
+                            <p><strong>Name:</strong> <%= offer.buyer.name %></p>
+                            <p><strong>Email:</strong> <%= offer.buyer.email %></p>
+                            
+                            <h5 class="border-bottom pb-2 mb-3 mt-4">Earnest Money</h5>
+                            <p><strong>Amount:</strong> $<%= offer.earnestMoney.toLocaleString() %></p>
+                            <p><strong>Due Date:</strong> <%= new Date(offer.earnestDueDate).toLocaleDateString() %></p>
+                            <p><strong>Title Company:</strong> <%= offer.titleCompany %></p>
+                            
+                            <% if (offer.contingencies && offer.contingencies.length > 0) { %>
+                                <h5 class="border-bottom pb-2 mb-3 mt-4">Contingencies</h5>
+                                <ul class="list-group">
+                                    <% offer.contingencies.forEach(contingency => { %>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <%= contingency === 'appraisal' ? 'Appraisal Contingency' : 
+                                               contingency === 'financing' ? 'Financing Contingency' : 
+                                               contingency === 'inspection' ? 'Inspection Contingency' : 
+                                               contingency === 'saleOfAnotherHome' ? 'Sale of Another Home' : 
+                                               contingency %>
+                                            
+                                            <% if (contingency === 'appraisal' && offer.appraisalDeadlineDays) { %>
+                                                <span class="badge bg-info"><%= offer.appraisalDeadlineDays %> days</span>
+                                            <% } else if (contingency === 'financing' && offer.loanApprovalDeadlineDays) { %>
+                                                <span class="badge bg-info"><%= offer.loanApprovalDeadlineDays %> days</span>
+                                            <% } else if (contingency === 'inspection' && offer.inspectionDeadlineDays) { %>
+                                                <span class="badge bg-info"><%= offer.inspectionDeadlineDays %> days</span>
+                                            <% } %>
+                                        </li>
+                                    <% }); %>
+                                </ul>
+                            <% } %>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h5 class="border-bottom pb-2 mb-3">Seller Information</h5>
+                            <p><strong>Name:</strong> <%= offer.seller.name %></p>
+                            <p><strong>Email:</strong> <%= offer.seller.email %></p>
+                            
+                            <h5 class="border-bottom pb-2 mb-3 mt-4">Closing Details</h5>
+                            <p><strong>Closing Date:</strong> <%= new Date(offer.closingDate).toLocaleDateString() %></p>
+                            <p><strong>Closing Costs:</strong> 
+                                <%= offer.closingCosts === 'buyer' ? 'Buyer pays all closing costs' :
+                                   offer.closingCosts === 'seller' ? 'Seller pays all closing costs' :
+                                   offer.closingCosts === 'split' ? 'Split equally between buyer and seller' :
+                                   'Each party pays their own closing costs' %>
+                            </p>
+                            
+                            <% if (offer.financingType === 'bank') { %>
+                                <h5 class="border-bottom pb-2 mb-3 mt-4">Financing Details</h5>
+                                <p><strong>Loan Type:</strong> <%= offer.loanType ? offer.loanType.charAt(0).toUpperCase() + offer.loanType.slice(1) : 'N/A' %></p>
+                                
+                                <% if (offer.loanAmount) { %>
+                                    <p><strong>Loan Amount:</strong> $<%= offer.loanAmount.toLocaleString() %></p>
+                                <% } %>
+                                
+                                <% if (offer.interestRate) { %>
+                                    <p><strong>Interest Rate:</strong> <%= offer.interestRate %>%</p>
+                                <% } %>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-light">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <a href="/offers/<%= offer._id %>/pdf" class="btn btn-outline-primary">
+                                <i class="bi bi-file-earmark-pdf me-1"></i> Download PDF
+                            </a>
+                        </div>
+                        
+                        <% if (offer.status !== 'accepted') { %>
+                        <div>
+                            <a href="/offers/<%= offer._id %>/counter" class="btn btn-outline-info me-2">
+                                <i class="bi bi-reply me-1"></i> Counter
+                            </a>
+                            <button type="button" class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#acceptOfferModal">
+                                <i class="bi bi-check-circle me-1"></i> Accept
+                            </button>
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectOfferModal">
+                                <i class="bi bi-x-circle me-1"></i> Reject
+                            </button>                            
+                            <button type="button" class="btn btn-outline-danger withdraw-offer-button" data-offer-id="<%= offer._id %>">
+                                <i class="bi bi-x-circle me-1"></i> Withdraw Offer
+                            </button>
+                        </div>
+                        <% } else {  %>
+                            <div>
+                                <a href="/offers/<%= offer._id %>/showAmend" class="btn btn-info me-2">
+                                    <i class="bi bi-reply me-1"></i> Amend
+                                </a>                                
+                            <a href="/offers/<%= offer._id %>/showRelease" class="btn btn-danger me-2">
+                                <i class="bi bi-reply me-1"></i> Mutually Release
+                            </a>
+                            </div>                            
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Riders Component -->
+            <%- include('../partials/riderComponents', { 
+                offer: offer, 
+                userRole: user._id.equals(offer.buyer._id) ? 'buyer' : 'seller',
+                isBuyer: user._id.equals(offer.buyer._id),
+                isSeller: user._id.equals(offer.seller._id),
+                showAll: true
+            }) %>
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Offer History Card -->
+            <% if (offer.offerHistory && offer.offerHistory.length > 0) { %>
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Negotiation History</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            <% offer.offerHistory.forEach((history, index) => { %>
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            <%= new Date(history.timestamp).toLocaleDateString() %>
+                                        </small>
+                                        <span class="badge bg-secondary">
+                                            Counter #<%= index + 1 %>
+                                        </span>
+                                    </div>
+                                    <div class="d-flex align-items-center mt-2">
+                                        <div style="width: 40px; height: 40px" class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2">
+                                            <i class="bi bi-person"></i>
+                                        </div>
+                                        <div>
+                                            <strong><%= history.counteredBy ? (history.counteredBy.name || 'Unknown') : 'Unknown' %></strong>
+                                            <div class="text-muted small">
+                                                <% if (String(history.counteredBy._id) === String(offer.buyer._id)) { %>
+                                                    Buyer
+                                                <% } else if (String(history.counteredBy._id) === String(offer.seller._id)) { %>
+                                                    Seller
+                                                <% } else { %>
+                                                    Unknown
+                                                <% } %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Previous Price:</span>
+                                            <span class="text-danger">$<%= history.previousPrice.toLocaleString() %></span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>New Price:</span>
+                                            <span class="text-success">$<%= history.newPrice.toLocaleString() %></span>
+                                        </div>
+                                        <% 
+                                        const diff = history.newPrice - history.previousPrice;
+                                        const percentChange = ((diff / history.previousPrice) * 100).toFixed(1);
+                                        const isPositive = diff > 0;
+                                        %>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Change:</span>
+                                            <span class="<%= isPositive ? 'text-success' : 'text-danger' %>">
+                                                <%= isPositive ? '+' : '' %><%= percentChange %>%
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <% if (history.newDeadlines) { %>
+                                        <div class="mt-2 pt-2 border-top">
+                                            <div class="mb-1"><strong>Updated Deadlines:</strong></div>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                <% if (history.newDeadlines.appraisalDeadlineDays) { %>
+                                                    <span class="badge bg-light text-dark border">
+                                                        <i class="bi bi-building me-1"></i>
+                                                        Appraisal: <%= history.newDeadlines.appraisalDeadlineDays %> days
+                                                    </span>
+                                                <% } %>
+                                                
+                                                <% if (history.newDeadlines.loanApprovalDeadlineDays) { %>
+                                                    <span class="badge bg-light text-dark border">
+                                                        <i class="bi bi-cash me-1"></i>
+                                                        Financing: <%= history.newDeadlines.loanApprovalDeadlineDays %> days
+                                                    </span>
+                                                <% } %>
+                                                
+                                                <% if (history.newDeadlines.inspectionDeadlineDays) { %>
+                                                    <span class="badge bg-light text-dark border">
+                                                        <i class="bi bi-clipboard-check me-1"></i>
+                                                        Inspection: <%= history.newDeadlines.inspectionDeadlineDays %> days
+                                                    </span>
+                                                <% } %>
+                                            </div>
+                                            <div class="mb-1"><strong>Closing Details: </strong></div>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                <% if (history.newDeadlines.closingDate) { %>
+                                                    <div class="d-flex justify-content-between">
+                                                        <span>Previous Closing Date: </span>
+                                                        <span class="text-danger"><%= history.previousDeadlines.closingDate %></span>
+                                                    </div>                                                
+                                                    <div class="d-flex justify-content-between">
+                                                        <span>New Closing Date: </span>
+                                                        <span class="text-success"><%= history.newDeadlines.closingDate %></span>
+                                                    </div>                                                 
+                                                <% } else { %>                                          
+                                                    <div class="d-flex justify-content-between">
+                                                        <span>Closing Date: </span>
+                                                        <span class="text-success">
+                                                            <% if (offer.closingDate) { %>
+                                                                <%  const date = new Date(offer.closingDate); %>
+                                                                <%  const options = { year: 'numeric', month: 'long', day: 'numeric' }; %>
+                                                                    <%= date.toLocaleDateString('en-US', options) %>
+                                                            <% } %>
+                                                        </span>
+                                                    </div>                                        
+                                                <% } %>
+                                            </div>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            <% }); %>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+            
+            <!-- Action Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-gear me-2"></i>Actions</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="/messages/compose?recipient=<%= user._id.equals(offer.buyer._id) ? offer.seller._id : offer.buyer._id %>&subject=Regarding Offer for <%= offer.listing.address %>" class="list-group-item list-group-item-action">
+                        <i class="bi bi-chat-left-text me-2"></i> Message <%= user._id.equals(offer.buyer._id) ? 'Seller' : 'Buyer' %>
+                    </a>
+                    
+                    <a href="/listings/<%= offer.listing._id %>" class="list-group-item list-group-item-action">
+                        <i class="bi bi-house-door me-2"></i> View Property Listing
+                    </a>
+                    
+                    <% if (offer.status === 'accepted') { %>
+                        <a href="/closing/<%= offer._id %>" class="list-group-item list-group-item-action">
+                            <i class="bi bi-check2-square me-2"></i> View Closing Process
+                        </a>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Accept Offer Modal -->
+<div class="modal fade" id="acceptOfferModal" tabindex="-1" aria-labelledby="acceptOfferModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="acceptOfferModalLabel">Accept Offer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <strong>Important:</strong> Accepting this offer will reject all other offers on this property.
+                </div>
+                <p>Are you sure you want to accept this offer of <strong>$<%= offer.offerPrice.toLocaleString() %></strong> for your property?</p>
+                <p>This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form action="/offers/<%= offer._id %>/accept" method="POST">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle me-2"></i>Yes, Accept Offer
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Offer Modal -->
+<div class="modal fade" id="rejectOfferModal" tabindex="-1" aria-labelledby="rejectOfferModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rejectOfferModalLabel">Reject Offer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to reject this offer?</p>
+                <p>This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form action="/offers/<%= offer._id %>/reject" method="POST">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-x-circle me-2"></i>Yes, Reject Offer
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/js/riderValidation.js"></script>
+<%- include('../partials/footer.ejs') %>

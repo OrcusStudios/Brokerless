@@ -1,0 +1,174 @@
+<footer class="footer bg-dark text-light py-3">
+    <div class="container">
+        <div class="row align-items-center">
+            <!-- Navigation Links -->
+            <div class="col-md-4 small">
+                <a href="/" class="text-light me-2">Home</a>
+                <a href="/listings" class="text-light me-2">Listings</a>
+                <a href="/lenderDirectory" class="text-light me-2">Lenders</a>
+            </div>
+            
+            <!-- Copyright -->
+            <div class="col-md-4 text-center small">
+                <p class="mb-0">&copy; <%= new Date().getFullYear() %> RE-Marketplace</p>
+            </div>
+            
+            <!-- Social Media Links -->
+            <div class="col-md-4 text-md-end">
+                <a href="https://facebook.com" class="text-light me-2" target="_blank" aria-label="Facebook">
+                    <i class="bi bi-facebook"></i>
+                </a>
+                <a href="https://twitter.com" class="text-light me-2" target="_blank" aria-label="Twitter">
+                    <i class="bi bi-twitter"></i>
+                </a>
+                <a href="https://instagram.com" class="text-light me-2" target="_blank" aria-label="Instagram">
+                    <i class="bi bi-instagram"></i>
+                </a>
+                <a href="https://linkedin.com" class="text-light" target="_blank" aria-label="LinkedIn">
+                    <i class="bi bi-linkedin"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var dropdownToggle = document.querySelector('#navbarDropdown');
+        if (dropdownToggle) {
+            dropdownToggle.addEventListener('click', function(e) {
+                var dropdown = this.nextElementSibling;
+                if (dropdown) {
+                    dropdown.classList.toggle('show');
+                    this.setAttribute('aria-expanded', 
+                        this.getAttribute('aria-expanded') === 'true' ? 'false' : 'true'
+                    );
+                }
+            });
+        }
+    });
+</script>
+    
+    <!-- Socket.io client library -->
+    <script src="/socket.io/socket.io.js"></script>
+    
+    <!-- Bootstrap JavaScript Bundle (including Popper.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        
+    <!-- Messaging JS -->
+    <script src="/js/messaging.js"></script>
+
+    <!-- notificationUpdater JS -->
+    <script src="/js/notificationUpdater.js"></script>
+
+    <script>
+        // Automatically remove flash messages after 5 seconds
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const alerts = document.querySelectorAll('.alert');
+                alerts.forEach(alert => {
+                    alert.classList.remove('show');
+                    alert.classList.add('fade');
+                    setTimeout(() => alert.remove(), 300);
+                });
+            }, 5000);
+        });
+
+        // IMPORTANT: Add this unified markAllAsRead function to layout.ejs
+        // This will be used both by layout.ejs and footer.ejs to avoid conflicts
+        function markAllAsRead() {
+            fetch('/notifications/mark-all-read', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Hide notification badge
+                const badge = document.getElementById('notification-badge');
+                if (badge) badge.style.display = 'none';
+                
+                // Simply close the dropdown - next open will show updated state
+                const dropdownToggle = document.getElementById('notificationDropdown');
+                const dropdown = bootstrap.Dropdown.getInstance(dropdownToggle);
+                if (dropdown) dropdown.hide();
+            })
+            .catch(error => console.error('Error marking notifications as read:', error));
+        }
+
+        // Ensure notification items mark as read on click
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.notification-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    fetch(`/notifications/${id}/read`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                });
+            });
+
+            // Attach event listener to mark-all-read button
+            const markAllReadBtn = document.getElementById('mark-all-read-btn');
+            if (markAllReadBtn) {
+                markAllReadBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation(); // Prevent dropdown from closing
+                    markAllAsRead();
+                });
+            }
+        });
+    </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+      
+      // Log all dropdown toggles found
+      var dropdownElementList = document.querySelectorAll('.dropdown-toggle');
+      
+      // Try to initialize each dropdown and log any errors
+      dropdownElementList.forEach(function(dropdownToggle, index) {
+        try {
+          var dropdown = new bootstrap.Dropdown(dropdownToggle);
+        } catch (e) {
+          console.error('Error initializing dropdown:', e);
+        }
+      });
+  
+      // Direct click handler for the user dropdown specifically
+      var userDropdown = document.getElementById('navbarDropdown');
+      if (userDropdown) {        
+        userDropdown.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();          
+          try {
+            var dropdown = bootstrap.Dropdown.getInstance(userDropdown);
+            if (dropdown) {
+              dropdown.toggle();
+            } else {
+              new bootstrap.Dropdown(userDropdown).toggle();
+            }
+          } catch (e) {
+            
+            // Manual fallback
+            var menu = document.querySelector('[aria-labelledby="navbarDropdown"]');
+            if (menu) {
+              if (menu.classList.contains('show')) {
+                menu.classList.remove('show');
+              } else {
+                menu.classList.add('show');
+              }
+            } else {
+              console.error('Menu not found');
+            }
+          }
+        });
+      } else {
+        console.error('User dropdown not found by ID "navbarDropdown"');
+      }
+    });
+  </script>
+
+</body>
+</html>

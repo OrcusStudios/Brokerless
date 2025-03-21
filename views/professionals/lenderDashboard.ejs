@@ -1,0 +1,275 @@
+<!-- This is a partial section that gets included in the professional dashboard -->
+
+<div class="row">
+  <!-- Lender Stats Overview -->
+  <div class="col-md-12 mb-4">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card bg-primary text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="text-uppercase fw-bold mb-1">Pre-Approvals</h6>
+                <h3 class="display-6 mb-0"><%= pendingApplicants.length %></h3>
+              </div>
+              <i class="bi bi-file-earmark-text fs-1"></i>
+            </div>
+            <p class="mt-2 mb-0">Pending applications</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card bg-success text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="text-uppercase fw-bold mb-1">Approved</h6>
+                <h3 class="display-6 mb-0"><%= approvedApplicants.length %></h3>
+              </div>
+              <i class="bi bi-check-circle fs-1"></i>
+            </div>
+            <p class="mt-2 mb-0">Successful pre-approvals</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card bg-danger text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="text-uppercase fw-bold mb-1">Denied</h6>
+                <h3 class="display-6 mb-0"><%= deniedApplicants.length %></h3>
+              </div>
+              <i class="bi bi-x-circle fs-1"></i>
+            </div>
+            <p class="mt-2 mb-0">Declined applications</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending Applications -->
+  <div class="col-md-12 mb-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Pending Pre-Approval Applications</h5>
+        <span class="badge bg-primary"><%= pendingApplicants.length %></span>
+      </div>
+      <div class="card-body">
+        <% if (pendingApplicants.length === 0) { %>
+          <div class="alert alert-info mb-0">
+            <i class="bi bi-info-circle me-2"></i>You have no pending pre-approval applications.
+          </div>
+        <% } else { %>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Applicant</th>
+                  <th>Date</th>
+                  <th>Contact Email</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% pendingApplicants.forEach(applicant => { %>
+                  <tr>
+                    <td><%= applicant.buyer && applicant.buyer.name ? applicant.buyer.name : 'Unknown Applicant' %></td>
+                    <td><%= new Date(applicant.submittedAt || applicant.appliedAt || Date.now()).toLocaleDateString() %></td>
+                    <td><%= applicant.buyer && applicant.buyer.email ? applicant.buyer.email : 'Unknown Email' %></td>
+                    <td>
+                      <span class="badge bg-warning">Pending</span>
+                    </td>
+                    <td>
+                      <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-success approve-btn" data-id="<%= applicant._id %>">
+                          <i class="bi bi-check-circle me-1"></i>Approve
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger deny-btn" data-id="<%= applicant._id %>">
+                          <i class="bi bi-x-circle me-1"></i>Deny
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Approved Applications -->
+  <div class="col-md-6 mb-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Approved Applications</h5>
+        <span class="badge bg-success"><%= approvedApplicants.length %></span>
+      </div>
+      <div class="card-body">
+        <% if (approvedApplicants.length === 0) { %>
+          <div class="alert alert-info mb-0">
+            <i class="bi bi-info-circle me-2"></i>No approved applications yet.
+          </div>
+        <% } else { %>
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Applicant</th>
+                  <th>Approval Date</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% approvedApplicants.forEach(applicant => { %>
+                  <tr>
+                    <td><%= applicant.buyer && applicant.buyer.name ? applicant.buyer.name : 'Unknown Applicant' %></td>
+                    <td><%= new Date(applicant.updatedAt || applicant.approvedAt || Date.now()).toLocaleDateString() %></td>
+                    <td><%= applicant.amount ? '$' + applicant.amount.toLocaleString() : 'Not Specified' %></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Denied Applications -->
+  <div class="col-md-6 mb-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Denied Applications</h5>
+        <span class="badge bg-danger"><%= deniedApplicants.length %></span>
+      </div>
+      <div class="card-body">
+        <% if (deniedApplicants.length === 0) { %>
+          <div class="alert alert-info mb-0">
+            <i class="bi bi-info-circle me-2"></i>No denied applications.
+          </div>
+        <% } else { %>
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Applicant</th>
+                  <th>Denial Date</th>
+                  <th>Reason</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% deniedApplicants.forEach(applicant => { %>
+                  <tr>
+                    <td><%= applicant.buyer && applicant.buyer.name ? applicant.buyer.name : 'Unknown Applicant' %></td>
+                    <td><%= new Date(applicant.updatedAt || applicant.deniedAt || Date.now()).toLocaleDateString() %></td>
+                    <td><%= applicant.reason || applicant.notes || 'Not specified' %></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript for handling approvals/denials -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Handle application approval
+    document.querySelectorAll('.approve-btn').forEach(button => {
+      button.addEventListener('click', function() {
+        const applicantId = this.dataset.id;
+        if (confirm('Are you sure you want to approve this application?')) {
+          // Show approval form modal with amount field
+          showApprovalModal(applicantId);
+        }
+      });
+    });
+
+    // Handle application denial
+    document.querySelectorAll('.deny-btn').forEach(button => {
+      button.addEventListener('click', function() {
+        const applicantId = this.dataset.id;
+        if (confirm('Are you sure you want to deny this application?')) {
+          // Show denial form modal with reason field
+          showDenialModal(applicantId);
+        }
+      });
+    });
+
+    // Functions to show modals (implement these based on your UI framework)
+    function showApprovalModal(id) {
+      // Implementation depends on your UI framework
+      const amount = prompt("Enter approved amount ($):");
+      if (amount) {
+        // Submit approval with amount
+        approveApplication(id, amount);
+      }
+    }
+
+    function showDenialModal(id) {
+      // Implementation depends on your UI framework
+      const reason = prompt("Enter reason for denial:");
+      if (reason) {
+        // Submit denial with reason
+        denyApplication(id, reason);
+      }
+    }
+
+    // API calls for approval/denial
+    function approveApplication(id, amount) {
+      fetch('/lender/approve-applicant', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id, amount })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Application approved successfully!');
+          window.location.reload();
+        } else {
+          alert('Error: ' + (data.error || 'Unknown error'));
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+      });
+    }
+
+    function denyApplication(id, reason) {
+      fetch('/lender/deny-applicant', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id, reason })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Application denied successfully.');
+          window.location.reload();
+        } else {
+          alert('Error: ' + (data.error || 'Unknown error'));
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+      });
+    }
+  });
+</script>

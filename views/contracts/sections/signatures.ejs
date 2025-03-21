@@ -1,0 +1,32 @@
+<div class="contractSection mb-4">
+    <h4>10. SIGNATURES</h4>
+    
+    <% if (showExplanations) { %>
+        <div class="explanationPanel mb-3">
+            Signing this contract creates a legally binding agreement. Once both parties have signed, the contract becomes enforceable.
+        </div>
+    <% } %>
+    
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <h6>BUYER</h6>
+            <div class="signatureArea">
+                <p><strong>Signature: </strong><span class="tangerine-regular"><%= offer.buyerName || offer.buyerFullName || 'Not provided' %></span></p>
+                <p><strong>Printed Name:</strong> <%= offer.buyerName || offer.buyerFullName || 'Not provided' %></p>
+                <p><strong>Date:</strong> ________________________________</p>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <h6>SELLER</h6>
+            <div class="signatureArea">
+                <p><strong>Signature: </strong><span>________________________________</span></p>
+                <p><strong>Printed Name:</strong> <%= offer.sellerName || 'Not provided' %></p>
+                <p><strong>Date:</strong> ________________________________</p>
+            </div>
+        </div>
+    </div>
+    
+    <p class="mt-4 text-center">
+        <small>This form is provided as a service and does not constitute legal advice. If you do not understand any part of this form, or have any questions regarding it, you should consult with an attorney before signing.</small>
+    </p>
+</div>

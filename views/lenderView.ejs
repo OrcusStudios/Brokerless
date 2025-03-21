@@ -1,0 +1,128 @@
+<%- include('./partials/layout.ejs') %>
+
+<div class="container py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">
+                <i class="bi bi-credit-card me-2"></i><%= lender.companyName %> Lender Profile
+            </h2>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Lender Profile Image -->
+                <div class="col-md-4 text-center mb-4">
+                    <img src="<%= lender.profileImage || '/images/lenderimage.jpg' %>" 
+                         alt="Lender Profile" 
+                         class="img-fluid rounded-circle mb-3" 
+                         style="max-width: 250px; max-height: 250px; object-fit: cover;">
+                    
+                    <div class="d-flex justify-content-center gap-3">
+                        <div class="text-center">
+                            <h5 class="mb-0"><%= lender.rating || 'N/A' %> ⭐</h5>
+                            <small class="text-muted">Rating</small>
+                        </div>
+                        <div class="text-center">
+                            <h5 class="mb-0"><%= lender.yearsInBusiness || 'N/A' %></h5>
+                            <small class="text-muted">Years in Business</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lender Details -->
+                <div class="col-md-8">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h4 class="mb-0">Lender Information</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-2">
+                                        <strong><i class="bi bi-person me-2"></i>Contact Name:</strong> 
+                                        <%= lender.name %>
+                                    </p>
+                                    <p class="mb-2">
+                                        <strong><i class="bi bi-envelope me-2"></i>Email:</strong> 
+                                        <%= lender.email %>
+                                    </p>
+                                    <p class="mb-2">
+                                        <strong><i class="bi bi-telephone me-2"></i>Phone:</strong> 
+                                        <%= lender.phone %>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-2">
+                                        <strong><i class="bi bi-geo-alt me-2"></i>Location:</strong> 
+                                        <%= lender.city %>, <%= lender.state %>
+                                    </p>
+                                    <p class="mb-2">
+                                        <strong><i class="bi bi-building me-2"></i>Business Address:</strong> 
+                                        <%= lender.address %>
+                                    </p>
+                                    <p class="mb-2">
+                                        <strong><i class="bi bi-patch-check me-2"></i>Payment Tier:</strong> 
+                                        <%= lender.paymentTier || 'Standard' %>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loan Types -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h4 class="mb-0">Loan Types Offered</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <% const loanTypes = lender.loanTypes || []; %>
+                                <% const loanTypeIcons = {
+                                    'Conventional': 'bi-house',
+                                    'FHA': 'bi-building',
+                                    'VA': 'bi-shield-fill-check',
+                                    'Jumbo': 'bi-cash-stack',
+                                    'USDA': 'bi-tree'
+                                }; %>
+                                <% loanTypes.forEach(type => { %>
+                                    <div class="col-md-4 mb-2">
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi <%= loanTypeIcons[type] || 'bi-credit-card' %> me-2 text-primary"></i>
+                                            <%= type %>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                                <% if (loanTypes.length === 0) { %>
+                                    <div class="col-12">
+                                        <p class="text-muted">No specific loan types listed.</p>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Apply for Pre-Approval -->
+                    <% if (lender.preApprovalLink) { %>
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="mb-0">Pre-Approval</h4>
+                            </div>
+                            <div class="card-body text-center">
+                                <a href="<%= lender.preApprovalLink %>" class="btn btn-primary btn-lg" target="_blank">
+                                    <i class="bi bi-file-earmark-text me-2"></i>Start Pre-Approval Application
+                                </a>
+                                <p class="text-muted mt-2">Secure online application process</p>
+                            </div>
+                        </div>
+                    <% } else { %>
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            Online pre-approval application is not currently available for this lender.
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('./partials/footer.ejs') %>

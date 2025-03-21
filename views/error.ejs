@@ -1,0 +1,106 @@
+<!-- views/error.ejs -->
+
+<%- include('./partials/layout.ejs') %>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center p-5">
+                    <!-- Error Icon -->
+                    <div class="mb-4">
+                        <% if (statusCode >= 500) { %>
+                            <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 4rem;"></i>
+                        <% } else if (statusCode === 404) { %>
+                            <i class="bi bi-question-circle-fill text-info" style="font-size: 4rem;"></i>
+                        <% } else if (statusCode === 403) { %>
+                            <i class="bi bi-shield-exclamation text-warning" style="font-size: 4rem;"></i>
+                        <% } else { %>
+                            <i class="bi bi-exclamation-circle-fill text-warning" style="font-size: 4rem;"></i>
+                        <% } %>
+                    </div>
+
+                    <!-- Error Title -->
+                    <h1 class="display-6 fw-bold mb-3">
+                        <% if (statusCode === 404) { %>
+                            Page Not Found
+                        <% } else if (statusCode === 403) { %>
+                            Access Denied
+                        <% } else if (statusCode >= 500) { %>
+                            Server Error
+                        <% } else { %>
+                            <%= title || 'Something Went Wrong' %>
+                        <% } %>
+                    </h1>
+
+                    <!-- Status Code -->
+                    <div class="badge bg-secondary mb-3">Error <%= statusCode %></div>
+
+                    <!-- Error Message -->
+                    <p class="lead mb-4">
+                        <%= message || 'We encountered an unexpected error. Please try again later.' %>
+                    </p>
+
+                    <!-- Additional Help -->
+                    <div class="mb-4">
+                        <% if (statusCode === 404) { %>
+                            <p>The page you're looking for might have been moved or doesn't exist.</p>
+                        <% } else if (statusCode === 403) { %>
+                            <p>You don't have permission to access this resource.</p>
+                        <% } else if (statusCode >= 500) { %>
+                            <p>Our team has been notified and is working to fix the issue.</p>
+                        <% } else if (statusCode === 400) { %>
+                            <p>Please check your information and try again.</p>
+                        <% } %>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" id="goBackButton">
+                            <i class="bi bi-arrow-left me-2"></i>Go Back
+                        </button>
+                        <a href="/" class="btn btn-outline-secondary">
+                            <i class="bi bi-house me-2"></i>Return to Home
+                        </a>
+                    </div>
+
+                    <% if (process.env.NODE_ENV !== 'production' && stack) { %>
+                        <!-- Stack Trace (visible only in development) -->
+                        <div class="mt-5">
+                            <button class="btn btn-sm btn-outline-danger" type="button" data-bs-toggle="collapse" data-bs-target="#stackTraceCollapse" aria-expanded="false" aria-controls="stackTraceCollapse">
+                                Show Technical Details
+                            </button>
+                            <div class="collapse mt-3" id="stackTraceCollapse">
+                                <div class="card card-body">
+                                    <pre class="text-start mb-0" style="overflow-x: auto; font-size: 0.8rem;"><%= stack %></pre>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Support Options -->
+            <div class="text-center mt-4">
+                <p class="text-muted">Need help? 
+                    <a href="/contact" class="text-decoration-none">Contact Support</a> or 
+                    <a href="/faq" class="text-decoration-none">Visit FAQ</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Separate JavaScript from HTML -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const goBackButton = document.getElementById('goBackButton');
+    if (goBackButton) {
+        goBackButton.addEventListener('click', function() {
+            window.history.back();
+        });
+    }
+});
+</script>
+
+<%- include('./partials/footer.ejs') %>

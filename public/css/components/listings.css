@@ -1,0 +1,73 @@
+/* Listings Page Styles */
+.listing-filters {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  }
+  
+  .filter-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+  }
+  
+  .map-container {
+    height: calc(100vh - 160px);
+    position: sticky;
+    top: 90px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  }
+  
+  .property-card {
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+  }
+  
+  .property-card:hover {
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    transform: translateY(-5px);
+  }
+  
+  .property-img {
+    height: 200px;
+    object-fit: cover;
+  }
+  
+  .property-details {
+    padding: 1.5rem;
+  }
+  
+  .property-price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a3a61;
+  }
+  
+  .property-address {
+    color: #495057;
+    margin-bottom: 1rem;
+  }
+  
+  .property-features {
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid #e9ecef;
+    padding-top: 1rem;
+  }
+  
+  .feature-item {
+    display: flex;
+    align-items: center;
+  }
+  
+  .feature-icon {
+    color: #6c757d;
+    margin-right: 0.5rem;
+  }

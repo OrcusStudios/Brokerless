@@ -1,0 +1,49 @@
+# Node modules (DO NOT push to GitHub)
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Environment variables
+.env
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Build output
+dist/
+build/
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# VSCode settings folder (optional but common)
+.vscode/
+
+# Coverage reports from testing
+coverage/
+
+# Temporary files
+*.tmp
+*.swp
+
+# Debugger files
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Yarn (if you use yarn)
+yarn.lock
+
+# PM2 process manager logs
+pids
+*.pid
+*.seed
+*.pid.lock

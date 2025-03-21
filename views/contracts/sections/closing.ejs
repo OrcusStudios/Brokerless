@@ -1,0 +1,39 @@
+<div class="contractSection mb-4">
+    <h4>6. CLOSING</h4>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <p><strong>CLOSING DATE:</strong> <%= offer.closingDate %></p>
+            <p><strong>TITLE COMPANY:</strong> <%- offer.titleCompany || 'Not specified' %></p>
+            
+            <% if (showExplanations) { %>
+                <div class="explanationPanel mt-2">
+                    Closing is the final step in a real estate transaction where documents are signed, money changes hands, and the property is transferred from seller to buyer.
+                </div>
+            <% } %>
+        </div>
+        <div class="col-md-6">
+            <p><strong>CLOSING COSTS:</strong> 
+                <% if (offer.closingCosts === 'buyer') { %>
+                    Buyer pays all closing costs
+                <% } else if (offer.closingCosts === 'seller') { %>
+                    Seller pays all closing costs
+                <% } else if (offer.closingCosts === 'split') { %>
+                    Split equally between buyer and seller
+                <% } else if (offer.closingCosts === 'each_pays_own') { %>
+                    Each party pays their own closing costs
+                <% } else { %>
+                    <%= offer.closingCosts || 'Not specified' %>
+                <% } %>
+            </p>
+            
+            <% if (showExplanations) { %>
+                <div class="explanationPanel mt-2">
+                    Closing costs typically include fees for title insurance, escrow services, recording fees, and other transaction expenses.
+                </div>
+            <% } %>
+        </div>
+    </div>
+    
+    <p class="mt-3">Real estate taxes, rents, dues, and other expenses relating to the Property for the year of Closing shall be prorated as of the Closing Date.</p>
+</div>

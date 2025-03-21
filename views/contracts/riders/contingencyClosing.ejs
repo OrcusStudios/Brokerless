@@ -1,0 +1,51 @@
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Contingency for Closing of Buyer's Existing Property</h5>
+    </div>
+    <div class="card-body">
+        <p>This Contingency for Closing of Buyer's Existing Property Rider is incorporated into and made part of the Residential Real Estate Purchase Agreement between Buyer and Seller.</p>
+        
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <label class="form-label fw-bold">Address of Existing Property Under Contract:</label>
+                <div><%= offer.riders.contingencyForClosing.existingPropertyAddress || 'Not provided' %></div>
+            </div>
+        </div>
+        
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Date of Existing Contract:</label>
+                <div>
+                    <% if (offer.riders.contingencyForClosing.existingPropertyContractDate) { %>
+                        <% if (offer.riders.contingencyForClosing.existingPropertyContractDate instanceof Date) { %>
+                            <%= offer.riders.contingencyForClosing.existingPropertyContractDate.toLocaleDateString() %>
+                        <% } else { %>
+                            <%= offer.riders.contingencyForClosing.existingPropertyContractDate %>
+                        <% } %>
+                    <% } else { %>
+                        Not specified
+                    <% } %>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Contains Contingency:</label>
+                <div><%= offer.riders.contingencyForClosing.existingPropertyContainsContingency ? 'Yes' : 'No' %></div>
+                
+                <% if (showExplanations) { %>
+                    <div class="explanationPanel mt-1">
+                        <% if (offer.riders.contingencyForClosing.existingPropertyContainsContingency) { %>
+                            The buyer's existing property sale contract contains its own contingency for the sale of another property, creating a "contingency chain."
+                        <% } else { %>
+                            The buyer's existing property sale contract does not contain contingencies for the sale of another property.
+                        <% } %>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+        
+        <div class="alert alert-secondary">
+            <p class="mb-0"><strong>CONTINGENCY TERMS:</strong> This Agreement is contingent upon the closing of Buyer's property currently under contract. If the closing of Buyer's existing property does not occur by the Closing Date specified in this Agreement, the Seller may, at Seller's option, terminate this Agreement, and all Earnest Money shall be returned to Buyer.</p>
+        </div>
+    </div>
+</div> 

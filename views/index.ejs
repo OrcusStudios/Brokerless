@@ -1,0 +1,126 @@
+<%- include ('./partials/layout.ejs') %>
+
+<div class="container-fluid p-0">
+  <!-- Hero Section -->
+  <div class="hero-section position-relative">
+    <div class="bg-image w-100" style="height: 500px; background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('/images/background.jpg'); background-size: cover; background-position: center;">
+      <div class="container h-100 d-flex flex-column justify-content-center text-center text-white">
+        <h1 class="display-3 fw-bold mb-4">Welcome to RE-Marketplace</h1>
+        <p class="lead fs-4 mb-5">Buy and sell homes independently with ease. Save time, money, and hassle.</p>
+        <div class="d-flex justify-content-center gap-3">
+          <a href="/listings" class="btn btn-primary btn-lg px-4 py-2">Browse Listings</a>
+          <a href="/users/register" class="btn btn-success btn-lg px-4 py-2">Get Started</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features Section -->
+  <div class="container">
+    <h2 class="text-center mb-5">Why Choose RE-Marketplace?</h2>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0">
+          <div class="card-body text-center p-4">
+            <div class="mb-3">
+              <i class="fas fa-dollar-sign fa-3x text-primary"></i>
+            </div>
+            <h4 class="card-title">Save Money</h4>
+            <p class="card-text">Avoid expensive commissions and fees with our flat-rate model. Keep more equity in your pocket.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0">
+          <div class="card-body text-center p-4">
+            <div class="mb-3">
+              <i class="fas fa-tasks fa-3x text-primary"></i>
+            </div>
+            <h4 class="card-title">Full Control</h4>
+            <p class="card-text">Manage your listings, showings, and offers directly through our easy-to-use platform.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0">
+          <div class="card-body text-center p-4">
+            <div class="mb-3">
+              <i class="fas fa-handshake fa-3x text-primary"></i>
+            </div>
+            <h4 class="card-title">Professional Network</h4>
+            <p class="card-text">Connect with verified lenders, title companies, inspectors, and contractors all in one place.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Getting Started Section -->
+  <div class="bg-light py-5">
+    <div class="container py-4">
+      <h2 class="text-center mb-5">How It Works</h2>
+      <div class="row">
+        <div class="col-md-3">
+          <div class="d-flex flex-column align-items-center">
+            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+              <span class="fs-4">1</span>
+            </div>
+            <h5 class="text-center">Create an Account</h5>
+            <p class="text-center">Sign up as a buyer or seller to get started on your real estate journey.</p>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="d-flex flex-column align-items-center">
+            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+              <span class="fs-4">2</span>
+            </div>
+            <h5 class="text-center">Browse or List</h5>
+            <p class="text-center">Search for properties or list your home with detailed information and photos.</p>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="d-flex flex-column align-items-center">
+            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+              <span class="fs-4">3</span>
+            </div>
+            <h5 class="text-center">Get Pre-Approved</h5>
+            <p class="text-center">Search for a Lender and apply on their website.</p>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="d-flex flex-column align-items-center">
+            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+              <span class="fs-4">4</span>
+            </div>
+            <h5 class="text-center">Connect</h5>
+            <p class="text-center">Schedule showings, make offers, or respond to interested buyers.</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="d-flex flex-column align-items-center">
+            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+              <span class="fs-4">5</span>
+            </div>
+            <h5 class="text-center">Close the Deal</h5>
+            <p class="text-center">Finalize paperwork and complete your transaction with professional support.</p>
+          </div>
+        </div>
+      </div>
+      <div class="text-center mt-5">
+        <a href="/users/register" class="btn btn-primary btn-lg">Join Now</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA Section -->
+  <div class="bg-primary text-white py-5">
+    <div class="container py-4 text-center">
+      <h2 class="mb-4">Ready to Start Your Real Estate Journey?</h2>
+      <p class="lead mb-4">Join thousands of users who are buying and selling homes on their own terms.</p>
+      <a href="/users/register" class="btn btn-light btn-lg px-4">Create an Account</a>
+      <a href="/listings" class="btn btn-outline-light btn-lg px-4 ms-3">Browse Properties</a>
+    </div>
+  </div>
+</div>
+
+<%- include('./partials/footer.ejs') %>
