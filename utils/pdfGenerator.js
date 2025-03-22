@@ -51,14 +51,19 @@ async function generateOfferPdf(offer) {
             listingCity: offer.listing?.city || '',
             listingState: offer.listing?.state || '',
             listingZip: offer.listing?.zip || '',
+            listingCounty: offer.listing?.county || '',
             listingPrice: offer.listing?.price || '',
-
+            
             // Offer Details flattened
             offerPrice: offer.offerPrice || '',
             financingType: offer.financingType || '',
             earnestMoney: offer.earnestMoney || '',
+            loanAmount: offer.loanAmount || '',
+            appraisalDeadlineDays: offer.appraisalDeadlineDays || '',
+            loanApprovalDeadline: offer.loanApprovalDeadline || '',
             earnestDueDate: offer.earnestDueDate ? new Date(offer.earnestDueDate).toLocaleDateString() : '',
             titleCompany: offer.titleCompany || '',
+            titleCompanyAddress: offer.titleCompanyAddress || '',
             closingDate: offer.closingDate ? new Date(offer.closingDate).toLocaleDateString() : '',
             closingCosts: offer.closingCosts || '',
             contingencies: offer.contingencies || [],
@@ -90,13 +95,28 @@ async function generateOfferPdf(offer) {
         const pdfBuffer = await page.pdf({
             format: 'Letter',
             printBackground: true,
-            margin: { 
-                top: '0.5in', 
-                right: '0.5in', 
-                bottom: '0.5in', 
-                left: '0.5in' 
+            margin: {
+                top: '0.5in',
+                right: '0.5in',
+                bottom: '1in', // Leave enough space for the footer
+                left: '0.5in'
             },
-            displayHeaderFooter: false,
+            displayHeaderFooter: true, // Key setting to enable header/footer
+            headerTemplate: `<div></div>`, // Empty header for clean top
+            footerTemplate: `
+                <div style="
+                    font-size:10px;
+                    color:#3c3e40;
+                    width:100%;
+                    padding:5px 20px;
+                    border-top:1px solid #dee2e6;
+                    display:flex;
+                    justify-content: center;
+                    align-items: center;
+                ">
+                    Missouri Residential Real Estate Purchase Agreement | Generated on ${new Date().toLocaleDateString()} | Page <span class=" pageNumber "></span> of <span class=" totalPages"></span>
+                </div>
+            `,
             preferCSSPageSize: true
         });
         // Close browser to free resources

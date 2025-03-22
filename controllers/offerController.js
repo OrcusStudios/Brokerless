@@ -434,7 +434,8 @@ exports.generateOfferPDF = async (req, res) => {
         const offer = await Offer.findById(req.params.id)
             .populate("buyer", "name email")
             .populate("seller", "name email")
-            .populate("listing", "address city state zip price image");
+            .populate("listing", "address city state zip county price image")
+            .lean();
             
         if (!offer) {
             req.flash("error", "Offer not found.");
@@ -452,7 +453,7 @@ exports.generateOfferPDF = async (req, res) => {
         
         // IMPORTANT: Import the function directly and call it with the offer object
         
-        const { generateOfferPdf, generateAndSavePdf } = require('../utils/pdfGenerator');
+        const { generateOfferPdf } = require('../utils/pdfGenerator');
         
         // Generate PDF directly from the offer data - no HTML step needed
         const pdfBuffer = await generateOfferPdf(offer);
@@ -718,7 +719,7 @@ exports.acceptOffer = async (req, res) => {
 
         try {
             // Import the functions directly
-            const { generateOfferPdf, generateAndSavePdf } = require('../utils/pdfGenerator');
+            const { generateOfferPdf } = require('../utils/pdfGenerator');
             
             // Create a filename for this specific offer
             const filename = `Purchase_Agreement_${offer._id}.pdf`;

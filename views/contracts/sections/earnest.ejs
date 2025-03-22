@@ -1,25 +1,13 @@
-<div class="contractSection mb-4">
+<div class="mb-4">
     <h4>4. EARNEST MONEY DEPOSIT</h4>
-    
-    <div class="row">
-        <div class="col-md-6">
-            <p><strong>EARNEST MONEY AMOUNT: </strong>$ <%= offer.earnestMoney %></p>
-            <p><strong>DUE DATE:</strong> <%= offer.earnestDueDate %></p>
-            
-            <% if (showExplanations) { %>
-                <div class="explanationPanel mt-2">
-                    Earnest money is a deposit made to demonstrate the buyer's good faith and commitment to proceed with the purchase. This amount will be applied toward the purchase price at closing.
-                </div>
-            <% } %>
-        </div>
-        <div class="col-md-6">
-            <p><strong>ESCROW AGENT/TITLE COMPANY:</strong> <%- offer.escrowAgent || offer.titleCompany || 'Not specified' %></p>
-            <p><strong>ESCROW AGENT ADDRESS:</strong> <%= offer.title || 'Not specified' %></p>
-            <p class="small text-muted">Earnest Money will be applied to the Purchase Price at closing.</p>
-        </div>
-    </div>
-    
-    <div class="alert alert-secondary mt-3">
-        <small>If Earnest Money is not timely delivered, the Seller may terminate this Contract by providing Notice to the Buyer within three (3) days after the due date. The Escrow Agent shall confirm receipt and deposit of the Earnest Money upon request by any party.</small>
-    </div>
-</div>
+  
+    <p>Buyer agrees to deposit earnest money in the amount of <strong>$<%= offer.earnestMoney %></strong> (“Earnest Money”) as evidence of good faith. The Earnest Money shall be delivered to <strong><%- offer.titleCompany %></strong> (the “Title Company” or “Escrow Agent”) by <strong><%= offer.earnestDueDate %></strong> after execution of this Agreement.</p>
+  
+    <p>The Earnest Money shall be applied toward the Purchase Price at closing. Should Buyer fail to deliver the Earnest Money by the deadline, Seller reserves the right to terminate this Agreement by written notice to Buyer.</p>
+  
+    <p>If the sale fails to close due to Buyer's default, Seller shall be entitled to retain the Earnest Money as liquidated damages. If the sale fails to close due to Seller's default, the Earnest Money shall be refunded to Buyer. If the sale fails to close due to an unfulfilled contingency or mutual agreement, the Earnest Money shall be returned to Buyer.</p>
+  
+    <% if (offer.additionalEarnestTerms) { %>
+      <p class="mt-3"><strong>Additional Terms:</strong> <%= offer.additionalEarnestTerms %></p>
+    <% } %>
+  </div>  

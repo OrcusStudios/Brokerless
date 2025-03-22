@@ -3,267 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <title>Missouri Residential Real Estate Purchase Agreement</title>
-    
+
     <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
     <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            margin: 20px;
+        body {
+            font-family: 'Times New Roman', serif;
             font-size: 11pt;
+            counter-reset: page;
         }
-        .page-break { 
-            page-break-after: always; 
+        .page-break {
+            page-break-after: always;
         }
-        .card {
-            margin-bottom: 1.5rem;
-            border: 1px solid #dee2e6;
-            border-radius: 0.25rem;
-        }
-        .card-header {
-            padding: 0.75rem 1.25rem;
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #dee2e6;
-        }
-        .card-body {
-            padding: 1.25rem;
-        }
-        h3, h4, h5 {
-            margin-top: 0;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
+        h2 {
+            font-size: 15pt;
+            text-align: center;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
         }
         h3 {
-            font-size: 1.5rem;
+            font-size: 13pt;
+            text-align: center;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
         }
         h4 {
-            font-size: 1.25rem;
+            font-size: 10.5pt;
+            font-weight: bold;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
         }
         h5 {
-            font-size: 1rem;
+            font-size: 11pt;
+            font-weight: bold;
+            margin-top: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        p {
+            font-size: 12pt;
+            text-align: justify;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        .container {
+            padding-bottom: 80px;
         }
         .contractSection {
-            margin-bottom: 1.5rem;
-        }
-        .alert {
-            position: relative;
-            padding: 0.75rem 1.25rem;
-            margin-bottom: 1rem;
-            border: 1px solid transparent;
-            border-radius: 0.25rem;
-        }
-        .alert-secondary {
-            color: #383d41;
-            background-color: #e2e3e5;
-            border-color: #d6d8db;
-        }
-        .alert-info {
-            color: #0c5460;
-            background-color: #d1ecf1;
-            border-color: #bee5eb;
-        }
-        .row {
-            display: flex;
-            flex-wrap: wrap;
-            margin-right: -15px;
-            margin-left: -15px;
-        }
-        .col-md-6 {
-            position: relative;
-            width: 50%;
-            padding-right: 15px;
-            padding-left: 15px;
-        }
-        .col-md-12 {
-            position: relative;
-            width: 100%;
-            padding-right: 15px;
-            padding-left: 15px;
-        }
-        .property-info {
-            padding: 1rem;
-            background-color: #f8f9fa;
-            border-radius: 0.25rem;
-        }
-        .fw-bold {
-            font-weight: bold;
-        }
-        .mb-0 {
-            margin-bottom: 0;
-        }
-        .mb-3 {
-            margin-bottom: 1rem;
-        }
-        .mb-4 {
-            margin-bottom: 1.5rem;
-        }
-        .mt-2 {
-            margin-top: 0.5rem;
-        }
-        .mt-3 {
-            margin-top: 1rem;
-        }
-        .mt-4 {
-            margin-top: 1.5rem;
-        }
-        .p-3 {
-            padding: 1rem;
-        }
-        .pb-2 {
-            padding-bottom: 0.5rem;
-        }
-        .rounded {
-            border-radius: 0.25rem;
-        }
-        .border-bottom {
-            border-bottom: 1px solid #dee2e6;
-        }
-        .text-center {
-            text-align: center;
-        }
-        .bg-light {
-            background-color: #f8f9fa;
-        }
-        .text-muted {
-            color: #6c757d;
-        }
-        .small {
-            font-size: 80%;
-        }
-        .header-with-logo {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid #dee2e6;
-            margin-bottom: 1.5rem;
             padding-bottom: 1rem;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 2rem;
         }
-        .logo {
-            max-width: 150px;
+        .boilerplate {
+            font-size: 10pt;
+            color: #000000;
+            margin-top: 3rem;
         }
-        .document-title {
-            text-align: center;
-            margin: 1rem 0 2rem;
+        .property-section {
+            margin-bottom: 1rem; /* Reduce from 2rem to tighten gap */
         }
-        .footer {
-            margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 1px solid #dee2e6;
-            text-align: center;
-            font-size: 0.8rem;
-            color: #6c757d;
-        }
+
     </style>
 </head>
 <body>
-    <div class="header-with-logo">
-        <h3>Missouri Residential Real Estate Purchase Agreement</h3>
-        <!-- If you have a logo, you can uncomment this -->
-        <!-- <img src="/images/logo.png" alt="Company Logo" class="logo"> -->
-    </div>
+    <div class="container">
+        <h2>Missouri Residential Real Estate Purchase Agreement</h2>
 
-    <div class="document-title">
-        <% if (offer.status === 'countered') { %>
-            <h4>PURCHASE AGREEMENT - COUNTEROFFER</h4>
-        <% } else { %>
-            <h4>PURCHASE AGREEMENT</h4>
-        <% } %>
-    </div>
-    
-    <!-- Debugging info - uncomment if needed 
-    <div style="margin: 10px; padding: 10px; border: 1px solid #ccc; font-size: 10px; background-color: #f8f9fa;">
-        <h6>Debugging Info (remove in production)</h6>
+        <div class="document-title text-center">
+            <% if (offer.status === 'countered') { %>
+                <h4>COUNTER OFFER</h4>
+            <% } %>
+        </div>
+
+        <!-- Parties and Date -->
+        <div class="contractSection">
+            <%- include('./sections/parties', { offer, showExplanations: false }) %>
+        </div>
+
+        <!-- Property Description -->
+        <div class="contractSection property-section">
+            <%- include('./sections/property', { offer, showExplanations: false }) %>
+        </div>
+
+        <!-- Purchase Price and Financing -->
+        <div class="contractSection">
+            <%- include('./sections/price', { offer, showExplanations: false }) %>
+        </div>
+
+        <!-- Earnest Money Deposit -->
+        <div class="contractSection">
+            <%- include('./sections/earnest', { offer, showExplanations: false }) %>
+        </div>
+
+        <!-- Contingencies -->
+        <div class="contractSection">
+            <%- include('./sections/contingencies', { offer, showExplanations: false }) %>
+        </div>
+
+        <!-- Closing -->
+        <div class="contractSection">
+            <%- include('./sections/closing', { offer, showExplanations: false }) %>
+        </div>
+
+        <!-- Boilerplate -->
+        <div class="contractSection boilerplate">
+            <h5>Governing Law</h5>
+            <p>This Agreement shall be governed by and construed in accordance with the laws of the State of Missouri.</p>
+
+            <h5>Entire Agreement</h5>
+            <p>This Agreement constitutes the entire agreement between the parties concerning the subject matter herein and supersedes all prior agreements, understandings, and representations.</p>
+
+            <h5>Severability</h5>
+            <p>If any provision of this Agreement is found to be invalid or unenforceable, the remainder of this Agreement shall not be affected and shall be enforced to the fullest extent permitted by law.</p>
+
+            <h5>Notice</h5>
+            <p>Any notice required under this Agreement shall be made in writing and delivered via certified mail, personal delivery, or electronic means to the addresses provided by the parties.</p>
+        </div>
+
+        <!-- Signatures -->
+        <div class="contractSection" style="margin-top: 2rem;">
+            <%- include('./sections/signatures', { offer, showExplanations: false }) %>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- Riders -->
         <% if (offer.riders) { %>
-            <p>Riders present in offer object</p>
-            <ul>
-                <% Object.entries(offer.riders).forEach(([name, rider]) => { %>
-                    <li><%= name %>: included=<%= rider.included %></li>
-                <% }); %>
-            </ul>
-        <% } else { %>
-            <p>No riders object found in offer</p>
+            <% if (offer.riders.homeInspectionAdvisory && offer.riders.homeInspectionAdvisory.included === true) { %>
+                <%- include('./riders/homeInspectionAdvisory', { offer, showExplanations: false }) %>
+                <div class="page-break"></div>
+            <% } %>
+            <% if (offer.riders.governmentLoan && offer.riders.governmentLoan.included === true) { %>
+                <%- include('./riders/governmentLoan', { offer, showExplanations: false }) %>
+                <div class="page-break"></div>
+            <% } %>
+            <% if (offer.riders.contingencyForSale && offer.riders.contingencyForSale.included === true) { %>
+                <%- include('./riders/contingencySale', { offer, showExplanations: false }) %>
+                <div class="page-break"></div>
+            <% } %>
+            <% if (offer.riders.contingencyForClosing && offer.riders.contingencyForClosing.included === true) { %>
+                <%- include('./riders/contingencyClosing', { offer, showExplanations: false }) %>
+                <div class="page-break"></div>
+            <% } %>
+            <% if (offer.riders.sightUnseen && offer.riders.sightUnseen.included === true) { %>
+                <%- include('./riders/sightUnseen', { offer, showExplanations: false }) %>
+                <div class="page-break"></div>
+            <% } %>
+            <% if (offer.riders.wireFraudAdvisory && offer.riders.wireFraudAdvisory.included === true) { %>
+                <%- include('./riders/wireFraudAdvisory', { offer, showExplanations: false }) %>
+                <div class="page-break"></div>
+            <% } %>
+            <% if (offer.riders.fee && offer.riders.fee.included === true) { %>
+                <%- include('./riders/fee', { offer, showExplanations: false }) %>
+                <div class="page-break"></div>
+            <% } %>
         <% } %>
-    </div>
-    -->
-
-    <!-- Contract Sections (Styled more like the preview) -->
-    <div class="contractSection">
-        <%- include('./sections/parties', { offer, showExplanations: false }) %>
-    </div>
-
-    <div class="contractSection">
-        <%- include('./sections/property', { offer, showExplanations: false }) %>
-    </div>
-
-    <div class="contractSection">
-        <%- include('./sections/price', { offer, showExplanations: false }) %>
-    </div>
-
-    <div class="contractSection">
-        <%- include('./sections/earnest', { offer, showExplanations: false }) %>
-    </div>
-
-    <div class="contractSection">
-        <%- include('./sections/contingencies', { offer, showExplanations: false }) %>
-    </div>
-
-    <div class="contractSection">
-        <%- include('./sections/closing', { offer, showExplanations: false }) %>
-    </div>
-
-    <div class="contractSection">
-        <%- include('./sections/signatures', { offer, showExplanations: false }) %>
-    </div>
-
-    <div class="page-break"></div>
-
-    <!-- Riders (Each on Separate Pages) -->
-    <% if (offer.riders) { %>
-        <!-- Home Inspection Advisory -->
-        <% if (offer.riders.homeInspectionAdvisory && offer.riders.homeInspectionAdvisory.included === true) { %>
-            <%- include('./riders/homeInspectionAdvisory', { offer, showExplanations: false }) %>
-            <div class="page-break"></div>
-        <% } %>
-
-        <!-- Government Loan -->
-        <% if (offer.riders.governmentLoan && offer.riders.governmentLoan.included === true) { %>
-            <%- include('./riders/governmentLoan', { offer, showExplanations: false }) %>
-            <div class="page-break"></div>
-        <% } %>
-
-        <!-- Contingency for Sale -->
-        <% if (offer.riders.contingencyForSale && offer.riders.contingencyForSale.included === true) { %>
-            <%- include('./riders/contingencySale', { offer, showExplanations: false }) %>
-            <div class="page-break"></div>
-        <% } %>
-
-        <!-- Contingency for Closing -->
-        <% if (offer.riders.contingencyForClosing && offer.riders.contingencyForClosing.included === true) { %>
-            <%- include('./riders/contingencyClosing', { offer, showExplanations: false }) %>
-            <div class="page-break"></div>
-        <% } %>
-
-        <!-- Sight Unseen -->
-        <% if (offer.riders.sightUnseen && offer.riders.sightUnseen.included === true) { %>
-            <%- include('./riders/sightUnseen', { offer, showExplanations: false }) %>
-            <div class="page-break"></div>
-        <% } %>
-
-        <!-- Wire Fraud Advisory -->
-        <% if (offer.riders.wireFraudAdvisory && offer.riders.wireFraudAdvisory.included === true) { %>
-            <%- include('./riders/wireFraudAdvisory', { offer, showExplanations: false }) %>
-            <div class="page-break"></div>
-        <% } %>
-        
-        <!-- Platform Fee Rider -->
-        <% if (offer.riders.fee && offer.riders.fee.included === true) { %>            
-            <%- include('./riders/fee', { offer, showExplanations: false }) %>
-            <div class="page-break"></div>
-        <% } %>
-    <% } %>
-
-    <div class="footer">
-        <p>This is a legally binding contract. If not understood, consult an attorney before signing.</p>
-        <p>Document generated on <%= new Date().toLocaleDateString() %></p>
     </div>
 </body>
 </html>
