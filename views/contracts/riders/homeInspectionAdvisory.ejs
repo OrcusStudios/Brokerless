@@ -1,60 +1,38 @@
-<div class="card mb-4">
-    <div class="card-header bg-light">
-        <h5 class="mb-0">Home Inspection Advisory</h5>
-    </div>
-    <div class="card-body">        
-        <p>This Home Inspection Advisory is incorporated into and made part of the Residential Real Estate Purchase Agreement between Buyer and Seller.</p>
-        <div class="container">
-            <h5>For Your Protection: Get a Home Inspection</h5>
-            <p><strong>U.S. Department of Housing and Urban Development</strong></p>
-        
-            <p>You must make a choice on getting a Home Inspection. It is not done automatically. You have the right to examine carefully your potential new home with a professional home inspector. However, a home inspection is not required by law and will occur only if you ask for one and make the arrangements. You may schedule the inspection before or after signing your contract.</p>
-        
-            <p>A professional home inspector will:</p>
-            <ul>
-                <li>Evaluate the physical condition: structure, construction, and mechanical systems.</li>
-                <li>Identify items that need to be repaired.</li>
-                <li>Estimate the remaining useful life of major systems, equipment, structure, and finishes.</li>
-            </ul>
-        
-            <h6>The Appraisal is NOT a Home Inspection</h6>
-            <p>An appraisal estimates the market value of the home to protect the lender but does not examine or evaluate the condition of the home for the buyer. A home inspection provides much more detail.</p>
-        
-            <h6>FHA and Lenders Do Not Guarantee the Condition of Your Home</h6>
-            <p>If you find problems with your home after closing, neither FHA nor your lender may give or lend you money for repairs. They also may not buy the home back from you.</p>
-        
-            <h6>Additional Inspections</h6>
-            <p>You may request tests for:</p>
-            <ul>
-                <li>Radon - Call 1-800-SOS-Radon</li>
-                <li>Health and Safety - Visit <a href="http://www.HUD.gov">HUD Healthy Homes Program</a></li>
-                <li>Energy Efficiency - Visit <a href="http://www.energystar.gov">DOE EnergyStar Program</a></li>
-            </ul>
-        
-            <h6>Selecting a Home Inspector</h6>
-            <p>Seek referrals from friends, neighbors, realtors, or consult the <a href="http://www.ashi.org">American Society of Home Inspectors (ASHI)</a> at 1-800-743-2744.</p>
-        
-            <h5>Buyer Acknowledgment</h5>
-            <p>I/We (circle one) have read this document and understand that if I/we wish to get a home inspection, it is best to do so as soon as possible. The appraisal is not a home inspection.</p>
-        
-            <p><small>Public reporting burden for this collection is estimated at an average of 30 minutes to review instructions, find information, and complete this form.</small></p>
-        </div>
-        
-        <div class="row mb-3">
-            <div class="col-md-12">
-                <label class="form-label fw-bold">Acknowledgement:</label>
-                <div><%= offer.riders.homeInspectionAdvisory && offer.riders.homeInspectionAdvisory.acknowledged ? 'Acknowledged by Buyer' : 'Not acknowledged' %></div>
-                
-                <% if (offer.riders.homeInspectionAdvisory && offer.riders.homeInspectionAdvisory.acknowledgedDate) { %>
-                    <div>Date: 
-                        <% if (offer.riders.homeInspectionAdvisory.acknowledgedDate instanceof Date) { %>
-                            <%= offer.riders.homeInspectionAdvisory.acknowledgedDate.toLocaleDateString() %>
-                        <% } else { %>
-                            <%= offer.riders.homeInspectionAdvisory.acknowledgedDate %>
-                        <% } %>
-                    </div>
-                <% } %>
-            </div>
-        </div>
-    </div>
+<div class="mb-4 text-center">
+    <h5 class="rider">HOME INSPECTION ADVISORY RIDER</h5>
+</div>
+<div class="mb-4">
+    <p><strong>This document has legal consequences. If you do not understand it, consult your attorney before signing.</strong></p>
+    <p>This Home Inspection Advisory Rider is attached to and forms a part of the Residential Real Estate Purchase Agreement between Buyer and Seller.</p>
+
+    <p><strong>For Your Protection: Get a Home Inspection</strong></p>
+    <p>A home inspection is highly recommended but not required by law. Buyers are encouraged to engage a professional home inspector to:</p>
+    <ul>
+        <li>Evaluate the physical condition, structure, and systems of the Property.</li>
+        <li>Identify necessary repairs.</li>
+        <li>Estimate the remaining life of major components.</li>
+    </ul>
+
+    <p><strong>The Appraisal is NOT a Home Inspection:</strong> An appraisal estimates the Property’s market value for the lender and does not evaluate the condition for the Buyer.</p>
+
+    <p><strong>Additional Inspections:</strong> Buyers may request further inspections, including but not limited to radon, health, safety, or energy efficiency tests.</p>
+
+    <p><strong>Acknowledgment:</strong> Buyeracknowledges receipt and understanding of this Home Inspection Advisory Rider.</p>
+
+    <div style="display: flex; justify-content: space-between;">    
+        <!-- BUYER Signature -->
+        <div style="width: 48%;">
+          <h5 >Buyer</h5>
+          <p><strong>Signature:</strong><span class=""><%= offer.buyerName %></span></p>
+          <p><strong>Printed Name:</strong> <%= offer.buyerName %></p>
+          <p><strong>Date:</strong> ________________________________</p>
+        </div>      
+        <!-- SELLER Signature -->
+        <div style="width: 48%;">
+          <h5>Buyer</h5>
+          <p><strong>Signature:</strong><span class=""><%= offer.buyerName %></span></p>
+          <p><strong>Printed Name:</strong> <%= offer.buyerName %></p>
+          <p><strong>Date:</strong> ________________________________</p>
+        </div>    
+      </div>   
 </div>

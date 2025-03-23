@@ -3,15 +3,15 @@
       <!-- BUYER Signature -->
       <div style="width: 48%;">
         <h5 >Buyer</h5>
-        <p><strong>Signature:</strong> ________________________________</p>
-        <p><strong>Printed Name:</strong> <%= offer.buyerName || 'Not provided' %></p>
+        <p><strong>Signature:</strong><span class=""><%= offer.buyerName %></span></p>
+        <p><strong>Printed Name:</strong> <%= offer.buyerName %></p>
         <p><strong>Date:</strong> ________________________________</p>
       </div>
     
       <!-- SELLER Signature -->
       <div style="width: 48%;">
         <h5>Seller</h5>
-        <p><strong>Signature:</strong> ________________________________</p>
+        <p><strong>Signature:</strong><span class=""><%= offer.buyerName %></p>
         <p><strong>Printed Name:</strong> <%= offer.sellerName || 'Not provided' %></p>
         <p><strong>Date:</strong> ________________________________</p>
       </div>    

@@ -1,40 +1,24 @@
-<div class="contractSection mb-4">
+<div class="mb-4">
     <h4>6. CLOSING</h4>
-
-    <div class="row">
-        <div class="col-md-6">
-            <p><strong>Closing Date:</strong> <%= offer.closingDate || 'Not specified' %></p>
-            <p><strong>Title Company:</strong> <%- offer.titleCompany || 'Not specified' %> <strong>TITLE COMPANY ADDRESS:</strong><%- offer.titleCompanyAddress || 'Not specified' %> </p>
-        </div>
-
-        <div class="col-md-6">
-            <p><strong>Closing Costs:</strong> 
-                <% if (offer.closingCosts === 'buyer') { %>
-                    Buyer to pay all customary closing costs.
-                <% } else if (offer.closingCosts === 'seller') { %>
-                    Seller to pay all customary closing costs.
-                <% } else if (offer.closingCosts === 'split') { %>
-                    Buyer and Seller shall each pay fifty percent (50%) of all customary closing costs.
-                <% } else if (offer.closingCosts === 'each_pays_own') { %>
-                    Each party shall be responsible for their respective closing costs.
-                <% } else { %>
-                    Not specified
-                <% } %>
-            </p>
-        </div>
-    </div>
-
-    <p class="mt-3">
-        Real estate taxes, association dues, rents, special assessments, and all other proratable items shall be prorated as of the Closing Date. Any applicable assessments levied prior to the Closing Date shall be the responsibility of the Seller, while any assessments levied thereafter shall be the responsibility of the Buyer, unless otherwise agreed in writing.
-    </p>
-
-    <p class="mt-3">
-        Possession of the Property, including all keys, garage door openers, security codes, and access devices, shall be delivered to the Buyer at Closing unless otherwise specified herein.
-    </p>
-
-    <% if (showExplanations) { %>
-        <div class="explanationPanel mt-3 bg-light p-3 border rounded">
-            <strong>Explanation:</strong> The Closing is the formal process where ownership is transferred from the Seller to the Buyer, funds are distributed, and final documents are executed. Closing costs may include title insurance fees, escrow fees, recording fees, taxes, and other related expenses.
-        </div>
-    <% } %>
+        <p><strong>Closing Date:</strong> <%= offer.closingDate || 'Not specified' %></p>
+        <p><strong>Title Company:</strong> <%- offer.titleCompany || 'Not specified' %> <strong>TITLE COMPANY ADDRESS:</strong><%- offer.titleCompanyAddress || 'Not specified' %> </p>
+        <p><strong>Closing Costs:</strong> 
+            <% if (offer.closingCosts === 'buyer') { %>
+                Buyer to pay all customary closing costs.
+            <% } else if (offer.closingCosts === 'seller') { %>
+                Seller to pay all customary closing costs.
+            <% } else if (offer.closingCosts === 'split') { %>
+                Buyer and Seller shall each pay fifty percent (50%) of all customary closing costs.
+            <% } else if (offer.closingCosts === 'each_pays_own') { %>
+                Each party shall be responsible for their respective closing costs.
+            <% } else { %>
+                Not specified
+            <% } %>
+        </p>
+        <p class="mt-3">
+            Real estate taxes, association dues, rents, special assessments, and all other proratable items shall be prorated as of the Closing Date. Any applicable assessments levied prior to the Closing Date shall be the responsibility of the Seller, while any assessments levied thereafter shall be the responsibility of the Buyer, unless otherwise agreed in writing.
+        </p>
+        <p class="mt-3">
+            Possession of the Property, including all keys, garage door openers, security codes, and access devices, shall be delivered to the Buyer at Closing unless otherwise specified herein.
+        </p>
 </div>

@@ -1,61 +1,33 @@
-<div class="card mb-4">
-    <div class="card-body">
-        <div class="container">
-        <h5>Wire Fraud Advisory</h5>
-        <p><span class="warning">Criminals target social media and email to steal information.</span> This is particularly common in real estate transactions where sensitive data such as social security numbers, bank account details, and wire instructions are exchanged electronically. <strong>WE DO NOT WANT YOU TO BE THE NEXT VICTIM OF WIRE FRAUD!</strong></p>
-        
-        <p>Money wired to a fraudulent account is stolen and typically cannot be recovered. Additionally, there is generally no insurance coverage for this loss.</p>
-        
-        <h6>DO NOT TRUST EMAILS CONTAINING WIRE INSTRUCTIONS</h6>
-        <ul>
-            <li>If you receive an email containing wire transfer instructions, <strong>immediately</strong> call your trusted escrow officer to verify its authenticity.</li>
-        </ul>
-        
-        <h6>DO NOT TRUST EMAILS SEEKING PERSONAL/FINANCIAL INFORMATION</h6>
-        <ul>
-            <li>If you receive an email requesting personal or financial information, asking you to download an attachment, click a link, or do anything unusual, call your escrow officer immediately to verify its validity.</li>
-        </ul>
-        
-        <h6>ONLY TRUST YOUR KNOWN SOURCE OF INFORMATION</h6>
-        <ul>
-            <li>Never direct, accept, or allow anyone to change wire transfer instructions without first making a <strong>direct personal telephone call</strong> to verify the sender’s identity.</li>
-            <li>Always use a phone number that you obtained in person or through other reliable sources, <strong>not</strong> from an email or new wiring instructions.</li>
-        </ul>
-        
-        <h6>VERIFY BEFORE YOU WIRE FUNDS</h6>
-        <p>Before wiring funds to anyone (e.g., your lawyer, title agent, mortgage broker, or real estate agent), personally meet them or call a <strong>verified</strong> telephone number to confirm, both before and after the transfer.</p>
-        
-        <h2>REPORT FRAUD IMMEDIATELY</h2>
-        <p>If you suspect or become a victim of wire fraud, notify governmental officials, your banking institution, and your settlement/title company immediately.</p>
-        
-        <h6>Acknowledgment</h6>
-        <p>The undersigned acknowledges receipt of this Wire Fraud Advisory.</p>
-                
-        <h6>Online Resources</h6>
-        <p>For more information on wire fraud and similar topics, visit:</p>
-        <ul>
-            <li><a href="https://www.fbi.gov/scams-and-safety">The Federal Bureau of Investigation</a></li>
-            <li><a href="https://www.ic3.gov">The Internet Crime Complaint Center</a></li>
-            <li><a href="http://www.nw3c.org/research">The National White Collar Crime Center</a></li>
-            <li><a href="https://www.onguardonline.gov">On Guard Online</a></li>
-        </ul>
-    </div>
-        
-        <div class="row mb-3">
-            <div class="col-md-12">
-                <label class="form-label fw-bold">Acknowledgement:</label>
-                <div><%= offer.riders.wireFraudAdvisory && offer.riders.wireFraudAdvisory.acknowledged ? 'Acknowledged by Buyer' : 'Not acknowledged' %></div>
-                
-                <% if (offer.riders.wireFraudAdvisory && offer.riders.wireFraudAdvisory.acknowledgedDate) { %>
-                    <div>Date: 
-                        <% if (offer.riders.wireFraudAdvisory.acknowledgedDate instanceof Date) { %>
-                            <%= offer.riders.wireFraudAdvisory.acknowledgedDate.toLocaleDateString() %>
-                        <% } else { %>
-                            <%= offer.riders.wireFraudAdvisory.acknowledgedDate %>
-                        <% } %>
-                    </div>
-                <% } %>
-            </div>
-        </div>
-    </div>
+<div class="mb-4">
+    <h5 class="rider">WIRE FRAUD ADVISORY RIDER</h5>
+</div>
+<div class="mb-4">
+    <p><strong>This document has legal consequences. If you do not understand it, consult your attorney before signing.</strong></p>
+    <p>This Wire Fraud Advisory Rider is attached to and forms a part of the Residential Real Estate Purchase Agreement between Buyer and Seller.</p>
+
+    <p><strong>Wire Fraud Risks:</strong> Criminals target real estate transactions to intercept sensitive information such as social security numbers, bank account details, and wire instructions. Funds sent to fraudulent accounts are typically not recoverable and are not covered by insurance.</p>
+
+    <p><strong>Protecting Your Funds:</strong></p>
+    <ul>
+        <li>Do <strong>NOT</strong> trust unsolicited emails containing wire instructions. Always verify by calling your escrow or title officer directly using verified contact information.</li>
+        <li>Do <strong>NOT</strong> disclose personal or financial information in response to unexpected emails or attachments. Confirm any unusual requests with a direct call.</li>
+        <li>Before wiring funds, always meet or directly call the intended recipient using contact information obtained independently.</li>
+    </ul>
+    <p><strong>Acknowledgment:</strong> Buyer acknowledges receipt and understanding of this Wire Fraud Advisory Rider.</p>
+    <div style="display: flex; justify-content: space-between;">    
+        <!-- BUYER Signature -->
+        <div style="width: 48%;">
+          <h5 >Buyer</h5>
+          <p><strong>Signature:</strong><span class=""><%= offer.buyerName %></span></p>
+          <p><strong>Printed Name:</strong> <%= offer.buyerName %></p>
+          <p><strong>Date:</strong> ________________________________</p>
+        </div>      
+        <!-- SELLER Signature -->
+        <div style="width: 48%;">
+          <h5>Seller</h5>
+          <p><strong>Signature:</strong><span class=""><%= offer.buyerName %></p>
+          <p><strong>Printed Name:</strong> <%= offer.sellerName || 'Not provided' %></p>
+          <p><strong>Date:</strong> ________________________________</p>
+        </div>    
+      </div>   
 </div>
