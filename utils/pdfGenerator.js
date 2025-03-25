@@ -59,6 +59,7 @@ async function generateOfferPdf(offer) {
             financingType: offer.financingType || '',
             earnestMoney: offer.earnestMoney || '',
             loanAmount: offer.loanAmount || '',
+            maxConcession: offer.maxConcession || '',
             appraisalDeadlineDays: offer.appraisalDeadlineDays || '',
             loanApprovalDeadline: offer.loanApprovalDeadline || '',
             earnestDueDate: offer.earnestDueDate ? new Date(offer.earnestDueDate).toLocaleDateString() : '',

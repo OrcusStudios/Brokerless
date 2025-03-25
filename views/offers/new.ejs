@@ -3,8 +3,10 @@
 <div class="container mt-5">
     <h2 class="mb-4">Submit an Offer</h2>
     <form id="offerForm" action="/offers" method="POST">
-        <!-- Hidden input for listing ID -->
-        <input type="hidden" name="listingId" value="<%= listing._id %>">    
+        <!-- Hidden Inputs -->
+        <input type="hidden" name="listingId" value="<%= listing._id %>">
+        <input type="hidden" name="sellerId" value="<%= listing.seller._id %>">
+
         <!-- Section 1: Buyer and Property Information -->
         <div class="card shadow-lg mb-3">
             <div class="card-header bg-primary text-white">
@@ -22,83 +24,69 @@
                     </div>
                     <div class="col-md-4 mb-3">
                         <label for="sellerName" class="form-label">Seller Name</label>
-                        <input type="text" class="form-control" id="sellerName" name="sellerName" 
-                                value="<%= listing.seller.name %>" readonly>
-                    </div>
-                </div>    
-                <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <label for="propertyAddress" class="form-label">Property Address</label>
-                        <input type="text" class="form-control" id="propertyAddress" name="propertyAddress" 
-                               value="<%= listing.address %>, <%= listing.city %>, <%= listing.state %> <%= listing.zip %>" readonly>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="propertyCounty" class="form-label">County</label>
-                        <input type="text" class="form-control" id="propertyCounty" name="propertyCounty" 
-                               value="<%= listing.county %>" readonly>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">Property Type</label>
-                        <select class="form-select" name="propertyType" required>
-                            <option value="">Select Property Type</option>
-                            <option value="single_family">Single-Family Home</option>
-                            <option value="condominium">Condominium</option>
-                            <option value="townhouse">Townhouse</option>
-                            <option value="duplex">Duplex</option>
-                        </select>
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="offerExpiration" class="form-label">Offer Expiration Date</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-calendar"></i></span>
-                            <input type="date" id="offerExpiration" name="offerExpiration" class="form-control" required>
-                        </div>
-                        <div class="form-text text-muted">Specify when this offer expires if not accepted.</div>
-                    </div>
-                </div>                
-                <div class="row">            
-                    <div class="mb-3">
-                        <label for="includedPersonalProperty" class="form-label">Included Personal Property</label>
-                        <textarea class="form-control" id="includedPersonalProperty" name="includedPersonalProperty" rows="3" placeholder="List any personal property (appliances, furniture, etc.) to be included in the sale"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="excludedPersonalProperty" class="form-label">Excluded Personal Property</label>
-                        <textarea class="form-control" id="excludedPersonalProperty" name="excludedPersonalProperty" rows="3" placeholder="List any personal property to be specifically excluded from the sale"></textarea>
+                        <input type="text" class="form-control" id="sellerName" name="sellerName" value="<%= listing.seller.name %>" readonly>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="propertyAddress" class="form-label">Property Address</label>
+                        <input type="text" class="form-control" id="propertyAddress" name="propertyAddress" value="<%= listing.address %>, <%= listing.city %>, <%= listing.state %> <%= listing.zip %>" readonly>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="propertyCounty" class="form-label">County</label>
+                        <input type="text" class="form-control" id="propertyCounty" name="propertyCounty" value="<%= listing.county %>" readonly>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Property Type</label>
+                        <input type="text" class="form-control" name="propertyType" 
+                               value="<%= listing.propertyType ? getPropertyTypeLabel(listing.propertyType) : 'Not specified' %>" readonly>
+                        <input type="hidden" name="propertyType" value="<%= listing.propertyType %>">
+                      </div>
+                </div>
+                <div class="mb-3">
+                    <label for="offerExpiration" class="form-label">Offer Expiration Date</label>
+                    <input type="date" id="offerExpiration" name="offerExpiration" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="includedPersonalProperty" class="form-label">Included Personal Property</label>
+                    <textarea class="form-control" id="includedPersonalProperty" name="includedPersonalProperty" rows="2"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="excludedPersonalProperty" class="form-label">Excluded Personal Property</label>
+                    <textarea class="form-control" id="excludedPersonalProperty" name="excludedPersonalProperty" rows="2"></textarea>
+                </div>
             </div>
-        </div>    
+        </div>
+
         <!-- Section 2: Purchase Price and Financing -->
         <div class="card shadow-lg mb-3">
             <div class="card-header bg-primary text-white">
                 <h2 class="h4 mb-0">2. Purchase Price and Financing</h2>
             </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="offerPrice" class="form-label">Offer Price ($)</label>
-                        <input type="number" class="form-control" id="offerPrice" name="offerPrice" 
-                               min="<%= listing.price * 0.8 %>" max="<%= listing.price * 1.2 %>" required>
+                <div class="mb-3">
+                    <label for="offerPrice" class="form-label">Offer Price ($)</label>
+                    <input type="number" class="form-control" id="offerPrice" name="offerPrice" min="0" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Financing Type</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="financingType" id="financingCash" value="cash" required>
+                        <label class="form-check-label" for="financingCash">Cash</label>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label d-block">Financing Method</label>
-                        <div class="btn-group w-100" role="group">
-                            <input type="radio" class="btn-check" name="financingType" id="cashOffer" value="cash" required>
-                            <label class="btn btn-outline-primary" for="cashOffer">All Cash</label>
-    
-                            <input type="radio" class="btn-check" name="financingType" id="bankFinancing" value="bank">
-                            <label class="btn btn-outline-primary" for="bankFinancing">Bank Financing</label>
-    
-                            <input type="radio" class="btn-check" name="financingType" id="sellerFinancing" value="seller">
-                            <label class="btn btn-outline-primary" for="sellerFinancing">Seller Financing</label>
-                        </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="financingType" id="financingBank" value="bank">
+                        <label class="form-check-label" for="financingBank">Lender Financing</label>
                     </div>
-                </div>    
-                <!-- Conditional Financing Details -->
-                <div id="bankFinancingDetails" class="row mt-3" style="display:none;">
-                    <div class="col-md-4 mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="financingType" id="financingSeller" value="seller">
+                        <label class="form-check-label" for="financingSeller">Seller Financing</label>
+                    </div>
+                </div>
+                <div id="bankFinancingFields" style="display:none;">
+                    <div class="mb-3">
                         <label for="loanType" class="form-label">Loan Type</label>
-                        <select class="form-select" id="loanType" name="loanType">
+                        <select class="form-select" name="loanType" id="loanType">
                             <option value="">Select Loan Type</option>
                             <option value="conventional">Conventional</option>
                             <option value="fha">FHA</option>
@@ -106,27 +94,33 @@
                             <option value="usda">USDA</option>
                         </select>
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="mb-3">
                         <label for="loanAmount" class="form-label">Loan Amount ($)</label>
                         <input type="number" class="form-control" id="loanAmount" name="loanAmount">
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="interestRate" class="form-label">Maximimum Acceptable Interest Rate (%)</label>
+                    <div class="mb-3">
+                        <label for="interestRate" class="form-label">Interest Rate (%)</label>
                         <input type="number" class="form-control" id="interestRate" name="interestRate" step="0.01">
                     </div>
                 </div>
             </div>
-        </div>    
+        </div>
+
         <!-- Section 3: Earnest Money -->
-        <div class="card shadow-lg mb-3">
+        <div class="card shadow-lg mb-3" id="sectionEarnestMoney">
             <div class="card-header bg-primary text-white">
                 <h2 class="h4 mb-0">3. Earnest Money</h2>
             </div>
             <div class="card-body">
+                <p class="text-muted">
+                    Earnest money is a good-faith deposit made by the buyer to show serious intent to purchase the property.
+                    This deposit is typically held by the title company and applied toward the purchase price at closing.
+                    Failure to deliver earnest money on time may give the seller the right to cancel the agreement.
+                </p>
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="earnestMoney" class="form-label">Earnest Money Amount ($)</label>
-                        <input type="number" class="form-control" id="earnestMoney" name="earnestMoney" required>
+                        <input type="number" class="form-control" id="earnestMoney" name="earnestMoney" min="0" required>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="earnestDueDate" class="form-label">Earnest Money Due Date</label>
@@ -134,462 +128,343 @@
                     </div>
                 </div>
                 <div class="mb-3">
-                    <label for="escrowAgent" class="form-label">Title Company</label>
-                    <select class="form-select" id="escrowAgent" name="escrowAgent" required>
-                        <option value="">Select Title Company</option>
-                        <% if (titleCompanies && titleCompanies.length > 0) { %>
-                            <% titleCompanies.forEach(company => { %>
-                                <option value="<%= company.companyName %>"><%= company.companyName %></option>
-                            <% }); %>
-                        <% } else { %>
-                            <!-- Fallback options if no title companies found -->
-                            <option value="company1">First Title Services</option>
-                            <option value="company2">Reliable Title</option>
-                            <option value="company3">State Title Company</option>
-                        <% } %>
-                    </select>
+                    <label for="titleCompany" class="form-label">Title Company (Escrow Agent)</label>
+                    <input type="text" class="form-control" id="titleCompany" name="titleCompany" required>
                 </div>
             </div>
-        </div>    
+        </div>
+
         <!-- Section 4: Contingencies -->
         <div class="card shadow-lg mb-3">
             <div class="card-header bg-primary text-white">
                 <h2 class="h4 mb-0">4. Contingencies</h2>
             </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input contingency-checkbox" type="checkbox" id="inspectionContingency" name="contingencies" value="inspection">
-                            <label class="form-check-label" for="inspectionContingency">
-                                Inspection Contingency
-                            </label>
-                        </div>
-                        <div id="inspectionDetails" class="mt-2" style="display:none;">
-                            <label for="inspectionDeadline" class="form-label">Inspection Deadline (Days)</label>
-                            <input type="number" class="form-control" id="inspectionDeadline" name="inspectionDeadlineDays" min="5" max="30">
-                        </div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input contingency-checkbox" type="checkbox" id="appraisalContingency" name="contingencies" value="appraisal">
-                            <label class="form-check-label" for="appraisalContingency">
-                                Appraisal Contingency
-                            </label>
-                        </div>
-                        <div id="appraisalDetails" class="mt-2" style="display:none;">
-                            <label for="appraisalDeadline" class="form-label">Appraisal Deadline (Days)</label>
-                            <input type="number" class="form-control" id="appraisalDeadline" name="appraisalDeadlineDays" min="10" max="45">
-                        </div>
-                    </div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-md-6 mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input contingency-checkbox" type="checkbox" id="financingContingency" name="contingencies" value="financing">
-                            <label class="form-check-label" for="financingContingency">
-                                Financing Contingency
-                            </label>
-                        </div>
-                        <div id="financingDetails" class="mt-2" style="display:none;">
-                            <label for="loanApprovalDeadline" class="form-label">Loan Approval Deadline (Days)</label>
-                            <input type="number" class="form-control" id="loanApprovalDeadline" name="loanApprovalDeadlineDays" min="15" max="60">
-                        </div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input contingency-checkbox" type="checkbox" id="saleContingency" name="contingencies" value="saleOfAnotherHome">
-                            <label class="form-check-label" for="saleContingency">
-                                Sale of Another Property Contingency
-                            </label>
-                        </div>
-                        <div id="saleDetails" class="mt-2" style="display:none;">
-                            <label for="saleOfAnotherAddress" class="form-label">Address of Property to be Sold</label>
-                            <input type="text" class="form-control" id="saleOfAnotherAddress" name="saleOfAnotherAddress">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-                
-        
-        <!-- Riders Section -->
-        <div class="card shadow-lg mb-3">
-            <div class="card-header bg-primary text-white">
-                <h2 class="h4 mb-0">6. Additional Documents and Riders</h2>
-            </div>
-            <div class="card-body">
-                <p class="text-muted mb-3">
-                    Select additional documents and riders to include with your offer. Some riders may require additional information.
+                <p class="text-muted">
+                    Contingencies allow the buyer to cancel or renegotiate the contract based on specific conditions like financing, inspections, or appraisal.
+                    If selected, deadlines must be met for each contingency to remain valid.
                 </p>
 
-                <!-- Required Documents -->
-                <div class="mb-4">
-                    <h6 class="border-bottom pb-2">Required Documents</h6>
-                    
-                    <!-- Wire Fraud Advisory -->
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="wireFraudAdvisory" name="riders.wireFraudAdvisory.included" checked disabled>
-                        <label class="form-check-label" for="wireFraudAdvisory">
-                            Wire Fraud Advisory
-                            <span class="badge bg-danger ms-2">Required</span>
-                        </label>
-                        <div class="form-text">
-                            This document warns about wire fraud risks in real estate transactions and provides guidance on secure fund transfers.
-                        </div>
-                        <div class="form-check mt-2 ms-4">
-                            <input class="form-check-input" type="checkbox" id="wireFraudAcknowledgment" name="riders.wireFraudAdvisory.acknowledged" required>
-                            <label class="form-check-label" for="wireFraudAcknowledgment">
-                                I acknowledge that I have read and understand the Wire Fraud Advisory
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <!-- Home Inspection Advisory -->
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="homeInspectionAdvisory" name="riders.homeInspectionAdvisory.included" checked disabled>
-                        <label class="form-check-label" for="homeInspectionAdvisory">
-                            For Your Protection: Get a Home Inspection
-                            <span class="badge bg-danger ms-2">Required</span>
-                        </label>
-                        <div class="form-text">
-                            This document explains the importance of getting a professional home inspection before completing your purchase.
-                        </div>
-                        <div class="form-check mt-2 ms-4">
-                            <input class="form-check-input" type="checkbox" id="homeInspectionAcknowledgment" name="riders.homeInspectionAdvisory.acknowledged" required>
-                            <label class="form-check-label" for="homeInspectionAcknowledgment">
-                                I acknowledge that I have read and understand the Home Inspection Advisory
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <!-- Platform Fee Disclosure -->
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="feeRider" name="riders.fee.included" checked disabled>
-                        <label class="form-check-label" for="feeRider">
-                            Platform Fee Disclosure
-                            <span class="badge bg-danger ms-2">Required</span>
-                        </label>
-                        <div class="form-text">
-                            This document discloses the platform fees associated with this transaction.
-                        </div>
-                        <div class="form-check mt-2 ms-4">
-                            <input class="form-check-input" type="checkbox" id="feeAcknowledgment" name="riders.fee.feeAcknowledged" required>
-                            <label class="form-check-label" for="feeAcknowledgment">
-                                I acknowledge and agree to pay the platform fee of <strong>$<span id="platformFeeAmount">1000</span></strong>
-                            </label>
-                            <input type="hidden" name="riders.fee.platformFee" value="1000">
-                        </div>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" id="inspectionContingency" name="contingencies" value="inspection">
+                    <label class="form-check-label" for="inspectionContingency">
+                        Inspection Contingency
+                    </label>
+                    <div class="ms-4 mt-2">
+                        <label for="inspectionDeadlineDays" class="form-label">Inspection Deadline (Usually 10–15 days)</label>
+                        <input type="number" class="form-control" name="inspectionDeadlineDays" id="inspectionDeadlineDays" min="1">
                     </div>
                 </div>
 
-                <!-- Optional Riders -->
-                <div>
-                    <h6 class="border-bottom pb-2">Optional Riders</h6>
-                    
-                    <!-- Government Loan Rider -->
-                    <div class="form-check mb-3">
-                        <input class="form-check-input rider-checkbox" type="checkbox" id="governmentLoanRider" 
-                            name="riders.governmentLoan.included" data-target="governmentLoanDetails">
-                        <label class="form-check-label" for="governmentLoanRider">
-                            Government Loan Rider
-                        </label>
-                        <div class="form-text">
-                            <strong>When to use:</strong> Select this rider if you're financing with an FHA, VA, or USDA loan. This rider includes specific provisions required for government-backed loans, such as the amendatory clause and appraisal requirements.
-                        </div>
-                        
-                        <!-- Government Loan Details (hidden initially) -->
-                        <div id="governmentLoanDetails" class="rider-details mt-3 ms-4 p-3 bg-light rounded" style="display: none;">
-                            <h6 class="mb-3">Government Loan Details</h6>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">Loan Type</label>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="riders.governmentLoan.loanType" id="fhaLoan" value="FHA">
-                                    <label class="form-check-label" for="fhaLoan">FHA Loan</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="riders.governmentLoan.loanType" id="vaLoan" value="VA">
-                                    <label class="form-check-label" for="vaLoan">VA Loan</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="riders.governmentLoan.loanType" id="usdaLoan" value="USDA">
-                                    <label class="form-check-label" for="usdaLoan">USDA/Rural Development Loan</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="riders.governmentLoan.loanType" id="otherGovLoan" value="Other">
-                                    <label class="form-check-label" for="otherGovLoan">Other Government Loan</label>
-                                </div>
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="loanPercentage" class="form-label">Loan Percentage of Purchase Price</label>
-                                    <div class="input-group">
-                                        <input type="number" class="form-control" id="loanPercentage" 
-                                            name="riders.governmentLoan.loanPercentage" min="1" max="100">
-                                        <span class="input-group-text">%</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-md-6 mb-3">
-                                    <label for="loanContingencyDeadline" class="form-label">Loan Contingency Deadline</label>
-                                    <div class="input-group">
-                                        <input type="number" class="form-control" id="loanContingencyDeadline" 
-                                            name="riders.governmentLoan.loanContingencyDeadline" value="25" min="1" max="60">
-                                        <span class="input-group-text">days</span>
-                                    </div>
-                                    <div class="form-text">Days after offer acceptance</div>
-                                </div>
-                            </div>                                                        
-                        </div>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" id="appraisalContingency" name="contingencies" value="appraisal">
+                    <label class="form-check-label" for="appraisalContingency">
+                        Appraisal Contingency
+                    </label>
+                    <div class="ms-4 mt-2">
+                        <label for="appraisalDeadlineDays" class="form-label">Appraisal Deadline (Typically 25–30 days)</label>
+                        <input type="number" class="form-control" name="appraisalDeadlineDays" id="appraisalDeadlineDays" min="1">
                     </div>
-                    
-                    <!-- Sight Unseen Rider -->
-                    <div class="form-check mb-3">
-                        <input class="form-check-input rider-checkbox" type="checkbox" id="sightUnseenRider" 
-                            name="riders.sightUnseen.included" data-target="sightUnseenDetails">
-                        <label class="form-check-label" for="sightUnseenRider">
-                            Sight Unseen Rider
-                        </label>
-                        <div class="form-text">
-                            <strong>When to use:</strong> Select this rider if you're making an offer without having physically visited the property. This rider specifies your rights regarding property viewing before closing and addresses special considerations for remote buying.
-                        </div>
-                        
-                        <!-- Sight Unseen Details (hidden initially) -->
-                        <div id="sightUnseenDetails" class="rider-details mt-3 ms-4 p-3 bg-light rounded" style="display: none;">
-                            <h6 class="mb-3">Sight Unseen Options</h6>
-                            
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="riders.sightUnseen.reserveRightToView" 
-                                    id="reserveViewingRight" value="true">
-                                <label class="form-check-label" for="reserveViewingRight">
-                                    <strong>OPTION 1:</strong> Reserve right to view property before proceeding
-                                </label>
-                                <div class="form-text">
-                                    You'll have a specified period to view the property and can back out if unsatisfied.
-                                </div>
-                                
-                                <div class="mt-2 ms-4">
-                                    <label for="propertyViewingPeriod" class="form-label">Property Viewing Period</label>
-                                    <div class="input-group" style="max-width: 200px;">
-                                        <input type="number" class="form-control" id="propertyViewingPeriod" 
-                                            name="riders.sightUnseen.propertyViewingPeriod" value="5" min="1" max="14">
-                                        <span class="input-group-text">days</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="form-check mt-3">
-                                <input class="form-check-input" type="radio" name="riders.sightUnseen.reserveRightToView" 
-                                    id="waiveViewingRight" value="false" checked>
-                                <label class="form-check-label" for="waiveViewingRight">
-                                    <strong>OPTION 2:</strong> Waive right to view property
-                                </label>
-                                <div class="form-text">
-                                    You acknowledge you're making the offer without viewing the property and waive the right to withdraw based on property condition.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Contingency for Sale of Buyer's Existing Property -->
-                    <div class="form-check mb-3">
-                        <input class="form-check-input rider-checkbox" type="checkbox" id="contingencyForSaleRider" 
-                            name="riders.contingencyForSale.included" data-target="contingencyForSaleDetails">
-                        <label class="form-check-label" for="contingencyForSaleRider">
-                            Contingency for Sale of Buyer's Existing Property
-                        </label>
-                        <div class="form-text">
-                            <strong>When to use:</strong> Select this rider if your ability to purchase this property depends on selling your current home. This rider specifies timelines and terms for selling your existing property and includes kickout provisions.
-                        </div>
-                        
-                        <!-- Contingency for Sale Details (hidden initially) -->
-                        <div id="contingencyForSaleDetails" class="rider-details mt-3 ms-4 p-3 bg-light rounded" style="display: none;">
-                            <h6 class="mb-3">Existing Property Sale Details</h6>
-                            
-                            <div class="mb-3">
-                                <label for="existingPropertyAddress" class="form-label">Address of Existing Property</label>
-                                <input type="text" class="form-control" id="existingPropertyAddress" 
-                                    name="riders.contingencyForSale.existingPropertyAddress" required>
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="existingPropertyClosingDeadline" class="form-label">Closing Deadline</label>
-                                    <input type="date" class="form-control" id="existingPropertyClosingDeadline" 
-                                        name="riders.contingencyForSale.existingPropertyClosingDeadline" required>
-                                    <div class="form-text">Final date by which your property must sell</div>
-                                </div>
-                                
-                                <div class="col-md-6 mb-3">
-                                    <label for="kickOutHours" class="form-label">Kick-Out Period</label>
-                                    <div class="input-group">
-                                        <input type="number" class="form-control" id="kickOutHours" 
-                                            name="riders.contingencyForSale.kickOutHours" value="72" min="24" max="168" step="24">
-                                        <span class="input-group-text">hours</span>
-                                    </div>
-                                    <div class="form-text">Time you have to respond if seller receives another offer</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Contingency for Closing of Buyer's Existing Property -->
-                    <div class="form-check mb-3">
-                        <input class="form-check-input rider-checkbox" type="checkbox" id="contingencyForClosingRider" 
-                            name="riders.contingencyForClosing.included" data-target="contingencyForClosingDetails">
-                        <label class="form-check-label" for="contingencyForClosingRider">
-                            Contingency for Closing of Buyer's Existing Property
-                        </label>
-                        <div class="form-text">
-                            <strong>When to use:</strong> Select this rider if your current home is already under contract but hasn't closed yet. This rider makes your purchase conditional on the successful closing of your existing property's sale.
-                        </div>
-                        
-                        <!-- Contingency for Closing Details (hidden initially) -->
-                        <div id="contingencyForClosingDetails" class="rider-details mt-3 ms-4 p-3 bg-light rounded" style="display: none;">
-                            <h6 class="mb-3">Existing Property Closing Details</h6>
-                            
-                            <div class="mb-3">
-                                <label for="existingPropertyContractDate" class="form-label">Date of Existing Contract</label>
-                                <input type="date" class="form-control" id="existingPropertyContractDate" 
-                                    name="riders.contingencyForClosing.existingPropertyContractDate" required>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="existingPropertyClosingAddress" class="form-label">Address of Existing Property</label>
-                                <input type="text" class="form-control" id="existingPropertyClosingAddress" 
-                                    name="riders.contingencyForClosing.existingPropertyAddress" required>
-                            </div>
-                            
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="checkbox" id="existingPropertyContainsContingency" 
-                                    name="riders.contingencyForClosing.existingPropertyContainsContingency">
-                                <label class="form-check-label" for="existingPropertyContainsContingency">
-                                    The existing contract contains a contingency for the sale of another property
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Walk-Through Notice -->
-                    <div class="form-check mb-3">
-                        <input class="form-check-input rider-checkbox" type="checkbox" id="walkThroughRider" 
-                            name="riders.walkThrough.included" data-target="walkThroughDetails">
-                        <label class="form-check-label" for="walkThroughRider">
-                            Walk-Through Notice
-                        </label>
-                        <div class="form-text">
-                            <strong>When to use:</strong> Select this rider to add specific terms regarding the final walk-through before closing. This specifies when the walk-through will occur and what conditions must be met.
-                        </div>
-                        
-                        <!-- Walk-Through Details (hidden initially) -->
-                        <div id="walkThroughDetails" class="rider-details mt-3 ms-4 p-3 bg-light rounded" style="display: none;">
-                            <h6 class="mb-3">Walk-Through Details</h6>
-                            
-                            <div class="mb-3">
-                                <label for="walkThroughDate" class="form-label">Scheduled Walk-Through Date/Time</label>
-                                <input type="datetime-local" class="form-control" id="walkThroughDate" 
-                                    name="riders.walkThrough.scheduledDate">
-                                <div class="form-text">This can be updated later if needed</div>
-                            </div>
-                        </div>
+                </div>
+
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" id="financingContingency" name="contingencies" value="financing">
+                    <label class="form-check-label" for="financingContingency">
+                        Financing Contingency
+                    </label>
+                    <div class="ms-4 mt-2">
+                        <label for="loanApprovalDeadlineDays" class="form-label">Loan Approval Deadline (Usually 25–33 days)</label>
+                        <input type="number" class="form-control" name="loanApprovalDeadlineDays" id="loanApprovalDeadlineDays" min="1">
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Section 5: Closing Details -->
-        <div class="card shadow-lg mb-3">
-            <div class="card-header bg-primary text-white">
-                <h2 class="h4 mb-0">5. Closing Details</h2>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="closingDate" class="form-label">Proposed Closing Date</label>
-                        <input type="date" class="form-control" id="closingDate" name="closingDate" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="titleCompany">Title Company</label>
-                        <select id="titleCompany" name="titleCompany" class="form-select" required>
-                            <option value="">Select Title Company</option>
-                            <% if (titleCompanies && titleCompanies.length > 0) { %>
-                                <% titleCompanies.forEach(company => { %>
-                                    <option value="<%= company.companyName %>" data-address="<%= company.address %>">
-                                        <%= company.companyName %>
-                                    </option>
-                                <% }); %>
-                            <% } else { %>
-                                <option value="UNKNOWN">Determined Later</option>
-                            <% } %>
-                        </select>                          
-                        <input type="hidden" id="titleCompanyAddress" name="titleCompanyAddress" value="">                      
-                    </div>     
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Closing Costs Allocation</label>
-                    <div class="btn-group w-100" role="group">
-                        <input type="radio" class="btn-check" name="closingCosts" id="buyerPays" value="buyer" required>
-                        <label class="btn btn-outline-primary" for="buyerPays">Buyer Pays All</label>
-    
-                        <input type="radio" class="btn-check" name="closingCosts" id="sellerPays" value="seller">
-                        <label class="btn btn-outline-primary" for="sellerPays">Seller Pays All</label>
-    
-                        <input type="radio" class="btn-check" name="closingCosts" id="splitCosts" value="split">
-                        <label class="btn btn-outline-primary" for="splitCosts">Split Costs</label>
-
-                        <input type="radio" class="btn-check" name="closingCosts" id="each_pays_own" value="each_pays_own">
-                        <label class="btn btn-outline-primary" for="each_pays_own">Buyer Pays Their Own, Seller Pays Their Own</label>
-                    </div>
-                </div>
-            </div>
-        </div>    
-        <!-- Section 6: Acknowledgments -->
-        <div class="card shadow-lg mb-3">
-            <div class="card-header bg-primary text-white">
-                <h2 class="h4 mb-0">6. Acknowledgments</h2>
-            </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label">Was this property built before 1978?</label>
-                    <div class="btn-group w-100" role="group">
-                        <input type="radio" class="btn-check" name="preseventyEightProperty" id="preseventyEightYes" value="yes">
-                        <label class="btn btn-outline-primary" for="preseventyEightYes">Yes</label>
-
-                        <input type="radio" class="btn-check" name="preseventyEightProperty" id="preseventyEightNo" value="no">
-                        <label class="btn btn-outline-primary" for="preseventyEightNo">No</label>
-                    </div>
-                </div>
-                
-                <div id="leadBasedPaintSection" style="display:none;">                       
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="sellerLeadDisclosure" name="sellerLeadDisclosure" required>
-                        <label class="form-check-label" for="sellerLeadDisclosure">
-                            Seller to provide a lead based paint disclosure within 3 days of acceptance of agreement.
-                        </label>
-                    </div>
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="buyerLeadInspection" name="buyerLeadInspection">
-                        <label class="form-check-label" for="buyerLeadInspection">
-                            Buyer has the right to conduct a lead-based paint inspection at their own expense
-                        </label>
-                    </div>
-                </div>
-                <div class="form-check mb-3">
-                    <input class="form-check-input" type="checkbox" id="legalAcknowledgment" name="acknowledgment" value="true" required>
-                    <label class="form-check-label" for="legalAcknowledgment">
-                        I acknowledge this is a legally binding contract and understand its implications
-                    </label>
-                </div>
-                <div class="form-check mb-3">
-                    <input class="form-check-input" type="checkbox" id="documentAgreement" name="agreeDocuments" value="true" required>
-                    <label class="form-check-label" for="documentAgreement">
-                        I agree to provide all necessary documents as requested
-                    </label>
-                </div>
-            </div>
+                        
+<!-- Section 5: Additional Documents and Riders -->
+<div class="card shadow-lg mb-3">
+    <div class="card-header bg-primary text-white">
+      <h2 class="h4 mb-0">5. Additional Documents and Riders</h2>
+    </div>
+    <div class="card-body">
+      <p class="text-muted mb-3">
+        Select additional documents and riders to include with your offer. Some riders are required. Riders are viewable in the preview at the bottom of the page! 
+      </p>
+  
+      <!-- Required Documents -->
+      <div class="mb-4">
+        <h6 class="border-bottom pb-2">Required Documents</h6>
+  
+        <!-- Wire Fraud Advisory -->
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" id="wireFraudAdvisory" name="riders.wireFraudAdvisory.acknowledged" checked disabled>
+          <label class="form-check-label" for="wireFraudAdvisory">
+            Wire Fraud Advisory <span class="badge bg-danger ms-2">Required</span>
+          </label>
+          <div class="form-text">
+            This document warns about wire fraud risks in real estate transactions and provides guidance on secure fund transfers.
+          </div>
+          <div class="form-check mt-2 ms-4">
+            <input class="form-check-input" type="checkbox" id="wireFraudAcknowledgment" name="riders.wireFraudAdvisory.acknowledged" required>
+            <label class="form-check-label" for="wireFraudAcknowledgment">
+              I acknowledge that I have read and understand the Wire Fraud Advisory
+            </label>
+          </div>
         </div>
+  
+        <!-- Home Inspection Advisory -->
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" id="homeInspectionAdvisory" name="riders.homeInspectionAdvisory.acknowledged" checked disabled>
+          <label class="form-check-label" for="homeInspectionAdvisory">
+            Home Inspection Advisory <span class="badge bg-danger ms-2">Required</span>
+          </label>
+          <div class="form-text">
+            This document explains the importance of getting a professional home inspection before completing your purchase.
+          </div>
+          <div class="form-check mt-2 ms-4">
+            <input class="form-check-input" type="checkbox" id="homeInspectionAcknowledgment" name="riders.homeInspectionAdvisory.acknowledged" required>
+            <label class="form-check-label" for="homeInspectionAcknowledgment">
+              I acknowledge that I have read and understand the Home Inspection Advisory
+            </label>
+          </div>
+        </div>
+  
+        <!-- Platform Fee Disclosure -->
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" id="feeRider" name="riders.fee.included" checked disabled>
+          <label class="form-check-label" for="feeRider">
+            Platform Fee Disclosure <span class="badge bg-danger ms-2">Required</span>
+          </label>
+          <div class="form-text">
+            This document discloses the platform fees associated with this transaction.
+          </div>
+          <div class="form-check mt-2 ms-4">
+            <input class="form-check-input" type="checkbox" id="feeAcknowledgment" name="riders.fee.feeAcknowledged" required>
+            <label class="form-check-label" for="feeAcknowledgment">
+              I acknowledge and agree to pay the platform fee of <strong>$<span id="platformFeeAmount">1000</span></strong>
+            </label>
+            <input type="hidden" name="riders.fee.platformFee" value="1000">
+          </div>
+        </div>
+      </div>
+  
+      <!-- Optional Riders -->
+      <div>
+        <h6 class="border-bottom pb-2">Optional Riders</h6>
+  
+        <!-- Government Loan Rider -->
+        <div class="form-check mb-3">
+          <input class="form-check-input rider-checkbox" type="checkbox" id="governmentLoanRider" name="riders.governmentLoan.included" data-target="governmentLoanDetails">
+          <label class="form-check-label" for="governmentLoanRider">
+            Government Loan Rider
+          </label>
+          <div class="form-text">
+            Select this rider if you're using an FHA, VA, or USDA government-backed loan.
+          </div>
+          <div id="governmentLoanDetails" class="rider-details mt-3 ms-4 p-3 bg-light rounded" style="display: none;">
+            <label for="loanTypeRider" class="form-label">Loan Type</label>
+            <select class="form-select" name="riders.governmentLoan.loanType" id="loanTypeRider">
+              <option value="">Select</option>
+              <option value="fha">FHA</option>
+              <option value="va">VA</option>
+              <option value="usda">USDA</option>
+              <option value="other">Other</option>
+            </select>
+            <div class="row mt-3">
+              <div class="col-md-6">
+                <label for="loanPercentage" class="form-label">Loan Percentage</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" name="riders.governmentLoan.loanPercentage" id="loanPercentage">
+                  <span class="input-group-text">%</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label for="loanContingencyDeadline" class="form-label">Loan Contingency Deadline</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" name="riders.governmentLoan.loanContingencyDeadline" id="loanContingencyDeadline" value="25">
+                  <span class="input-group-text">days</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Sight Unseen Rider -->
+        <div class="form-check mb-3">
+          <input class="form-check-input rider-checkbox" type="checkbox" id="sightUnseenRider" name="riders.sightUnseen.included" data-target="sightUnseenDetails">
+          <label class="form-check-label" for="sightUnseenRider">Sight Unseen Rider</label>
+          <div class="form-text">
+            Use if you are submitting an offer without seeing the property in person.
+          </div>
+          <div id="sightUnseenDetails" class="rider-details mt-3 ms-4 p-3 bg-light rounded" style="display: none;">
+            <label class="form-label">Do you reserve the right to view the property before closing?</label>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="riders.sightUnseen.reserveRightToView" value="true">
+              <label class="form-check-label">Yes, I reserve the right</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="riders.sightUnseen.reserveRightToView" value="false" checked>
+              <label class="form-check-label">No, I waive the right</label>
+            </div>
+            <div class="mt-2">
+              <label for="propertyViewingPeriod" class="form-label">Viewing Period (days)</label>
+              <input type="number" class="form-control" id="propertyViewingPeriod" name="riders.sightUnseen.propertyViewingPeriod" value="5" min="1" max="14">
+            </div>
+          </div>
+        </div>
+  
+        <!-- Contingency for Sale Rider -->
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" id="contingencyForSale" name="riders.contingencyForSale.included">
+          <label class="form-check-label" for="contingencyForSale">
+            Contingency for Sale of Buyer's Existing Property
+          </label>
+        </div>
+  
+        <!-- Contingency for Closing Rider -->
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" id="contingencyForClosing" name="riders.contingencyForClosing.included">
+          <label class="form-check-label" for="contingencyForClosing">
+            Contingency for Closing of Buyer's Existing Property
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- Section 6: Closing Details -->
+<div class="card shadow-lg mb-4">
+    <div class="card-header bg-primary text-white">
+      <h2 class="h4 mb-0">6. Closing Details</h2>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="closingDate" class="form-label">
+            Proposed Closing Date
+            <small class="text-muted d-block">(Date you want to sign documents and take control of the property)</small>
+          </label>
+          <input type="date" class="form-control" id="closingDate" name="closingDate" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="titleCompany" class="form-label">
+            Title Company
+            <small class="text-muted d-block">(Company that processes documents for closing)</small>
+          </label>
+          <select id="titleCompany" name="titleCompany" class="form-select" required>
+            <option value="">Select Title Company</option>
+            <% if (titleCompanies && titleCompanies.length > 0) { %>
+              <% titleCompanies.forEach(company => { %>
+                <option value="<%= company.companyName %>" data-address="<%= company.address %>">
+                  <%= company.companyName %>
+                </option>
+              <% }); %>
+            <% } %>
+          </select>
+          <input type="hidden" id="titleCompanyAddress" name="titleCompanyAddress">
+        </div>
+      </div>
+      <div class="mb-4">
+        <label class="form-label">
+          Closing Costs Allocation
+          <small class="text-muted d-block">(Defines who is responsible for closing costs)</small>
+        </label>
+        <div class="row">
+    <div class="col-md-6">
+      <div class="form-check mb-3">
+        <input type="radio" class="form-check-input" name="closingCosts" id="buyerPays" value="buyer" required>
+        <label class="form-check-label" for="buyerPays">
+          Buyer Pays All
+          <small class="d-block text-muted">(Buyer pays all closing costs from both sides)</small>
+        </label>
+      </div>
+      <div class="form-check mb-3">
+        <input type="radio" class="form-check-input" name="closingCosts" id="splitCosts" value="split">
+        <label class="form-check-label" for="splitCosts">
+          Split Costs
+          <small class="d-block text-muted">(Even 50/50 split)</small>
+        </label>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="form-check mb-3">
+        <input type="radio" class="form-check-input" name="closingCosts" id="sellerPays" value="seller">
+        <label class="form-check-label" for="sellerPays">
+          Seller Pays All
+          <small class="d-block text-muted">(Seller pays all closing costs from both sides)</small>
+        </label>
+      </div>
+      <div class="form-check mb-3">
+        <input type="radio" class="form-check-input" name="closingCosts" id="each_pays_own" value="each_pays_own">
+        <label class="form-check-label" for="each_pays_own">
+          Each Pays Own
+          <small class="d-block text-muted">(Buyer & Seller each pay their own; concessions may apply)</small>
+        </label>
+      </div>
+    </div>
+  </div>
+      </div>
+      <div class="col-md-6 mb-3">
+        <label for="maxConcession" class="form-label">
+          Max Concession Amount ($)
+          <small class="text-muted d-block">(Max the seller will contribute toward concessions, including closing costs)</small>
+        </label>
+        <input type="number" class="form-control" id="maxConcession" name="maxConcession" required>
+      </div>
+    </div>
+  </div>
+  
+        <!-- Section 7: Acknowledgments -->
+<div class="card shadow-lg mb-3">
+    <div class="card-header bg-primary text-white">
+      <h2 class="h4 mb-0">7. Acknowledgments</h2>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <label class="form-label">Was this property built before 1978?</label>
+            <div class="row">
+              <div class="col-md-1">
+                <div class="form-check">
+                  <input type="radio" class="form-check-input" name="preseventyEightProperty" id="preseventyEightYes" value="yes">
+                  <label class="form-check-label" for="preseventyEightYes">Yes</label>
+                </div>
+              </div>
+              <div class="col-md-1">
+                <div class="form-check">
+                  <input type="radio" class="form-check-input" name="preseventyEightProperty" id="preseventyEightNo" value="no">
+                  <label class="form-check-label" for="preseventyEightNo">No</label>
+                </div>
+              </div>
+            </div>
+          </div>
+      <div id="leadBasedPaintSection" style="display:none;">
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" id="sellerLeadDisclosure" name="sellerLeadDisclosure" required>
+          <label class="form-check-label" for="sellerLeadDisclosure">
+            Seller to provide a lead based paint disclosure within 3 days of acceptance of agreement.
+          </label>
+        </div>
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" id="buyerLeadInspection" name="buyerLeadInspection">
+          <label class="form-check-label" for="buyerLeadInspection">
+            Buyer has the right to conduct a lead-based paint inspection at their own expense
+          </label>
+        </div>
+      </div>
+      <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" id="legalAcknowledgment" name="acknowledgment" value="true" required>
+        <label class="form-check-label" for="legalAcknowledgment">
+          I acknowledge this is a legally binding contract and understand its implications
+        </label>
+      </div>
+      <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" id="documentAgreement" name="agreeDocuments" value="true" required>
+        <label class="form-check-label" for="documentAgreement">
+          I agree to provide all necessary documents as requested
+        </label>
+      </div>
+    </div>
+  </div>
+  
     
         <!-- Form Actions -->
         <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">

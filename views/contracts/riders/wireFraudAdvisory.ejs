@@ -15,19 +15,19 @@
     </ul>
     <p><strong>Acknowledgment:</strong> Buyer acknowledges receipt and understanding of this Wire Fraud Advisory Rider.</p>
     <div style="display: flex; justify-content: space-between;">    
-        <!-- BUYER Signature -->
-        <div style="width: 48%;">
-          <h5 >Buyer</h5>
-          <p><strong>Signature:</strong><span class=""><%= offer.buyerName %></span></p>
-          <p><strong>Printed Name:</strong> <%= offer.buyerName %></p>
+      <!-- BUYER Signature -->
+      <div style="width: 48%;">
+          <h4><strong>Buyer</strong></h4>
+          <p><strong>Signature: </strong><span class=""><%= offer.buyerName %></span></p>
+          <p><strong>Printed Name: </strong> <%= offer.buyerName %></p>
           <p><strong>Date:</strong> ________________________________</p>
-        </div>      
+      </div>      
         <!-- SELLER Signature -->
-        <div style="width: 48%;">
-          <h5>Seller</h5>
-          <p><strong>Signature:</strong><span class=""><%= offer.buyerName %></p>
-          <p><strong>Printed Name:</strong> <%= offer.sellerName || 'Not provided' %></p>
+      <div style="width: 48%;">
+          <h4><strong>Seller</strong></h4>
+          <p><strong>Signature: </strong><span class=""><%= offer.sellerName %></span></p>
+          <p><strong>Printed Name: </strong> <%= offer.buyerName %></p>
           <p><strong>Date:</strong> ________________________________</p>
-        </div>    
-      </div>   
+      </div>    
+    </div>   
 </div>

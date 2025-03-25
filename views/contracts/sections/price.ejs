@@ -2,7 +2,6 @@
 <p>The total purchase price for the Property is <strong>$<%= offer.offerPrice.toLocaleString() %></strong> ("Purchase Price"), payable as follows:</p>
 
 <ul class="ms-4">
-  <li><strong>Initial Earnest Money Deposit:</strong> Refer to Earnest Money section below.</li>
   <li><strong>Balance of Purchase Price:</strong> Due at closing by certified funds, wire transfer, or as otherwise agreed in writing by the Parties.</li>
 </ul>
 
@@ -10,7 +9,7 @@
   <% if (offer.financingType === 'Cash') { %>
     <p>Buyer agrees to purchase the Property for cash with no financing contingency.</p>
   <% } else { %>
-    <p>Buyer intends to finance the purchase through a <strong><%= offer.financingType %></strong> loan in the amount of <strong>$<%= offer.loanAmount.toLocaleString() %></strong>.</p>
+    <p>Buyer intends to finance the purchase through a/an <strong style="text-transform:uppercase"><%= offer.loanType %></strong> loan in the amount of <strong>$<%= offer.loanAmount.toLocaleString() %></strong>.</p>
     <p>Buyer agrees to apply for said financing promptly and/or proceed in good faith to obtain loan approval on or before <strong><%= offer.loanApprovalDeadline %></strong>.</p>
   <% } %>
 

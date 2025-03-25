@@ -2,20 +2,19 @@
     <div style="display: flex; justify-content: space-between;">    
       <!-- BUYER Signature -->
       <div style="width: 48%;">
-        <h5 >Buyer</h5>
-        <p><strong>Signature:</strong><span class=""><%= offer.buyerName %></span></p>
-        <p><strong>Printed Name:</strong> <%= offer.buyerName %></p>
-        <p><strong>Date:</strong> ________________________________</p>
-      </div>
-    
-      <!-- SELLER Signature -->
+          <h4><strong>Buyer</strong></h4>
+          <p><strong>Signature: </strong><span class=""><%= offer.buyerName %></span></p>
+          <p><strong>Printed Name: </strong> <%= offer.buyerName %></p>
+          <p><strong>Date:</strong> ________________________________</p>
+      </div>      
+        <!-- SELLER Signature -->
       <div style="width: 48%;">
-        <h5>Seller</h5>
-        <p><strong>Signature:</strong><span class=""><%= offer.buyerName %></p>
-        <p><strong>Printed Name:</strong> <%= offer.sellerName || 'Not provided' %></p>
-        <p><strong>Date:</strong> ________________________________</p>
+          <h4><strong>Seller</strong></h4>
+          <p><strong>Signature: </strong><span class=""><%= offer.sellerName %></span></p>
+          <p><strong>Printed Name: </strong> <%= offer.buyerName %></p>
+          <p><strong>Date:</strong> ________________________________</p>
       </div>    
-    </div>    
+    </div>     
     <p>
         <small>This form is provided as a service and does not constitute legal advice. If you do not understand any part of this form, or have any questions regarding it, you should consult with an attorney before signing. Signing this contract creates a legally binding agreement. Once both parties have signed, the contract becomes enforceable.</small>
     </p>

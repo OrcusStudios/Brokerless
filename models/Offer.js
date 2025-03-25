@@ -115,7 +115,7 @@ const OfferSchema = new mongoose.Schema({
   // Contingencies
   contingencies: [{
     type: String,
-    enum: ['appraisal', 'financing', 'inspection', 'saleOfAnotherHome']
+    enum: ['appraisal', 'financing', 'inspection']
   }],
   
   // Contingency Specific Details
@@ -148,6 +148,12 @@ const OfferSchema = new mongoose.Schema({
     enum: ['buyer', 'seller', 'split', 'each_pays_own'],
     default: 'each_pays_own'
   },
+
+    // Closing Costs
+    maxConcession: {
+      type: Number,
+      default: null
+    },
 
   // Offer Status
   status: {
@@ -292,20 +298,6 @@ riders: {
     existingPropertyAddress: { type: String, default: null },
     existingPropertyContainsContingency: { type: Boolean, default: false }
   },
-  
-  // Amendment to Contract
-  amendment: {
-    included: { type: Boolean, default: false },
-    changes: [{ description: String, date: Date }]
-  },
-  
-  // Walk-Through Notice
-  walkThrough: {
-    included: { type: Boolean, default: false },
-    scheduledDate: { type: Date, default: null },
-    completed: { type: Boolean, default: false },
-    issues: [{ description: String, resolution: String }]
-  }
 },
 
 // Document Signature Tracking

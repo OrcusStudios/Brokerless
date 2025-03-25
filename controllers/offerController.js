@@ -290,26 +290,7 @@ try {
         } else if (offer.riders && offer.riders.contingencyForClosing) {
             offer.riders.contingencyForClosing.included = false;
         }
-        
-        // 5. Process Walk-Through Rider
-        if (req.body.riders && req.body.riders.walkThrough && 
-            (req.body.riders.walkThrough.included === 'on' || req.body.riders.walkThrough.included === true)) {
-            
-            if (!offer.riders) {
-                offer.riders = {};
-            }
-            
-            offer.riders.walkThrough = {
-                included: true,
-                scheduledDate: req.body.riders.walkThrough.scheduledDate ? 
-                              new Date(req.body.riders.walkThrough.scheduledDate) : null,
-                completed: false,
-                issues: offer.riders && offer.riders.walkThrough ? offer.riders.walkThrough.issues : []
-            };
-        } else if (offer.riders && offer.riders.walkThrough) {
-            offer.riders.walkThrough.included = false;
-        }
-        
+                        
         // Always ensure required riders are included
         if (!offer.riders) {
             offer.riders = {};
@@ -389,8 +370,8 @@ try {
 // Preview for counter offer - Enhanced to support counter offers
 exports.previewOfferContract = async (req, res) => {
     try {
-        // Format form data into an offer-like structure
-        const offerData = formatQueryToOffer(req.query);
+        
+        const rawOffer = formatQueryToOffer(req.query);
         
         // Check if this is a counter offer preview
         const isCounterOffer = req.query.isCounterOffer === 'true';
@@ -414,13 +395,39 @@ exports.previewOfferContract = async (req, res) => {
             returnUrl = '/offers/' + req.query.originalOfferId + '/counter';
         }
         
+        // Flatten for preview like PDF does
+        const offerData = {
+        ...rawOffer,
+        buyerName: rawOffer.buyer?.name || rawOffer.buyerFullName || '',
+        sellerName: rawOffer.seller?.name || rawOffer.sellerName || '',
+        listingAddress: rawOffer.listing?.address || rawOffer.propertyAddress?.split(',')[0] || '',
+        listingCity: rawOffer.listing?.city || rawOffer.propertyAddress?.split(',')[1]?.trim() || '',
+        listingState: rawOffer.listing?.state || rawOffer.propertyAddress?.split(',')[2]?.split(' ')[0] || '',
+        listingZip: rawOffer.listing?.zip || rawOffer.propertyAddress?.split(',')[2]?.split(' ')[1] || '',
+        listingCounty: rawOffer.listing?.county || rawOffer.propertyAddress?.split(',')[2]?.split(' ')[1] || '',
+        earnestDueDate: rawOffer.earnestDueDate || '',
+        closingDate: rawOffer.closingDate || '',
+        loanAmount: rawOffer.loanAmount || 0,
+        interestRate: rawOffer.interestRate || 0,
+        maxConcession: rawOffer.maxConcession || 0,
+        loanType: rawOffer.loanType || '',
+        offerPrice: rawOffer.offerPrice || 0,
+        contingencies: rawOffer.contingencies || [],
+        titleCompany: rawOffer.titleCompany || '',
+        titleCompanyAddress: rawOffer.titleCompanyAddress || '',
+        earnestMoney: rawOffer.earnestMoney || '',
+        includedPersonalProperty: rawOffer.includedPersonalProperty || '',
+        excludedPersonalProperty: rawOffer.excludedPersonalProperty || '',
+        riders: rawOffer.riders || {}
+        };
+
         // Render the preview template with all necessary variables
         res.render('contracts/preview', {
             offer: offerData,
             showExplanations: true,
-            returnUrl: returnUrl,
-            isCounterOffer: isCounterOffer,
-            originalOffer: originalOffer || {}
+            returnUrl,
+            isCounterOffer,
+            originalOffer
         });
     } catch (error) {
         console.error("Error generating contract preview:", error);
@@ -493,6 +500,7 @@ exports.submitOffer = catchAsync(async (req, res, next) => {
         contingencies = [],
         propertyType,
         appraisalDeadlineDays,
+        maxConcession,
         loanApprovalDeadlineDays,
         inspectionDeadlineDays,
         saleOfAnotherAddress,
@@ -503,19 +511,18 @@ exports.submitOffer = catchAsync(async (req, res, next) => {
         offerExpiration,
         acknowledgment,
         agreeDocuments,
-        includedPersonalProperty,  // Add this line
-        excludedPersonalProperty   // And this line
+        includedPersonalProperty,
+        excludedPersonalProperty
     } = req.body;
 
     // Allow cash offers without pre-approval
-    // Updated to handle new user model
     let isPreApproved = false;
     
     // Check for pre-approval in new user model
     if (buyer.buyer && buyer.buyer.preApprovalStatus === "approved") {
         isPreApproved = true;
     } 
-    // Fallback to old model if needed
+    
     else if (buyer.preApprovalStatus === "approved") {
         isPreApproved = true;
     }
@@ -560,6 +567,7 @@ exports.submitOffer = catchAsync(async (req, res, next) => {
         loanAmount,
         interestRate,
         earnestMoney,
+        maxConcession,
         includedPersonalProperty: includedPersonalProperty || '',
         excludedPersonalProperty: excludedPersonalProperty || '',
         earnestDueDate: formattedEarnestDueDate,
@@ -652,18 +660,7 @@ exports.submitOffer = catchAsync(async (req, res, next) => {
                                               req.body.riders.contingencyForClosing.existingPropertyContainsContingency === true
         };
     }
-    
-    // Walk-Through Notice
-    if (req.body.riders?.walkThrough?.included === 'on' || req.body.riders?.walkThrough?.included === true) {
-        offerData.riders.walkThrough = {
-            included: true,
-            scheduledDate: req.body.riders.walkThrough.scheduledDate ? 
-                          new Date(req.body.riders.walkThrough.scheduledDate) : null,
-            completed: false,
-            issues: []
-        };
-    }
-    
+        
     // Initialize signature tracking for all included riders
     offerData.signatures = {
         mainContract: {
@@ -1179,16 +1176,7 @@ function formatQueryToOffer(query) {
                 existingPropertyAddress: query['riders.contingencyForClosing.existingPropertyAddress'] || '',
                 existingPropertyContainsContingency: query['riders.contingencyForClosing.existingPropertyContainsContingency'] === 'on' || 
                                                    query['riders.contingencyForClosing.existingPropertyContainsContingency'] === 'true'
-            },
-            
-            // Walk Through Notice - Optional
-            walkThrough: {
-                included: query['riders.walkThrough.included'] === 'on' || 
-                          query['riders.walkThrough.included'] === 'true',
-                scheduledDate: query['riders.walkThrough.scheduledDate'] || '',
-                completed: false,
-                issues: []
-            }
+            },            
         }
     };
 }
