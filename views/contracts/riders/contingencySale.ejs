@@ -1,0 +1,37 @@
+<div class="mb-4 text-center">
+    <h5 class="rider">CONTINGENCY FOR SALE OF EXISTING PROPERTY</h5>
+</div>
+<div class="mb-4">
+    <p>This Contingency for Sale of Existing Property Rider is incorporated into and made part of the Residential Real Estate Purchase Agreement between Buyer and Seller concerning the following Property:</p>
+
+    <p><strong>Property Address:</strong> <%= offer.listingAddress || 'Not specified' %>, <%= offer.listingCity || '' %>, <%= offer.listingState || '' %> <%= offer.listingZip || '' %></p>
+
+    <h5>1. Buyer's Existing Property</h5>
+    <p>Buyer's obligation to purchase is contingent upon the successful sale and closing of Buyer’s existing property located at:</p>
+    <p><strong>Existing Property Address:</strong> <%= offer.riders.contingencyForSale?.existingPropertyAddress || 'Not Provided' %></p>
+
+    <h5>2. Kick-Out Clause</h5>
+    <p>If Seller receives another acceptable offer while this Agreement is contingent, Seller may provide written notice to Buyer. Buyer then has <strong><%= offer.riders.contingencyForSale?.kickOutHours || '72' %> hours</strong> from receipt of such notice to remove this contingency in writing. Failure to do so will result in automatic termination of this Agreement, and Earnest Money shall be returned to Buyer.</p>
+
+    <h5>3. Removal of Contingency</h5>
+    <p>Buyer may remove this contingency at any time prior to closing by providing written notice to Seller. Upon removal, this contingency is deemed waived.</p>
+
+    <p><strong>All other terms and conditions of the Purchase Agreement remain unchanged.</strong></p>
+
+    <div style="display: flex; justify-content: space-between;">    
+        <!-- BUYER Signature -->
+        <div style="width: 48%;">
+          <h5 >Buyer</h5>
+          <p><strong>Signature:</strong><span class=""><%= offer.buyerName %></span></p>
+          <p><strong>Printed Name:</strong> <%= offer.buyerName %></p>
+          <p><strong>Date:</strong> ________________________________</p>
+        </div>      
+        <!-- SELLER Signature -->
+        <div style="width: 48%;">
+          <h5>Buyer</h5>
+          <p><strong>Signature:</strong><span class=""><%= offer.buyerName %></span></p>
+          <p><strong>Printed Name:</strong> <%= offer.buyerName %></p>
+          <p><strong>Date:</strong> ________________________________</p>
+        </div>    
+      </div>   
+</div>

@@ -1,0 +1,56 @@
+<%- include('../partials/layout.ejs', { title: 'Amendment to Contract' }) %>
+
+<div class="container py-4">
+    <span class="badge bg-warning text-dark position-fixed" style="top: 80px; right: 20px; z-index: 1000;">
+        PREVIEW ONLY - NOT BINDING
+    </span>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white text-center">
+            <h3 class="mb-0">AMENDMENT TO CONTRACT FOR SALE OF REAL ESTATE</h3>
+        </div>
+        <div class="card-body p-4">
+            <div class="alert alert-info mb-4">
+                <strong>IMPORTANT:</strong> This Amendment modifies the original Purchase Agreement. Please review carefully.
+            </div>
+
+            <p>This Amendment is made between <strong><%= amendment.sellerName || 'Seller Name' %></strong> ("Seller") and <strong><%= amendment.buyerName || 'Buyer Name' %></strong> ("Buyer") concerning the property located at:</p>
+            <p><strong><%= amendment.propertyAddress || 'Property Address' %>, MO <%= amendment.propertyZip || 'Zip Code' %>, <%= amendment.propertyCounty || 'County' %></strong></p>
+
+            <h5 class="mt-4">Amendment Terms:</h5>
+            <ul class="list-group mb-4">
+                <% if (amendment.closingDateChanged) { %>
+                    <li class="list-group-item">Closing Date changed to: <strong><%= amendment.newClosingDate %></strong></li>
+                <% } %>
+                <% if (amendment.possessionDateChanged) { %>
+                    <li class="list-group-item">Possession Date changed to: <strong><%= amendment.newPossessionDate %></strong></li>
+                <% } %>
+                <% if (amendment.purchasePriceChanged) { %>
+                    <li class="list-group-item">Purchase Price changed to: <strong>$<%= amendment.newPurchasePrice %></strong></li>
+                <% } %>
+                <% if (amendment.earnestMoneyChanged) { %>
+                    <li class="list-group-item">Earnest Money changed to: <strong>$<%= amendment.newEarnestMoney %></strong></li>
+                <% } %>
+                <% if (amendment.additionalTerms) { %>
+                    <li class="list-group-item">Additional Terms: <%= amendment.additionalTerms %></li>
+                <% } %>
+            </ul>
+
+            <p>All other terms and conditions of the original contract remain unchanged.</p>
+
+            <h5 class="mt-4">Signatures</h5>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <p>Seller: ____________________________</p>
+                    <p>Date: ____________________________</p>
+                </div>
+                <div class="col-md-6">
+                    <p>Buyer: ____________________________</p>
+                    <p>Date: ____________________________</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer.ejs') %>

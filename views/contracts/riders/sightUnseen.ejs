@@ -1,40 +1,56 @@
-<div class="card mb-4">
-    <div class="card-header bg-light">
-        <h5 class="mb-0">Sight Unseen Rider</h5>
-    </div>
-    <div class="card-body">
-        <p>This Sight Unseen Rider is incorporated into and made part of the Residential Real Estate Purchase Agreement between Buyer and Seller.</p>
-        
-        <div class="alert alert-warning">
-            <p><strong>ACKNOWLEDGMENT:</strong> Buyer acknowledges that they are purchasing the Property without having physically visited or viewed it in person.</p>
-        </div>
-        
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label class="form-label fw-bold">Buyer reserves right to view property:</label>
-                <div><%= offer.riders.sightUnseen.reserveRightToView ? 'Yes' : 'No' %></div>
-                
-                <% if (showExplanations) { %>
-                    <div class="explanationPanel mt-1">
-                        <% if (offer.riders.sightUnseen.reserveRightToView) { %>
-                            The buyer reserves the right to physically view the property before proceeding with the purchase.
-                        <% } else { %>
-                            The buyer waives the right to physically view the property before proceeding with the purchase.
-                        <% } %>
-                    </div>
-                <% } %>
-            </div>
+<div class="mb-4 text-center">
+    <h5 class="rider">SIGHT UNSEEN RIDER</h5>
+</div>
+    
+<div class="mb-4">
+    <p>This Sight Unseen Rider is incorporated into and made part of the Residential Real Estate Purchase Agreement between Buyer and Seller.</p>
+    <p><strong>ACKNOWLEDGMENT:</strong> Buyer acknowledges that they are purchasing the Property without having physically visited or viewed it in person.</p>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <p class="form-label fw-bold">Buyer reserves right to view property:</p>
+            <div><%= offer.riders.sightUnseen.reserveRightToView ? 'Yes' : 'No' %></div>
             
-            <% if (offer.riders.sightUnseen.reserveRightToView) { %>
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">Property Viewing Period:</label>
-                    <div><%= offer.riders.sightUnseen.propertyViewingPeriod || '5' %> days after acceptance</div>
+            <% if (showExplanations) { %>
+                <div class="explanationPanel mt-1">
+                    <% if (offer.riders.sightUnseen.reserveRightToView) { %>
+                        The buyer reserves the right to physically view the property before proceeding with the purchase.
+                    <% } else { %>
+                        The buyer waives the right to physically view the property before proceeding with the purchase.
+                    <% } %>
                 </div>
             <% } %>
         </div>
         
-        <div class="alert alert-secondary">
-            <p class="mb-0"><strong>BUYER RESPONSIBILITIES:</strong> Buyer agrees to rely solely on their own due diligence, including but not limited to inspection reports, appraisals, photographs, videos, virtual tours, and other information provided by Seller or third parties. Buyer acknowledges that the physical condition of the Property may differ from these representations.</p>
-        </div>
-    </div>
+        <% if (offer.riders.sightUnseen.reserveRightToView) { %>
+            <div class="col-md-6">
+                <p class="form-label fw-bold">Property Viewing Period: <%= offer.riders.sightUnseen.propertyViewingPeriod || '5' %> days after acceptance</p>
+                <div><%= offer.riders.sightUnseen.propertyViewingPeriod || '5' %> days after acceptance</div>
+            </div>
+        <% } %>
+    </div>        
+    <p class="mb-0"><strong>BUYER RESPONSIBILITIES:</strong> Buyer agrees to rely solely on their own due diligence, including but not limited to inspection reports, appraisals, photographs, videos, virtual tours, and other information provided by Seller or third parties. Buyer acknowledges that the physical condition of the Property may differ from these representations.</p>
+    <div style="display: flex; justify-content: space-between;">    
+        <!-- BUYER Signature -->
+        <div style="width: 48%;">
+            <h5>Buyer</h5>          
+            <p>Signature: <span><strong> <%= offer.buyerName || offer.buyerFullName %></strong></span></p>
+            <p>Printed Name: <span><strong> <%= offer.buyerName || offer.buyerFullName %></strong></span></p>
+            <p><strong>Date: </strong><span class="buyerdate"> </span></p>
+        </div>      
+        <!-- SELLER Signature -->
+        <div style="width: 48%;">
+          <h5>Seller</h5>
+          <p>Signature: <span><strong> <%= offer.sellerName || offer.sellerFullName %></strong></span></p>
+          <p>Printed Name: <span><strong> <%= offer.sellerName || offer.sellerFullName %></strong></span></p>
+          <p><strong>Date: </strong><span class="sellerdate"> </span></p>
+        </div>    
+      </div>   
 </div>
+
+<script>
+const dates = document.getElementsByClassName("buyerdate");
+Array.from(dates).forEach(date =>{
+    date.textContent = new Date(Date.now()).toLocaleString( ).split(',')[0];
+})
+
+</script>

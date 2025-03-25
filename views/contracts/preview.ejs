@@ -1,154 +1,192 @@
-<%- include('../partials/layout.ejs', { title: 'Contract Preview' }) %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Missouri Residential Real Estate Purchase Agreement</title>
 
-<div class="container py-4">
-    <span class="badge bg-warning text-dark position-fixed" style="top: 80px; right: 20px; z-index: 1000;">
-        PREVIEW ONLY - NOT BINDING
-    </span>
-    
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white text-center">
-            <h3 class="mb-0">
-                <% if (typeof isCounterOffer !== 'undefined' && isCounterOffer) { %>
-                    MISSOURI RESIDENTIAL REAL ESTATE PURCHASE AGREEMENT - COUNTEROFFER
-                <% } else { %>
-                    MISSOURI RESIDENTIAL REAL ESTATE PURCHASE AGREEMENT
-                <% } %>
-            </h3>
-        </div>
-        <div class="card-body p-4">
-            <div class="alert alert-info mb-4">
-                <strong>IMPORTANT:</strong> This is a preview of your contract. Please review all details carefully before submitting.
-                <% if (typeof isCounterOffer !== 'undefined' && isCounterOffer) { %>
-                    <br><strong>NOTE:</strong> This is a counteroffer to the original purchase agreement.
-                <% } %>
-            </div>
-            
-            <% if (typeof isCounterOffer !== 'undefined' && isCounterOffer && typeof originalOffer !== 'undefined' && originalOffer) { %>
-                <div class="alert alert-warning mb-4">
-                    <h5 class="mb-2">Changes from Original Offer:</h5>
-                    <ul class="mb-0">
-                        <% if (offer.offerPrice !== originalOffer.offerPrice) { %>
-                            <li>Purchase price changed from $<%= originalOffer.offerPrice.toLocaleString() %> to $<%= offer.offerPrice.toLocaleString() %></li>
-                        <% } %>
-                        
-                        <% if (offer.earnestMoney !== originalOffer.earnestMoney) { %>
-                            <li>Earnest money changed from $<%= originalOffer.earnestMoney.toLocaleString() %> to $<%= offer.earnestMoney.toLocaleString() %></li>
-                        <% } %>
-                        
-                        <% if (offer.inspectionDeadlineDays !== originalOffer.inspectionDeadlineDays && offer.contingencies.includes('inspection')) { %>
-                            <li>Inspection deadline changed from <%= originalOffer.inspectionDeadlineDays %> days to <%= offer.inspectionDeadlineDays %> days</li>
-                        <% } %>
-                        
-                        <% if (offer.appraisalDeadlineDays !== originalOffer.appraisalDeadlineDays && offer.contingencies.includes('appraisal')) { %>
-                            <li>Appraisal deadline changed from <%= originalOffer.appraisalDeadlineDays %> days to <%= offer.appraisalDeadlineDays %> days</li>
-                        <% } %>
-                        
-                        <% if (offer.loanApprovalDeadlineDays !== originalOffer.loanApprovalDeadlineDays && offer.contingencies.includes('financing')) { %>
-                            <li>Loan approval deadline changed from <%= originalOffer.loanApprovalDeadlineDays %> days to <%= offer.loanApprovalDeadlineDays %> days</li>
-                        <% } %>
-                        
-                        <% if (offer.closingDate && originalOffer.closingDate && offer.closingDate.toString() !== originalOffer.closingDate.toString()) { %>
-                            <li>Closing date has been modified</li>
-                        <% } %>
-                        
-                        <% if (offer.closingCosts !== originalOffer.closingCosts) { %>
-                            <li>Closing costs allocation has been modified</li>
-                        <% } %>
-                    </ul>
-                </div>
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 11pt;
+            counter-reset: page;
+        }
+        .page-break {
+            page-break-after: always;
+        }
+        h2 {
+            font-size: 15pt;
+            text-align: center;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+        }
+        h3 {
+            font-size: 13pt;
+            text-align: center;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+        h4 {
+            font-size: 12pt;
+            font-weight: bold;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        h5 {
+            font-size: 11pt;
+            font-weight: bold;
+            margin-top: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        .rider {
+            font-size: 12pt;
+            text-align: center;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+        }
+        p {
+            font-size: 12pt;
+            text-align: justify;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        .container {
+            padding-bottom: 80px;
+        }
+        .contractSection {
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 2rem;
+        }
+        .boilerplate {
+            font-size: 10pt;
+            color: #000000;
+            margin-top: 1rem;
+        }
+        .property-section {
+            margin-bottom: 1rem; /* Reduce from 2rem to tighten gap */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Missouri Residential Real Estate Purchase Agreement</h2>
+
+        <div class="document-title text-center">
+            <% if (offer.status === 'countered') { %>
+                <h4>COUNTER OFFER</h4>
             <% } %>
-            
-            <!-- Include section templates -->
-            <%- include('sections/parties', { offer, showExplanations }) %>
-            <%- include('sections/property', { offer, showExplanations }) %>
-            <%- include('sections/price', { offer, showExplanations }) %>
-            <%- include('sections/earnest', { offer, showExplanations }) %>
-            <%- include('sections/contingencies', { offer, showExplanations }) %>
-            <%- include('sections/closing', { offer, showExplanations }) %>
-            
-            <!-- Include applicable riders -->
-            <% if (offer.riders) { %>
-                <div class="mt-5 mb-4">
-                    <h4 class="border-bottom pb-2">RIDERS & ADDENDA</h4>
-                    
-                    <% if (offer.riders.wireFraudAdvisory && offer.riders.wireFraudAdvisory.included) { %>
-                        <%- include('riders/wireFraudAdvisory', { offer, showExplanations }) %>
-                    <% } %>
-                    
-                    <% if (offer.riders.homeInspectionAdvisory && offer.riders.homeInspectionAdvisory.included) { %>
-                        <%- include('riders/homeInspectionAdvisory', { offer, showExplanations }) %>
-                    <% } %>
-                    
-                    <% if (offer.riders.governmentLoan && offer.riders.governmentLoan.included) { %>
-                        <%- include('riders/governmentLoan', { offer, showExplanations }) %>
-                    <% } %>
-                    
-                    <% if (offer.riders.sightUnseen && offer.riders.sightUnseen.included) { %>
-                        <%- include('riders/sightUnseen', { offer, showExplanations }) %>
-                    <% } %>
-                    
-                    <% if (offer.riders.contingencyForSale && offer.riders.contingencyForSale.included) { %>
-                        <%- include('riders/contingencySale', { offer, showExplanations }) %>
-                    <% } %>
-                    
-                    <% if (offer.riders.contingencyForClosing && offer.riders.contingencyForClosing.included) { %>
-                        <%- include('riders/contingencyClosing', { offer, showExplanations }) %>
-                    <% } %>
-                    
-                    <% if (offer.riders.walkThrough && offer.riders.walkThrough.included) { %>
-                        <%- include('riders/walkThrough', { offer, showExplanations }) %>
-                    <% } %>
-                <% } %>
-            </div>
-            
-            <% if (typeof isCounterOffer !== 'undefined' && isCounterOffer) { %>
-                <!-- Counter Offer Specific Section -->
-                <div class="card bg-light mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">COUNTEROFFER TERMS</h5>
-                    </div>
-                    <div class="card-body">
-                        <p>This document represents a <strong>COUNTEROFFER</strong> to the original offer. All terms and provisions of the original purchase agreement remain in full force and effect except as modified herein.</p>
-                        
-                        <p class="mb-0"><strong>NOTE:</strong> The Buyer must accept this counteroffer for it to become binding. If the Buyer rejects or does not respond to this counteroffer by the deadline, the counteroffer becomes null and void.</p>
-                    </div>
-                </div>
-            <% } %>
-            
-            <%- include('sections/signatures', { 
-                offer, 
-                showExplanations, 
-                isCounterOffer: typeof isCounterOffer !== 'undefined' ? isCounterOffer : false 
-            }) %>
-            
-            <div class="mt-4 text-center">
-                <small class="text-muted">This is a legally binding contract. If not understood, consult an attorney before signing.</small>
-            </div>
         </div>
-    </div>
+
+        <!-- Parties and Date -->
+        <div class="contractSection">
+            <%- include('./sections/parties', { offer, showExplanations: false }) %>
+        </div>
+
+        <!-- Property Description -->
+        <div class="contractSection property-section">
+            <%- include('./sections/property', { offer, showExplanations: false }) %>
+        </div>
+
+        <!-- Purchase Price and Financing -->
+        <div class="contractSection">
+            <%- include('./sections/price', { offer, showExplanations: false }) %>
+        </div>
+
+        <!-- Earnest Money Deposit -->
+        <div class="contractSection">
+            <%- include('./sections/earnest', { offer, showExplanations: false }) %>
+        </div>
+
+        <!-- Contingencies -->
+        <div class="contractSection">
+            <%- include('./sections/contingencies', { offer, showExplanations: false }) %>
+        </div>
+
+        <!-- Closing -->
+        <div class="contractSection">
+            <%- include('./sections/closing', { offer, showExplanations: false }) %>
+        </div>
+
+        <!-- Boilerplate -->
+        <div class="contractSection boilerplate">
+            <h5>Governing Law</h5>
+            <p>This Agreement shall be governed by and construed in accordance with the laws of the State of Missouri.</p>
+
+            <h5>Entire Agreement</h5>
+            <p>This Agreement constitutes the entire agreement between the parties concerning the subject matter herein and supersedes all prior agreements, understandings, and representations.</p>
+
+            <h5>Severability</h5>
+            <p>If any provision of this Agreement is found to be invalid or unenforceable, the remainder of this Agreement shall not be affected and shall be enforced to the fullest extent permitted by law.</p>
+
+            <h5>Notice</h5>
+            <p>Any notice required under this Agreement shall be made in writing and delivered via certified mail, personal delivery, or electronic means to the addresses provided by the parties.</p>
+        </div>
+
+        <!-- Signatures -->
+        <div class="contractSection" style="margin-top: 2rem;">
+            <%- include('./sections/signatures', { offer, showExplanations: false }) %>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- Riders -->
+        <% if (offer.riders) { %>
+            <% if (offer.riders.homeInspectionAdvisory && offer.riders.homeInspectionAdvisory.included === true) { %>
+                <%- include('./riders/homeInspectionAdvisory', { offer, showExplanations: false }) %>
+                <div class="page-break"></div>
+            <% } %>
+            <% if (offer.riders.governmentLoan && offer.riders.governmentLoan.included === true) { %>
+                <%- include('./riders/governmentLoan', { offer, showExplanations: false }) %>
+                <div class="page-break"></div>
+            <% } %>
+            <% if (offer.riders.contingencyForSale && offer.riders.contingencyForSale.included === true) { %>
+                <%- include('./riders/contingencySale', { offer, showExplanations: false }) %>
+                <div class="page-break"></div>
+            <% } %>
+            <% if (offer.riders.contingencyForClosing && offer.riders.contingencyForClosing.included === true) { %>
+                <%- include('./riders/contingencyClosing', { offer, showExplanations: false }) %>
+                <div class="page-break"></div>
+            <% } %>
+            <% if (offer.riders.sightUnseen && offer.riders.sightUnseen.included === true) { %>
+                <%- include('./riders/sightUnseen', { offer, showExplanations: false }) %>
+                <div class="page-break"></div>
+            <% } %>
+            <% if (offer.riders.wireFraudAdvisory && offer.riders.wireFraudAdvisory.included === true) { %>
+                <%- include('./riders/wireFraudAdvisory', { offer, showExplanations: false }) %>
+                <div class="page-break"></div>
+            <% } %>
+            <% if (offer.riders.fee && offer.riders.fee.included === true) { %>
+                <%- include('./riders/fee', { offer, showExplanations: false }) %>
+                <div class="page-break"></div>
+            <% } %>
+        <% } %>
+    </div>   
     
+    <!-- Buttons (for preview only) -->
     <div class="d-flex justify-content-center mb-5">
         <a href="#" class="btn btn-secondary me-2" id="closePreviewBtn">
             <i class="bi bi-x-circle me-1"></i> Close Preview
         </a>
         
-        <% if (typeof originalOffer !== 'undefined' && originalOffer && originalOffer._id) { %>
+        <% if (originalOffer && originalOffer._id) { %>
             <a href="/offers/<%= originalOffer._id %>/pdf" class="btn btn-primary" target="_blank">
                 <i class="bi bi-file-pdf me-1"></i> Download PDF Preview
             </a>
-        <% } else { %>
-            <a href="#" class="btn btn-primary disabled">
-                <i class="bi bi-file-pdf me-1"></i> Download PDF Preview
-            </a>
-        <% } %>
-    </div>
-</div>
-
-<script>
-    document.getElementById('closePreviewBtn').addEventListener('click', function(e) {
-        e.preventDefault();
-        window.close();
-    });
-</script>
-
-<%- include('../partials/footer.ejs') %>
+            <% } else { %>
+                <a href="#" class="btn btn-primary disabled">
+                    <i class="bi bi-file-pdf me-1"></i> Download PDF Preview
+                </a>
+                <% } %>
+            </div>
+            
+        </div>
+    </body>
+</html>
+    
+    <script>
+        document.getElementById('closePreviewBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.close();
+        });
+    </script>

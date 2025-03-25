@@ -1,0 +1,50 @@
+<%- include('../partials/layout.ejs', { title: 'Mutual Release of Earnest Money' }) %>
+
+<div class="container py-4">
+    <span class="badge bg-warning text-dark position-fixed" style="top: 80px; right: 20px; z-index: 1000;">
+        PREVIEW ONLY - NOT BINDING
+    </span>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white text-center">
+            <h3 class="mb-0">MUTUAL RELEASE OF EARNEST MONEY</h3>
+        </div>
+        <div class="card-body p-4">
+            <div class="alert alert-info mb-4">
+                <strong>IMPORTANT:</strong> This document releases all parties from claims related to the original contract.
+            </div>
+
+            <p>This Mutual Release is entered into by <strong><%= release.buyerName || 'Buyer Name' %></strong> ("Buyer") and <strong><%= release.sellerName || 'Seller Name' %></strong> ("Seller") regarding the property located at:</p>
+            <p><strong><%= release.propertyAddress || 'Property Address' %>, MO <%= release.propertyZip || 'Zip Code' %>, <%= release.propertyCounty || 'County' %></strong></p>
+
+            <h5 class="mt-4">Earnest Money Disbursement:</h5>
+            <ul class="list-group mb-4">
+                <% release.disbursements.forEach(d => { %>
+                    <li class="list-group-item">
+                        Payable To: <strong><%= d.payee %></strong> | Amount: <strong>$<%= d.amount %></strong> | Delivery: <%= d.deliveryMethod %> <% if (d.address) { %> (Address: <%= d.address %>) <% } %>
+                    </li>
+                <% }) %>
+            </ul>
+
+            <% if (release.noChecksReason) { %>
+                <p><strong>No checks issued because:</strong> <%= release.noChecksReason %></p>
+            <% } %>
+
+            <p>All parties acknowledge the termination of the Contract and mutually release each other from all claims related to the contract.</p>
+
+            <h5 class="mt-4">Signatures</h5>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <p>Seller: ____________________________</p>
+                    <p>Date: ____________________________</p>
+                </div>
+                <div class="col-md-6">
+                    <p>Buyer: ____________________________</p>
+                    <p>Date: ____________________________</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer.ejs') %>
