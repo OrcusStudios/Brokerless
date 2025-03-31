@@ -1,0 +1,247 @@
+<%- include('../../../partials/layout.ejs') %>
+
+<div class="container mt-4">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Seller's Disclosure - Environmental Concerns & Other</h4>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                <strong>Step 4 of 4:</strong> Please complete this final section about environmental concerns and other disclosures for your property at <%= listing.address %>.
+            </div>
+
+            <form action="/disclosures/listing/<%= listing._id %>/update/section4" method="POST">
+                <h5 class="border-bottom pb-2 mt-4">ENVIRONMENTAL CONCERNS</h5>
+                
+                <div class="mb-3">
+                    <p class="form-label"><strong>Asbestos:</strong> Are you aware of the presence of any asbestos-containing materials on the Property?</p>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="asbestosPresent" id="asbestosPresentYes" value="true" <%= listing.disclosures && listing.disclosures.environmental && listing.disclosures.environmental.asbestosPresent ? 'checked' : '' %>>
+                        <label class="form-check-label" for="asbestosPresentYes">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="asbestosPresent" id="asbestosPresentNo" value="false" <%= listing.disclosures && listing.disclosures.environmental && listing.disclosures.environmental.asbestosPresent === false ? 'checked' : '' %>>
+                        <label class="form-check-label" for="asbestosPresentNo">No</label>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <p class="form-label"><strong>Mold:</strong> Are you aware of the presence of any mold on the Property?</p>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="moldPresent" id="moldPresentYes" value="true" <%= listing.disclosures && listing.disclosures.environmental && listing.disclosures.environmental.moldPresent ? 'checked' : '' %>>
+                        <label class="form-check-label" for="moldPresentYes">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="moldPresent" id="moldPresentNo" value="false" <%= listing.disclosures && listing.disclosures.environmental && listing.disclosures.environmental.moldPresent === false ? 'checked' : '' %>>
+                        <label class="form-check-label" for="moldPresentNo">No</label>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <p class="form-label"><strong>Radon:</strong> Are you aware of the presence of radon gas on the Property?</p>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="radonPresent" id="radonPresentYes" value="true" <%= listing.disclosures && listing.disclosures.environmental && listing.disclosures.environmental.radonPresent ? 'checked' : '' %>>
+                        <label class="form-check-label" for="radonPresentYes">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="radonPresent" id="radonPresentNo" value="false" <%= listing.disclosures && listing.disclosures.environmental && listing.disclosures.environmental.radonPresent === false ? 'checked' : '' %>>
+                        <label class="form-check-label" for="radonPresentNo">No</label>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <p class="form-label"><strong>Lead:</strong> Are you aware of the presence of any lead hazards on the Property?</p>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="leadHazards" id="leadHazardsYes" value="true" <%= listing.disclosures && listing.disclosures.environmental && listing.disclosures.environmental.leadHazards ? 'checked' : '' %>>
+                        <label class="form-check-label" for="leadHazardsYes">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="leadHazards" id="leadHazardsNo" value="false" <%= listing.disclosures && listing.disclosures.environmental && listing.disclosures.environmental.leadHazards === false ? 'checked' : '' %>>
+                        <label class="form-check-label" for="leadHazardsNo">No</label>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <p class="form-label"><strong>Other Environmental Concerns:</strong> Are you aware of any other environmental concerns that may affect the Property?</p>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="otherEnvironmentalConcerns" id="otherEnvironmentalConcernsYes" value="true" <%= listing.disclosures && listing.disclosures.environmental && listing.disclosures.environmental.otherEnvironmentalConcerns ? 'checked' : '' %>>
+                        <label class="form-check-label" for="otherEnvironmentalConcernsYes">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="otherEnvironmentalConcerns" id="otherEnvironmentalConcernsNo" value="false" <%= listing.disclosures && listing.disclosures.environmental && listing.disclosures.environmental.otherEnvironmentalConcerns === false ? 'checked' : '' %>>
+                        <label class="form-check-label" for="otherEnvironmentalConcernsNo">No</label>
+                    </div>
+                    
+                    <div class="mt-3" id="environmentalExplanationContainer">
+                        <label for="environmentalExplanation" class="form-label">Please explain any environmental concerns:</label>
+                        <textarea class="form-control" id="environmentalExplanation" name="environmentalExplanation" rows="3"><%= listing.disclosures && listing.disclosures.environmental ? listing.disclosures.environmental.environmentalExplanation || '' : '' %></textarea>
+                    </div>
+                </div>
+
+                <h5 class="border-bottom pb-2 mt-4">HOA/SUBDIVISION</h5>
+                
+                <div class="mb-3">
+                    <p class="form-label"><strong>Is the Property part of a homeowners association (HOA)?</strong></p>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="hasHOA" id="hasHOAYes" value="true" <%= listing.disclosures && listing.disclosures.environmental && listing.disclosures.environmental.hasHOA ? 'checked' : '' %>>
+                        <label class="form-check-label" for="hasHOAYes">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="hasHOA" id="hasHOANo" value="false" <%= listing.disclosures && listing.disclosures.environmental && listing.disclosures.environmental.hasHOA === false ? 'checked' : '' %>>
+                        <label class="form-check-label" for="hasHOANo">No</label>
+                    </div>
+                </div>
+                
+                <div id="hoaDetailsContainer">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="hoaName" class="form-label">HOA Name:</label>
+                            <input type="text" class="form-control" id="hoaName" name="hoaName" value="<%= listing.disclosures && listing.disclosures.environmental ? listing.disclosures.environmental.hoaName || '' : '' %>">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="hoaFees" class="form-label">HOA Fees ($):</label>
+                            <input type="number" class="form-control" id="hoaFees" name="hoaFees" value="<%= listing.disclosures && listing.disclosures.environmental ? listing.disclosures.environmental.hoaFees || '' : '' %>">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="hoaFeePeriod" class="form-label">Fee Period:</label>
+                            <select class="form-select" id="hoaFeePeriod" name="hoaFeePeriod">
+                                <option value="" <%= !listing.disclosures || !listing.disclosures.environmental || !listing.disclosures.environmental.hoaFeePeriod ? 'selected' : '' %>>Select...</option>
+                                <option value="monthly" <%= listing.disclosures && listing.disclosures.environmental && listing.disclosures.environmental.hoaFeePeriod === 'monthly' ? 'selected' : '' %>>Monthly</option>
+                                <option value="quarterly" <%= listing.disclosures && listing.disclosures.environmental && listing.disclosures.environmental.hoaFeePeriod === 'quarterly' ? 'selected' : '' %>>Quarterly</option>
+                                <option value="annually" <%= listing.disclosures && listing.disclosures.environmental && listing.disclosures.environmental.hoaFeePeriod === 'annually' ? 'selected' : '' %>>Annually</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <h5 class="border-bottom pb-2 mt-4">INSURANCE & FLOODING</h5>
+                
+                <div class="mb-3">
+                    <p class="form-label"><strong>Have any insurance claims been filed for damage to the Property?</strong></p>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="insuranceClaims" id="insuranceClaimsYes" value="true" <%= listing.disclosures && listing.disclosures.environmental && listing.disclosures.environmental.insuranceClaims ? 'checked' : '' %>>
+                        <label class="form-check-label" for="insuranceClaimsYes">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="insuranceClaims" id="insuranceClaimsNo" value="false" <%= listing.disclosures && listing.disclosures.environmental && listing.disclosures.environmental.insuranceClaims === false ? 'checked' : '' %>>
+                        <label class="form-check-label" for="insuranceClaimsNo">No</label>
+                    </div>
+                    
+                    <div class="mt-3" id="insuranceExplanationContainer">
+                        <label for="insuranceExplanation" class="form-label">Please explain any insurance claims:</label>
+                        <textarea class="form-control" id="insuranceExplanation" name="insuranceExplanation" rows="3"><%= listing.disclosures && listing.disclosures.environmental ? listing.disclosures.environmental.insuranceExplanation || '' : '' %></textarea>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <p class="form-label"><strong>Is any portion of the Property located in a flood hazard area?</strong></p>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="inFloodZone" id="inFloodZoneYes" value="true" <%= listing.disclosures && listing.disclosures.environmental && listing.disclosures.environmental.inFloodZone ? 'checked' : '' %>>
+                        <label class="form-check-label" for="inFloodZoneYes">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="inFloodZone" id="inFloodZoneNo" value="false" <%= listing.disclosures && listing.disclosures.environmental && listing.disclosures.environmental.inFloodZone === false ? 'checked' : '' %>>
+                        <label class="form-check-label" for="inFloodZoneNo">No</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="inFloodZone" id="inFloodZoneUnknown" value="unknown" <%= listing.disclosures && listing.disclosures.environmental && listing.disclosures.environmental.inFloodZone === 'unknown' ? 'checked' : '' %>>
+                        <label class="form-check-label" for="inFloodZoneUnknown">Unknown</label>
+                    </div>
+                    
+                    <div class="mt-3" id="floodZoneExplanationContainer">
+                        <label for="floodZoneExplanation" class="form-label">Please explain flood zone information:</label>
+                        <textarea class="form-control" id="floodZoneExplanation" name="floodZoneExplanation" rows="3"><%= listing.disclosures && listing.disclosures.environmental ? listing.disclosures.environmental.floodZoneExplanation || '' : '' %></textarea>
+                    </div>
+                </div>
+
+                <h5 class="border-bottom pb-2 mt-4">ADDITIONAL INFORMATION</h5>
+                
+                <div class="mb-3">
+                    <p class="form-label"><strong>Are there any other material defects affecting this Property not disclosed above?</strong></p>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="additionalDefects" id="additionalDefectsYes" value="true" <%= listing.disclosures && listing.disclosures.environmental && listing.disclosures.environmental.additionalDefects ? 'checked' : '' %>>
+                        <label class="form-check-label" for="additionalDefectsYes">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="additionalDefects" id="additionalDefectsNo" value="false" <%= listing.disclosures && listing.disclosures.environmental && listing.disclosures.environmental.additionalDefects === false ? 'checked' : '' %>>
+                        <label class="form-check-label" for="additionalDefectsNo">No</label>
+                    </div>
+                    
+                    <div class="mt-3" id="additionalExplanationContainer">
+                        <label for="additionalExplanation" class="form-label">Please explain any additional information that should be disclosed:</label>
+                        <textarea class="form-control" id="additionalExplanation" name="additionalExplanation" rows="3"><%= listing.disclosures && listing.disclosures.environmental ? listing.disclosures.environmental.additionalExplanation || '' : '' %></textarea>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="/disclosures/listing/<%= listing._id %>/edit/section3" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left me-1"></i> Previous Section
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        Complete Disclosures <i class="bi bi-check-circle ms-1"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Show/hide explanation fields based on radio selection
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to toggle explanation containers
+        function toggleExplanation(issueFieldId, containerFieldId) {
+            const issueField = document.getElementById(issueFieldId);
+            const container = document.getElementById(containerFieldId);
+            
+            if (issueField && container) {
+                container.style.display = issueField.checked ? 'block' : 'none';
+            }
+        }
+        
+        // Toggle HOA details
+        function toggleHOADetails() {
+            const hasHOA = document.getElementById('hasHOAYes').checked;
+            document.getElementById('hoaDetailsContainer').style.display = hasHOA ? 'block' : 'none';
+        }
+        
+        // Initialize all explanation fields
+        toggleExplanation('otherEnvironmentalConcernsYes', 'environmentalExplanationContainer');
+        toggleExplanation('insuranceClaimsYes', 'insuranceExplanationContainer');
+        toggleExplanation('inFloodZoneYes', 'floodZoneExplanationContainer');
+        toggleExplanation('additionalDefectsYes', 'additionalExplanationContainer');
+        toggleHOADetails();
+        
+        // Add event listeners for yes/no radio buttons
+        document.querySelectorAll('input[name="otherEnvironmentalConcerns"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                toggleExplanation('otherEnvironmentalConcernsYes', 'environmentalExplanationContainer');
+            });
+        });
+        
+        document.querySelectorAll('input[name="insuranceClaims"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                toggleExplanation('insuranceClaimsYes', 'insuranceExplanationContainer');
+            });
+        });
+        
+        document.querySelectorAll('input[name="inFloodZone"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                toggleExplanation('inFloodZoneYes', 'floodZoneExplanationContainer');
+            });
+        });
+        
+        document.querySelectorAll('input[name="additionalDefects"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                toggleExplanation('additionalDefectsYes', 'additionalExplanationContainer');
+            });
+        });
+        
+        document.querySelectorAll('input[name="hasHOA"]').forEach(radio => {
+            radio.addEventListener('change', toggleHOADetails);
+        });
+    });
+</script>
+
+<%- include('../../../partials/footer.ejs') %>

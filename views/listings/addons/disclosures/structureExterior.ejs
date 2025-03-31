@@ -1,0 +1,157 @@
+<%- include('../../../partials/layout.ejs') %>
+
+<div class="container mt-4">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Seller's Disclosure - Structure and Exterior</h4>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                <strong>Step 3 of 4:</strong> Please complete this section about the structure and exterior of your property at <%= listing.address %>.
+            </div>
+
+            <form action="/disclosures/listing/<%= listing._id %>/update/section3" method="POST">
+                <h5 class="border-bottom pb-2 mt-4">ROOF</h5>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="roofAge" class="form-label">Approximate age of the roof (years):</label>
+                        <input type="number" class="form-control" id="roofAge" name="roofAge" value="<%= listing.disclosures && listing.disclosures.structure ? listing.disclosures.structure.roofAge || '' : '' %>">
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <p class="form-label"><strong>Has the roof ever leaked during your ownership?</strong></p>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="roofLeaked" id="roofLeakedYes" value="true" <%= listing.disclosures && listing.disclosures.structure && listing.disclosures.structure.roofLeaked ? 'checked' : '' %>>
+                        <label class="form-check-label" for="roofLeakedYes">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="roofLeaked" id="roofLeakedNo" value="false" <%= listing.disclosures && listing.disclosures.structure && listing.disclosures.structure.roofLeaked === false ? 'checked' : '' %>>
+                        <label class="form-check-label" for="roofLeakedNo">No</label>
+                    </div>
+                    
+                    <div class="mt-3 explanation-container" id="roofExplanationContainer">
+                        <label for="roofExplanation" class="form-label">Please provide details about roof leaks and any repairs:</label>
+                        <textarea class="form-control" id="roofExplanation" name="roofExplanation" rows="3"><%= listing.disclosures && listing.disclosures.structure ? listing.disclosures.structure.roofExplanation || '' : '' %></textarea>
+                    </div>
+                </div>
+
+                <h5 class="border-bottom pb-2 mt-4">FOUNDATION/STRUCTURE</h5>
+                
+                <div class="mb-3">
+                    <p class="form-label"><strong>Are you aware of any problem with the foundation, sub-floor, interior or exterior walls, roof structure, or other load bearing components?</strong></p>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="foundationIssues" id="foundationIssuesYes" value="true" <%= listing.disclosures && listing.disclosures.structure && listing.disclosures.structure.foundationIssues ? 'checked' : '' %>>
+                        <label class="form-check-label" for="foundationIssuesYes">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="foundationIssues" id="foundationIssuesNo" value="false" <%= listing.disclosures && listing.disclosures.structure && listing.disclosures.structure.foundationIssues === false ? 'checked' : '' %>>
+                        <label class="form-check-label" for="foundationIssuesNo">No</label>
+                    </div>
+                    
+                    <div class="mt-3 explanation-container" id="foundationExplanationContainer">
+                        <label for="foundationExplanation" class="form-label">Please explain any foundation or structural issues:</label>
+                        <textarea class="form-control" id="foundationExplanation" name="foundationExplanation" rows="3"><%= listing.disclosures && listing.disclosures.structure ? listing.disclosures.structure.foundationExplanation || '' : '' %></textarea>
+                    </div>
+                </div>
+
+                <h5 class="border-bottom pb-2 mt-4">BASEMENT/WATER ISSUES</h5>
+                
+                <div class="mb-3">
+                    <p class="form-label"><strong>Are you aware of any water leakage, accumulation, or dampness in the basement or crawl space?</strong></p>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="basementWaterIssues" id="basementWaterIssuesYes" value="true" <%= listing.disclosures && listing.disclosures.structure && listing.disclosures.structure.basementWaterIssues ? 'checked' : '' %>>
+                        <label class="form-check-label" for="basementWaterIssuesYes">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="basementWaterIssues" id="basementWaterIssuesNo" value="false" <%= listing.disclosures && listing.disclosures.structure && listing.disclosures.structure.basementWaterIssues === false ? 'checked' : '' %>>
+                        <label class="form-check-label" for="basementWaterIssuesNo">No</label>
+                    </div>
+                    
+                    <div class="mt-3 explanation-container" id="basementExplanationContainer">
+                        <label for="basementExplanation" class="form-label">Please explain any basement water issues:</label>
+                        <textarea class="form-control" id="basementExplanation" name="basementExplanation" rows="3"><%= listing.disclosures && listing.disclosures.structure ? listing.disclosures.structure.basementExplanation || '' : '' %></textarea>
+                    </div>
+                </div>
+
+                <h5 class="border-bottom pb-2 mt-4">TERMITES/WOOD DESTROYING INSECTS</h5>
+                
+                <div class="mb-3">
+                    <p class="form-label"><strong>Are you aware of any termites/wood destroying insects or damage to the Property?</strong></p>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="termiteIssues" id="termiteIssuesYes" value="true" <%= listing.disclosures && listing.disclosures.structure && listing.disclosures.structure.termiteIssues ? 'checked' : '' %>>
+                        <label class="form-check-label" for="termiteIssuesYes">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="termiteIssues" id="termiteIssuesNo" value="false" <%= listing.disclosures && listing.disclosures.structure && listing.disclosures.structure.termiteIssues === false ? 'checked' : '' %>>
+                        <label class="form-check-label" for="termiteIssuesNo">No</label>
+                    </div>
+                    
+                    <div class="mt-3 explanation-container" id="termiteExplanationContainer">
+                        <label for="termiteExplanation" class="form-label">Please explain any termite or wood destroying insect issues:</label>
+                        <textarea class="form-control" id="termiteExplanation" name="termiteExplanation" rows="3"><%= listing.disclosures && listing.disclosures.structure ? listing.disclosures.structure.termiteExplanation || '' : '' %></textarea>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="/disclosures/listing/<%= listing._id %>/edit/section2" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left me-1"></i> Previous Section
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        Save & Continue <i class="bi bi-arrow-right ms-1"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Show/hide explanation fields based on radio selection
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to toggle explanation containers
+        function toggleExplanation(issueFieldId, containerFieldId) {
+            const issueField = document.getElementById(issueFieldId);
+            const container = document.getElementById(containerFieldId);
+            
+            if (issueField && container) {
+                container.style.display = issueField.checked ? 'block' : 'none';
+            }
+        }
+        
+        // Initialize all explanation fields
+        toggleExplanation('roofLeakedYes', 'roofExplanationContainer');
+        toggleExplanation('foundationIssuesYes', 'foundationExplanationContainer');
+        toggleExplanation('basementWaterIssuesYes', 'basementExplanationContainer');
+        toggleExplanation('termiteIssuesYes', 'termiteExplanationContainer');
+        
+        // Add event listeners for yes/no radio buttons
+        document.querySelectorAll('input[name="roofLeaked"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                toggleExplanation('roofLeakedYes', 'roofExplanationContainer');
+            });
+        });
+        
+        document.querySelectorAll('input[name="foundationIssues"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                toggleExplanation('foundationIssuesYes', 'foundationExplanationContainer');
+            });
+        });
+        
+        document.querySelectorAll('input[name="basementWaterIssues"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                toggleExplanation('basementWaterIssuesYes', 'basementExplanationContainer');
+            });
+        });
+        
+        document.querySelectorAll('input[name="termiteIssues"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                toggleExplanation('termiteIssuesYes', 'termiteExplanationContainer');
+            });
+        });
+    });
+</script>
+
+<%- include('../../../partials/footer.ejs') %>

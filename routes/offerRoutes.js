@@ -30,12 +30,28 @@ router.post("/:id/withdraw", ensureAuthenticated, ensureRole("buyer"), offerCont
 
 // Amend a current offer
 router.get("/:id/showAmend", ensureAuthenticated, offerController.showAmendForm);
+// Submit Amendment
+router.post("/:id/amend", ensureAuthenticated, ensureAnyRole(["buyer", "seller"]), offerController.submitAmendment);
 
 // Mutually Release a current offer
 router.get("/:id/showRelease", ensureAuthenticated, offerController.showReleaseForm);
+// Submit Mutual Release
+router.post("/:id/release", ensureAuthenticated, ensureAnyRole(["buyer", "seller"]), offerController.submitRelease);
+
+// Walk-Through Notice
+router.get("/:id/walkThrough", ensureAuthenticated, ensureRole("buyer"), offerController.showWalkThroughForm);
+// Submit Walk-Through Notice (buyers only)
+router.post("/:id/walkThrough", ensureAuthenticated, ensureRole("buyer"), offerController.submitWalkThrough);
+
+router.get("/amendment/preview", ensureAuthenticated, offerController.previewAmendment);
+router.get("/release/preview", ensureAuthenticated, offerController.previewRelease);
+router.get("/walkthrough/preview", ensureAuthenticated, offerController.previewWalkThrough);
+
+router.get("/amendment/:id/pdf", ensureAuthenticated, offerController.generateAmendmentPDF);
+router.get("/release/:id/pdf", ensureAuthenticated, offerController.generateReleasePDF);
+router.get("/walkthrough/:id/pdf", ensureAuthenticated, offerController.generateWalkThroughPDF);
 
 // Generate PDF of an offer
-// Modified: Allow both buyers and sellers to generate PDFs of offers they're involved in
 router.get("/:id/pdf", ensureAuthenticated, ensureAnyRole(["buyer", "seller"]), offerController.generateOfferPDF);
 
 // Get offer details as JSON (for AJAX requests)

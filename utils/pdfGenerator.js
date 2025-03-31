@@ -128,7 +128,7 @@ async function generateOfferPdf(offer) {
         console.error('Error generating PDF:', error);
         throw error; // Re-throw to allow caller to handle
     }
-}
+};
 
 /**
  * Saves the PDF to a file
@@ -154,9 +154,49 @@ async function generateAndSavePdf(offer, outputPath) {
         console.error('Error saving PDF:', error);
         throw error;
     }
-}
+};
+
+async function generatePdfFromTemplate(templateFile, formData) {
+    const browser = await puppeteer.launch({ args: ['--no-sandbox'], headless: 'new' });
+    const page = await browser.newPage();
+  
+    const html = await ejs.renderFile(
+      path.join(__dirname, '../views/contracts', templateFile),
+      { data: formData }
+    );
+  
+    await page.setContent(html, { waitUntil: 'networkidle0' });
+  
+    const pdf = await page.pdf({
+      format: 'Letter',
+      printBackground: true,
+      margin: { top: '0.5in', bottom: '0.5in', left: '0.5in', right: '0.5in' },
+      preferCSSPageSize: true
+    });
+  
+    await browser.close();
+    return pdf;
+};
+
+async function generateDisclosurePdf(listing) {
+    try {
+        // This function would follow the same pattern as generateOfferPdf
+        // but would be tailored for disclosures
+        
+        // Create a new PDF document or use the same approach as your offer PDFs
+        // Format the disclosure data appropriately
+        
+        // Return a buffer containing the PDF
+        return pdfBuffer;
+    } catch (error) {
+        console.error("Error generating disclosure PDF:", error);
+        throw error;
+    }
+};  
 
 module.exports = {
     generateOfferPdf,
-    generateAndSavePdf
+    generatePdfFromTemplate,
+    generateAndSavePdf,
+    generateDisclosurePdf
 };

@@ -6,6 +6,7 @@ const User = require("../models/User");
 const { AppError, catchAsync } = require('../middleware/errorMiddleware');
 const notificationController = require('../controllers/notificationController');
 const { sendEmail } = require("../utils/emailService");
+const { generatePdfFromTemplate } = require('../utils/pdfGenerator');
 
 // In offerController.js
 exports.getOfferById = async (req, res) => {
@@ -41,8 +42,191 @@ exports.getOfferById = async (req, res) => {
         res.redirect("/users/dashboard");
     }
 };
-exports.showReleaseForm = async (req, res) => {}
-exports.showAmendForm = async (req, res) => {}
+
+// Render the Mutual Release of Earnest Money Deposit form
+exports.showReleaseForm = async (req, res) => {
+    try {
+        const offer = await Offer.findById(req.params.id)
+            .populate("buyer", "name email")
+            .populate("seller", "name email")
+            .populate("listing", "address city state zip price county")
+            .lean();
+
+        if (!offer) {
+            req.flash("error", "Offer not found.");
+            return res.redirect("/offers/manage");
+        }
+
+        // Auth check (buyer or seller)
+        if (!req.user._id.equals(offer.buyer._id) && !req.user._id.equals(offer.seller._id)) {
+            req.flash("error", "Unauthorized access.");
+            return res.redirect("/offers/manage");
+        }
+
+        res.render("offers/mutualRelease", { offer });
+    } catch (error) {
+        console.error("❌ Error rendering mutual release form:", error);
+        req.flash("error", "Error loading release form.");
+        res.redirect("/offers/manage");
+    }
+};
+
+exports.submitRelease = async (req, res) => {
+    try {
+        const offer = await Offer.findById(req.params.id);
+        if (!offer) {
+            req.flash("error", "Offer not found.");
+            return res.redirect("/offers/manage");
+        }
+
+        if (!req.user._id.equals(offer.buyer) && !req.user._id.equals(offer.seller)) {
+            req.flash("error", "Unauthorized.");
+            return res.redirect("/offers/manage");
+        }
+
+        offer.release = {
+            reason: req.body.reason || '',
+            payouts: req.body.payouts || [], // Array of objects { recipientName, amount, deliveryMethod, address }
+            note: req.body.note || ''
+        };
+
+        // Optionally mark the offer as released
+        offer.status = "released";
+        await offer.save();
+
+        req.flash("success", "Mutual release submitted.");
+        res.redirect(`/offers/${offer._id}`);
+    } catch (error) {
+        console.error("❌ Error submitting release:", error);
+        req.flash("error", "Error submitting release.");
+        res.redirect("/offers/manage");
+    }
+};
+
+// Render the Amendment to Contract form
+exports.showAmendForm = async (req, res) => {
+    try {
+        const offer = await Offer.findById(req.params.id)
+            .populate("buyer", "name email")
+            .populate("seller", "name email")
+            .populate("listing", "address city state zip price county")
+            .lean();
+
+        if (!offer) {
+            req.flash("error", "Offer not found.");
+            return res.redirect("/offers/manage");
+        }
+
+        if (!req.user._id.equals(offer.buyer._id) && !req.user._id.equals(offer.seller._id)) {
+            req.flash("error", "Unauthorized access.");
+            return res.redirect("/offers/manage");
+        }
+
+        res.render("offers/amend", { offer });
+    } catch (error) {
+        console.error("❌ Error rendering amendment form:", error);
+        req.flash("error", "Error loading amendment form.");
+        res.redirect("/offers/manage");
+    }
+};
+
+exports.submitAmendment = async (req, res) => {
+    try {
+        const offer = await Offer.findById(req.params.id);
+        if (!offer) {
+            req.flash("error", "Offer not found.");
+            return res.redirect("/offers/manage");
+        }
+
+        // Ensure role
+        if (!req.user._id.equals(offer.buyer) && !req.user._id.equals(offer.seller)) {
+            req.flash("error", "Unauthorized.");
+            return res.redirect("/offers/manage");
+        }
+
+        offer.amendment = {
+            closingDate: req.body.closingDate,
+            possessionDate: req.body.possessionDate,
+            changedConditions: req.body.changedConditions || [],
+            removedConditions: req.body.removedConditions || [],
+            newPurchasePrice: req.body.newPurchasePrice,
+            newEarnestMoney: req.body.newEarnestMoney,
+            additionalTerms: req.body.additionalTerms
+        };
+
+        await offer.save();
+        req.flash("success", "Amendment submitted successfully.");
+        res.redirect(`/offers/${offer._id}`);
+    } catch (error) {
+        console.error("❌ Error submitting amendment:", error);
+        req.flash("error", "Error submitting amendment.");
+        res.redirect("/offers/manage");
+    }
+};
+
+
+// Render the Walk-Through Notice form
+exports.showWalkThroughForm = async (req, res) => {
+    try {
+        const offer = await Offer.findById(req.params.id)
+            .populate("buyer", "name email")
+            .populate("seller", "name email")
+            .populate("listing", "address city state zip price county")
+            .lean();
+
+        if (!offer) {
+            req.flash("error", "Offer not found.");
+            return res.redirect("/offers/manage");
+        }
+
+        if (!req.user._id.equals(offer.buyer._id) && !req.user._id.equals(offer.seller._id)) {
+            req.flash("error", "Unauthorized access.");
+            return res.redirect("/offers/manage");
+        }
+
+        res.render("offers/walkThrough", { offer });
+    } catch (error) {
+        console.error("❌ Error rendering walk-through form:", error);
+        req.flash("error", "Error loading walk-through form.");
+        res.redirect("/offers/manage");
+    }
+};
+
+exports.previewAmendment = async (req, res) => {  };
+exports.previewRelease = async (req, res) => {  };
+exports.previewWalkThrough = async (req, res) => {  };
+
+
+exports.submitWalkThrough = async (req, res) => {
+    try {
+        const offer = await Offer.findById(req.params.id);
+        if (!offer) {
+            req.flash("error", "Offer not found.");
+            return res.redirect("/offers/manage");
+        }
+
+        if (!req.user._id.equals(offer.buyer)) {
+            req.flash("error", "Only buyers can submit a walk-through.");
+            return res.redirect("/offers/manage");
+        }
+
+        offer.walkThrough = {
+            date: req.body.date,
+            buyerAction: req.body.buyerAction,
+            issues: req.body.issues || '',
+            sellerResponse: req.body.sellerResponse || '',
+            buyerResponse: req.body.buyerFinalResponse || ''
+        };
+
+        await offer.save();
+        req.flash("success", "Walk-through notice submitted.");
+        res.redirect(`/offers/${offer._id}`);
+    } catch (error) {
+        console.error("❌ Error submitting walk-through:", error);
+        req.flash("error", "Error submitting walk-through notice.");
+        res.redirect("/offers/manage");
+    }
+};
 
 // In offerController.js - showOfferForm function
 exports.showOfferForm = async (req, res) => {
@@ -435,6 +619,21 @@ exports.previewOfferContract = async (req, res) => {
     }
 };
 
+exports.previewAmendment = async (req, res) => {
+    const data = req.query;
+    res.render('contracts/previewAmendment', { data, returnUrl: '/offers/:id/showAmend' });
+  };
+  
+  exports.previewRelease = async (req, res) => {
+    const data = req.query;
+    res.render('contracts/previewRelease', { data, returnUrl: '/offers/:id/showRelease' });
+  };
+  
+  exports.previewWalkThrough = async (req, res) => {
+    const data = req.query;
+    res.render('contracts/previewWalkThrough', { data, returnUrl: '/offers/:id' });
+  };
+
 // Generate PDF for an offer or counter offer
 exports.generateOfferPDF = async (req, res) => {
     try {
@@ -478,6 +677,48 @@ exports.generateOfferPDF = async (req, res) => {
         res.redirect("/offers/manage");
     }
 };
+
+exports.generateAmendmentPDF = async (req, res) => {
+    const formData = req.query;    
+    const pdfBuffer = await generatePdfFromTemplate('amendmentPdf.ejs', formData);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="Amendment.pdf"');
+    res.end(pdfBuffer);
+  };
+  
+  exports.generateReleasePDF = async (req, res) => {
+    const formData = req.query;    
+    const pdfBuffer = await generatePdfFromTemplate('mutualReleasePdf.ejs', formData);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="Mutual_Release.pdf"');
+    res.end(pdfBuffer);
+  };
+
+  exports.generateDiclosurePDF = async (req, res) => {
+    const { listingId } = req.params;
+    const listing = await Listing.findById(listingId)
+            .populate('seller', 'name email')
+            .lean();   
+
+    if (!listing) {
+        req.flash("error", "Listing not found.");
+        return res.redirect("/listings/manage");
+    }
+    // Import the function directly and call it with the listing object
+    const { generateDisclosurePdf } = require('../utils/pdfGenerator');
+    const pdfBuffer = await generateDisclosurePdf('views/listings/addons/sellersDisclosures.ejs', listing);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="SellersDisclosures.pdf"');
+    res.end(pdfBuffer);
+  };
+  
+  exports.generateWalkThroughPDF = async (req, res) => {
+    const formData = req.query;
+    const pdfBuffer = await generatePdfFromTemplate('walkThroughPdf.ejs', formData);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="Walk_Through_Notice.pdf"');
+    res.end(pdfBuffer);
+  };
 
 // Update the existing submitOffer function in offerController.js
 exports.submitOffer = catchAsync(async (req, res, next) => {

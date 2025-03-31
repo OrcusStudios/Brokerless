@@ -1,50 +1,60 @@
-<%- include('../partials/layout.ejs', { title: 'Mutual Release of Earnest Money' }) %>
-
-<div class="container py-4">
-    <span class="badge bg-warning text-dark position-fixed" style="top: 80px; right: 20px; z-index: 1000;">
-        PREVIEW ONLY - NOT BINDING
-    </span>
-
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white text-center">
-            <h3 class="mb-0">MUTUAL RELEASE OF EARNEST MONEY</h3>
-        </div>
-        <div class="card-body p-4">
-            <div class="alert alert-info mb-4">
-                <strong>IMPORTANT:</strong> This document releases all parties from claims related to the original contract.
-            </div>
-
-            <p>This Mutual Release is entered into by <strong><%= release.buyerName || 'Buyer Name' %></strong> ("Buyer") and <strong><%= release.sellerName || 'Seller Name' %></strong> ("Seller") regarding the property located at:</p>
-            <p><strong><%= release.propertyAddress || 'Property Address' %>, MO <%= release.propertyZip || 'Zip Code' %>, <%= release.propertyCounty || 'County' %></strong></p>
-
-            <h5 class="mt-4">Earnest Money Disbursement:</h5>
-            <ul class="list-group mb-4">
-                <% release.disbursements.forEach(d => { %>
-                    <li class="list-group-item">
-                        Payable To: <strong><%= d.payee %></strong> | Amount: <strong>$<%= d.amount %></strong> | Delivery: <%= d.deliveryMethod %> <% if (d.address) { %> (Address: <%= d.address %>) <% } %>
-                    </li>
-                <% }) %>
-            </ul>
-
-            <% if (release.noChecksReason) { %>
-                <p><strong>No checks issued because:</strong> <%= release.noChecksReason %></p>
-            <% } %>
-
-            <p>All parties acknowledge the termination of the Contract and mutually release each other from all claims related to the contract.</p>
-
-            <h5 class="mt-4">Signatures</h5>
-            <div class="row mt-3">
-                <div class="col-md-6">
-                    <p>Seller: ____________________________</p>
-                    <p>Date: ____________________________</p>
-                </div>
-                <div class="col-md-6">
-                    <p>Buyer: ____________________________</p>
-                    <p>Date: ____________________________</p>
-                </div>
-            </div>
-        </div>
+<div class="container">
+    <h3 class="rider">Mutual Release of Earnest Money Deposit</h3>
+    <p class="boilerplate text-center">This document has legal consequences. If you do not understand it, consult your attorney.</p>
+  
+    <p><strong>Buyer:</strong> <%= offer.buyerName %></p>
+    <p><strong>Seller:</strong> <%= offer.sellerName %></p>
+  
+    <p><strong>Listing Broker’s Firm Name:</strong> ____________________________</p>
+    <p><strong>Cooperating Broker’s Firm Name:</strong> ____________________________</p>
+  
+    <p><strong>Contract Date:</strong> ____________</p>
+    <p><strong>Property:</strong> <%= offer.listingAddress %>, <%= offer.listingCity %>, MO <%= offer.listingZip %> (<%= offer.listingState %> County)</p>
+    <p><strong>Escrow Agent Holding Earnest Money:</strong> <%= offer.titleCompany %></p>
+    <p><strong>Earnest Amount Paid:</strong> $<%= offer.earnestMoney %></p>
+  
+    <p>This Mutual Release acknowledges that the Contract is terminated and authorizes the disbursement of earnest money as follows:</p>
+  
+    <div class="contractSection">
+      <p><strong>Disbursement Instructions:</strong></p>
+      <ul>
+        <li>Payable To: ____________________________ Amount: $__________ [  ] Pick-Up   [  ] Mail (Address: ____________________________)</li>
+        <li>Payable To: ____________________________ Amount: $__________ [  ] Pick-Up   [  ] Mail (Address: ____________________________)</li>
+        <li>Payable To: ____________________________ Amount: $__________ [  ] Pick-Up   [  ] Mail (Address: ____________________________)</li>
+        <li>Payable To: ____________________________ Amount: $__________ [  ] Pick-Up   [  ] Mail (Address: ____________________________)</li>
+      </ul>
+      <p><strong>If no checks are issued, explain:</strong></p>
+      <p style="min-height: 60px; border: 1px solid #ccc; padding: 0.75rem;"></p>
     </div>
-</div>
-
-<%- include('../partials/footer.ejs') %>
+  
+    <p>This Mutual Release supersedes all prior agreements and confirms the termination of the Contract. It is not binding on parties who have not signed.</p>
+  
+    <div class="page-break"></div>
+  
+    <h5>Signatures</h5>
+    <div class="row">
+      <div class="col-md-6">
+        <p><strong>Seller:</strong> ____________________________</p>
+        <p><strong>Date:</strong> __________________</p>
+      </div>
+      <div class="col-md-6">
+        <p><strong>Buyer:</strong> ____________________________</p>
+        <p><strong>Date:</strong> __________________</p>
+      </div>
+    </div>
+  
+    <div class="row mt-4">
+      <div class="col-md-6">
+        <p><strong>Listing Broker:</strong> ____________________________</p>
+        <p><strong>Date:</strong> __________________</p>
+      </div>
+      <div class="col-md-6">
+        <p><strong>Cooperating Broker:</strong> ____________________________</p>
+        <p><strong>Date:</strong> __________________</p>
+      </div>
+    </div>
+  
+    <p class="boilerplate mt-4">
+      Approved for use by Missouri REALTORS®. No warranty is made as to legal validity or adequacy. This form does not replace the advice of legal counsel.
+    </p>
+  </div>

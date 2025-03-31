@@ -1,0 +1,51 @@
+<%- include('../partials/layout.ejs') %>
+
+<form action="/offers/<%= offer._id %>/walkThrough" method="POST" class="container mt-4">
+    <h3 class="rider">Submit Walk-Through Notice</h3>
+  
+    <div class="mb-3">
+      <label for="date" class="form-label">Walk-Through Date & Time</label>
+      <input type="datetime-local" name="date" id="date" class="form-control" required>
+    </div>
+  
+    <div class="mb-4">
+      <label class="form-label">Buyer’s Action</label>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="buyerAction" value="waived" id="waived" required>
+        <label class="form-check-label" for="waived">Buyer waives the walk-through and is satisfied</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="buyerAction" value="satisfied" id="satisfied">
+        <label class="form-check-label" for="satisfied">Buyer conducted the walk-through and is satisfied</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="buyerAction" value="issues" id="issues">
+        <label class="form-check-label" for="issues">Buyer conducted the walk-through and found issues</label>
+      </div>
+    </div>
+  
+    <div class="mb-3">
+      <label for="issues" class="form-label">List of Issues (if any)</label>
+      <textarea name="issues" id="issues" class="form-control" rows="4" placeholder="Describe any issues not resolved or changes in property condition"></textarea>
+    </div>
+  
+    <div class="mb-3">
+      <label for="sellerResponse" class="form-label">Seller’s Response</label>
+      <textarea name="sellerResponse" id="sellerResponse" class="form-control" rows="3" placeholder="Seller’s proposed resolution or refusal"></textarea>
+    </div>
+  
+    <div class="mb-3">
+      <label for="buyerFinalResponse" class="form-label">Buyer’s Final Response</label>
+      <select name="buyerFinalResponse" id="buyerFinalResponse" class="form-select">
+        <option value="">Select</option>
+        <option value="accepted">Buyer accepts Seller’s response</option>
+        <option value="rejected">Buyer does NOT accept Seller’s response</option>
+      </select>
+    </div>
+  
+    <div class="d-flex justify-content-end">
+      <button type="submit" class="btn btn-outline-primary">Submit Walk-Through</button>
+    </div>
+  </form>
+  
+<%- include('../partials/footer.ejs') %>

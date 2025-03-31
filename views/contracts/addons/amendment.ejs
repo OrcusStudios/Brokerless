@@ -1,56 +1,57 @@
-<%- include('../partials/layout.ejs', { title: 'Amendment to Contract' }) %>
-
-<div class="container py-4">
-    <span class="badge bg-warning text-dark position-fixed" style="top: 80px; right: 20px; z-index: 1000;">
-        PREVIEW ONLY - NOT BINDING
-    </span>
-
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white text-center">
-            <h3 class="mb-0">AMENDMENT TO CONTRACT FOR SALE OF REAL ESTATE</h3>
-        </div>
-        <div class="card-body p-4">
-            <div class="alert alert-info mb-4">
-                <strong>IMPORTANT:</strong> This Amendment modifies the original Purchase Agreement. Please review carefully.
-            </div>
-
-            <p>This Amendment is made between <strong><%= amendment.sellerName || 'Seller Name' %></strong> ("Seller") and <strong><%= amendment.buyerName || 'Buyer Name' %></strong> ("Buyer") concerning the property located at:</p>
-            <p><strong><%= amendment.propertyAddress || 'Property Address' %>, MO <%= amendment.propertyZip || 'Zip Code' %>, <%= amendment.propertyCounty || 'County' %></strong></p>
-
-            <h5 class="mt-4">Amendment Terms:</h5>
-            <ul class="list-group mb-4">
-                <% if (amendment.closingDateChanged) { %>
-                    <li class="list-group-item">Closing Date changed to: <strong><%= amendment.newClosingDate %></strong></li>
-                <% } %>
-                <% if (amendment.possessionDateChanged) { %>
-                    <li class="list-group-item">Possession Date changed to: <strong><%= amendment.newPossessionDate %></strong></li>
-                <% } %>
-                <% if (amendment.purchasePriceChanged) { %>
-                    <li class="list-group-item">Purchase Price changed to: <strong>$<%= amendment.newPurchasePrice %></strong></li>
-                <% } %>
-                <% if (amendment.earnestMoneyChanged) { %>
-                    <li class="list-group-item">Earnest Money changed to: <strong>$<%= amendment.newEarnestMoney %></strong></li>
-                <% } %>
-                <% if (amendment.additionalTerms) { %>
-                    <li class="list-group-item">Additional Terms: <%= amendment.additionalTerms %></li>
-                <% } %>
-            </ul>
-
-            <p>All other terms and conditions of the original contract remain unchanged.</p>
-
-            <h5 class="mt-4">Signatures</h5>
-            <div class="row mt-3">
-                <div class="col-md-6">
-                    <p>Seller: ____________________________</p>
-                    <p>Date: ____________________________</p>
-                </div>
-                <div class="col-md-6">
-                    <p>Buyer: ____________________________</p>
-                    <p>Date: ____________________________</p>
-                </div>
-            </div>
-        </div>
+<div class="container">
+    <h3 class="rider">Amendment to Contract for Sale of Real Estate</h3>
+    <p class="boilerplate text-center">This document has legal consequences. If you do not understand it, consult your attorney.</p>
+  
+    <p><strong>Amendment to Sale Contract dated:</strong> ____________, 20__</p>
+  
+    <p><strong>Seller:</strong> <%= offer.sellerName %></p>
+    <p><strong>Buyer:</strong> <%= offer.buyerName %></p>
+    <p><strong>Property Address:</strong> <%= offer.listingAddress %>, <%= offer.listingCity %>, MO <%= offer.listingZip %> (<%= offer.listingState %> County)</p>
+  
+    <h5>Only completed sections apply:</h5>
+  
+    <p>1. <strong>Closing Date:</strong> Changed from ____________ to ____________</p>
+    <p>2. <strong>Possession Date:</strong> Changed from ____________ to ____________</p>
+    <p>3. <strong>Deadline Changes:</strong></p>
+    <ul>
+      <li>(a) ____________ → ____________</li>
+      <li>(b) ____________ → ____________</li>
+      <li>(c) ____________ → ____________</li>
+    </ul>
+  
+    <p>4. <strong>Conditions Removed:</strong></p>
+    <ul>
+      <li>(a) ____________________________</li>
+      <li>(b) ____________________________</li>
+      <li>(c) ____________________________</li>
+    </ul>
+  
+    <p>5. <strong>Purchase Price:</strong> Changed from $__________ to $__________</p>
+    <p>6. <strong>Earnest Money:</strong> Changed from $__________ to $__________</p>
+  
+    <p>7. <strong>Additional Amendments:</strong></p>
+    <p style="min-height: 80px; border: 1px solid #ccc; padding: 0.75rem;">__________________________________________________<br>
+       __________________________________________________<br>
+       __________________________________________________</p>
+  
+    <p><strong>All other terms and conditions of the Contract remain unchanged.</strong></p>
+  
+    <div class="page-break"></div>
+  
+    <h5>Signatures</h5>
+    <div class="row">
+      <div class="col-md-6">
+        <p><strong>Seller:</strong> ____________________________</p>
+        <p><strong>Date:</strong> __________________</p>
+      </div>
+      <div class="col-md-6">
+        <p><strong>Buyer:</strong> ____________________________</p>
+        <p><strong>Date:</strong> __________________</p>
+      </div>
     </div>
-</div>
-
-<%- include('../partials/footer.ejs') %>
+  
+    <p class="boilerplate mt-4">
+      Approved for use by Missouri REALTORS®. No warranty is made as to legal validity or adequacy. This amendment does not replace the advice of legal counsel.
+    </p>
+  </div>
+  

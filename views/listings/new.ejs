@@ -73,7 +73,30 @@
                         <div class="form-floating mt-3">
                             <input type="number" id="squareFootage" class="form-control" name="squareFootage" required>
                             <label for="squareFootage">Square Footage</label>
+                        
+                            <!-- Measurement Source Options -->
+                            <div class="mt-2 p-2 bg-light border rounded">
+                                <p class="mb-1 fw-bold">Source of Square Footage Measurement:</p>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="priorAppraisal" name="measurementSource" value="priorAppraisal">
+                                    <label class="form-check-label" for="priorAppraisal">Prior appraisal</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="buildingPlans" name="measurementSource" value="buildingPlans">
+                                    <label class="form-check-label" for="buildingPlans">Building Plans</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="assessor" name="measurementSource" value="assessor">
+                                    <label class="form-check-label" for="assessor">Assessor's Office</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="otherSource" name="measurementSource" value="other">
+                                    <label class="form-check-label" for="otherSource">Other</label>
+                                    <input type="text" class="form-control form-control-sm mt-1" id="otherSourceText" name="otherSourceText" placeholder="Please specify" style="display: none;">
+                                </div>
+                            </div>
                         </div>
+
                         <div class="row g-3 mt-3">
                             <div class="col-md-6">
                                 <div class="form-floating">
@@ -125,7 +148,23 @@
                         </div>
                     </div>
                 </div>
-
+                <!-- Measurement Disclaimer Acknowledgment -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0">Measurement Disclaimer</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <p>Any measurements information shared has not been independently verified and is for marketing purposes only. Measurements are approximations and may not be exact. Measurements are not to be relied upon for the purpose of a loan, valuation, or any other purpose.</p>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="measurementAcknowledgment" name="measurementAcknowledgment" required>
+                            <label class="form-check-label" for="measurementAcknowledgment">
+                                I acknowledge that all measurements provided are approximations from the selected sources and not independently verified by Brokerless. Exact square footage or acreage should be independently measured by interested buyers.
+                            </label>
+                        </div>
+                    </div>
+                </div>
                 <!-- Submit Button -->
                 <button type="submit" class="btn btn-primary w-100 py-2">
                     <i class="bi bi-plus-circle me-2"></i>Create Listing
@@ -134,6 +173,15 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show/hide the Other source text field
+        document.getElementById('otherSource').addEventListener('change', function() {
+            document.getElementById('otherSourceText').style.display = this.checked ? 'block' : 'none';
+        });
+    });
+</script>
 
 <!-- Google Places Autocomplete Script (keep existing script) -->
 <script>

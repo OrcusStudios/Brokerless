@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simplified Seller's Disclosure Statement</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.5;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logo {
+            max-width: 200px;
+            margin-bottom: 10px;
+        }
+        h1 {
+            font-size: 24px;
+            margin: 5px 0;
+            color: #1a5276;
+        }
+        .document-id {
+            font-size: 12px;
+            color: #777;
+            margin-bottom: 15px;
+        }
+        .notice {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            background-color: #f9f9f9;
+        }
+        .property-info {
+            margin-bottom: 20px;
+        }
+        .property-info input {
+            border: none;
+            border-bottom: 1px solid #ccc;
+            padding: 5px;
+            margin: 0 5px;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section-title {
+            background-color: #1a5276;
+            color: white;
+            padding: 8px;
+            font-weight: bold;
+        }
+        .question {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .question:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .checkboxes {
+            display: inline-block;
+            min-width: 100px;
+            text-align: right;
+        }
+        .explanation {
+            margin-top: 5px;
+            padding: 5px;
+            border: 1px dashed #ccc;
+            background-color: #f5f5f5;
+        }
+        .signature {
+            margin-top: 30px;
+        }
+        .signature-line {
+            border-top: 1px solid #000;
+            margin-top: 40px;
+            width: 80%;
+        }
+        .signature-info {
+            display: flex;
+            justify-content: space-between;
+        }
+        .optional-disclosure {
+            margin: 20px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="/api/placeholder/200/80" alt="Missouri REALTORS Logo" class="logo">
+        <h1>Seller's Disclosure Statement for Residential Property</h1>
+        <div class="document-id">BROKERLESS-SD-1000 | Page 1 of 4</div>
+    </div>
+
+    <div class="notice">
+        NOTICE TO BOTH PARTIES: ONLY A SALE CONTRACT, AND NOT THIS DISCLOSURE STATEMENT, WILL CONTROL AS TO WHAT IS INCLUDED IN A SALE. IF YOU EXPECT ANY ITEM OF PERSONAL PROPERTY TO BE INCLUDED AS PART OF A SALE, THEY MUST BE SPECIFIED AS INCLUDED IN THE SALE CONTRACT.
+    </div>
+
+    <p>This Disclosure Statement may assist Buyer in evaluating the Property, but it is not a warranty of any kind by Seller or any real estate licensee, and is not a substitute for any inspection or warranty Buyer may wish to obtain.</p>
+
+    <div class="property-info">
+        <p>This Disclosure Statement is made by the undersigned Seller concerning the following property (the "Property"):</p>
+        <p>
+            <input type="text" placeholder="Street Address" style="width: 300px;">
+            <input type="text" placeholder="City" style="width: 150px;">
+            MO
+            <input type="text" placeholder="Zip Code" style="width: 80px;">
+            <input type="text" placeholder="County" style="width: 150px;">
+        </p>
+    </div>
+
+    <p><strong>SELLER:</strong> Please fully complete this Disclosure Statement, including known history and problems. If a topic or condition is unknown or not applicable to your Property, then mark "N/A" or "Unknown". Complete and truthful disclosure of the history and condition of the Property gives you the best protection against potential charges that you violated a legal disclosure obligation to Buyer.</p>
+
+    <div class="section">
+        <div class="section-title">ACQUISITION/OCCUPANCY</div>
+        <div class="question">
+            (a) Approximate year built: <input type="text" style="width: 100px;">
+        </div>
+        <div class="question">
+            (b) Date acquired: <input type="text" style="width: 150px;">
+        </div>
+        <div class="question">
+            (c) Is the Property vacant?
+            <span class="checkboxes">
+                <input type="checkbox" id="vacant-yes"> <label for="vacant-yes">Yes</label>
+                <input type="checkbox" id="vacant-no"> <label for="vacant-no">No</label>
+            </span>
+        </div>
+        <div class="question">
+            (d) Does Seller occupy the Property?
+            <span class="checkboxes">
+                <input type="checkbox" id="occupy-yes"> <label for="occupy-yes">Yes</label>
+                <input type="checkbox" id="occupy-no"> <label for="occupy-no">No</label>
+            </span>
+        </div>
+        <div class="question">
+            (e) Has Seller ever occupied the Property?
+            <span class="checkboxes">
+                <input type="checkbox" id="ever-occupy-yes"> <label for="ever-occupy-yes">Yes</label>
+                <input type="checkbox" id="ever-occupy-no"> <label for="ever-occupy-no">No</label>
+            </span>
+        </div>
+        <div class="question">
+            (f) Is Seller a "foreign person" as described in FIRPTA?
+            <span class="checkboxes">
+                <input type="checkbox" id="foreign-yes"> <label for="foreign-yes">Yes</label>
+                <input type="checkbox" id="foreign-no"> <label for="foreign-no">No</label>
+            </span>
+        </div>
+        <div class="explanation">
+            Please explain if the Property is vacant or not occupied by Seller on a full-time basis:
+            <textarea style="width: 100%; height: 60px;"></textarea>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">STATUTORY DISCLOSURES</div>
+        <div class="question">
+            1. METHAMPHETAMINE. Are you aware if the Property is or was used as a site for methamphetamine production or the place of residence of a person convicted of a crime involving methamphetamine?
+            <span class="checkboxes">
+                <input type="checkbox" id="meth-yes"> <label for="meth-yes">Yes</label>
+                <input type="checkbox" id="meth-no"> <label for="meth-no">No</label>
+            </span>
+        </div>
+        <div class="question">
+            2. LEAD-BASED PAINT. Does the Property include a residential dwelling built prior to 1978?
+            <span class="checkboxes">
+                <input type="checkbox" id="lead-yes"> <label for="lead-yes">Yes</label>
+                <input type="checkbox" id="lead-no"> <label for="lead-no">No</label>
+            </span>
+        </div>
+        <div class="question">
+            3. WASTE DISPOSAL SITE OR DEMOLITION LANDFILL. Are you aware of a solid waste disposal site or demolition landfill on the Property?
+            <span class="checkboxes">
+                <input type="checkbox" id="waste-yes"> <label for="waste-yes">Yes</label>
+                <input type="checkbox" id="waste-no"> <label for="waste-no">No</label>
+            </span>
+        </div>
+        <div class="question">
+            4. RADIOACTIVE OR HAZARDOUS MATERIALS. Have you ever received a report stating affirmatively that the Property is or was previously contaminated with radioactive material or other hazardous material?
+            <span class="checkboxes">
+                <input type="checkbox" id="radio-yes"> <label for="radio-yes">Yes</label>
+                <input type="checkbox" id="radio-no"> <label for="radio-no">No</label>
+            </span>
+        </div>
+    </div>
+
+    <div class="optional-disclosure">
+        <input type="checkbox" id="no-additional"> <label for="no-additional">Seller elects to make no additional disclosures (check only if applicable).</label>
+        <div style="margin-top: 10px;">
+            Seller, please provide explanation (if any):
+            <textarea style="width: 100%; height: 60px;"></textarea>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">PROPERTY SYSTEMS AND FEATURES</div>
+        
+        <!-- HVAC Section -->
+        <div class="question">
+            <strong>HEATING, VENTILATION AND COOLING:</strong> Are you aware of any problem or repair needed or made to the heating, air conditioning, or ventilation systems?
+            <span class="checkboxes">
+                <input type="checkbox" id="hvac-yes"> <label for="hvac-yes">Yes</label>
+                <input type="checkbox" id="hvac-no"> <label for="hvac-no">No</label>
+            </span>
+            <div class="explanation" style="display: none;">
+                Please explain and include any repair history:
+                <textarea style="width: 100%; height: 60px;"></textarea>
+            </div>
+        </div>
+        
+        <!-- Electrical Section -->
+        <div class="question">
+            <strong>ELECTRICAL SYSTEMS:</strong> Are you aware of any problem or repair needed or made to the electrical systems?
+            <span class="checkboxes">
+                <input type="checkbox" id="electrical-yes"> <label for="electrical-yes">Yes</label>
+                <input type="checkbox" id="electrical-no"> <label for="electrical-no">No</label>
+            </span>
+            <div class="explanation" style="display: none;">
+                Please explain and include any repair history:
+                <textarea style="width: 100%; height: 60px;"></textarea>
+            </div>
+        </div>
+        
+        <!-- Plumbing Section -->
+        <div class="question">
+            <strong>PLUMBING & APPLIANCES:</strong> Are you aware of any problem or repair needed or made to the plumbing system or appliances?
+            <span class="checkboxes">
+                <input type="checkbox" id="plumbing-yes"> <label for="plumbing-yes">Yes</label>
+                <input type="checkbox" id="plumbing-no"> <label for="plumbing-no">No</label>
+            </span>
+            <div class="explanation" style="display: none;">
+                Please explain and include any repair history:
+                <textarea style="width: 100%; height: 60px;"></textarea>
+            </div>
+        </div>
+        
+        <!-- Water Section -->
+        <div class="question">
+            <strong>WATER SOURCE:</strong> Public Well 
+            Are you aware of any problem relating to the quality or source of water?
+            <span class="checkboxes">
+                <input type="checkbox" id="water-yes"> <label for="water-yes">Yes</label>
+                <input type="checkbox" id="water-no"> <label for="water-no">No</label>
+            </span>
+            <div class="explanation" style="display: none;">
+                Please explain:
+                <textarea style="width: 100%; height: 60px;"></textarea>
+            </div>
+        </div>
+        
+        <!-- Sewage Section -->
+        <div class="question">
+            <strong>SEWAGE SYSTEM:</strong> Public Septic/Lagoon Other: __________
+            Are you aware of any problem with the sewage system?
+            <span class="checkboxes">
+                <input type="checkbox" id="sewage-yes"> <label for="sewage-yes">Yes</label>
+                <input type="checkbox" id="sewage-no"> <label for="sewage-no">No</label>
+            </span>
+            <div class="explanation" style="display: none;">
+                Please explain:
+                <textarea style="width: 100%; height: 60px;"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">STRUCTURE AND EXTERIOR</div>
+        
+        <!-- Roof Section -->
+        <div class="question">
+            <strong>ROOF:</strong> Approximate age: _______ years
+            Has the roof ever leaked during your ownership?
+            <span class="checkboxes">
+                <input type="checkbox" id="roof-yes"> <label for="roof-yes">Yes</label>
+                <input type="checkbox" id="roof-no"> <label for="roof-no">No</label>
+            </span>
+            <div class="explanation" style="display: none;">
+                Please explain:
+                <textarea style="width: 100%; height: 60px;"></textarea>
+            </div>
+        </div>
+        
+        <!-- Foundation/Structure Section -->
+        <div class="question">
+            <strong>FOUNDATION/STRUCTURE:</strong> Are you aware of any problems with the foundation, walls, floors, or roof structure?
+            <span class="checkboxes">
+                <input type="checkbox" id="foundation-yes"> <label for="foundation-yes">Yes</label>
+                <input type="checkbox" id="foundation-no"> <label for="foundation-no">No</label>
+            </span>
+            <div class="explanation" style="display: none;">
+                Please explain:
+                <textarea style="width: 100%; height: 60px;"></textarea>
+            </div>
+        </div>
+        
+        <!-- Basement/Water Issues Section -->
+        <div class="question">
+            <strong>BASEMENT/WATER ISSUES:</strong> Are you aware of any water leakage, accumulation, or dampness in the basement or crawl space?
+            <span class="checkboxes">
+                <input type="checkbox" id="basement-yes"> <label for="basement-yes">Yes</label>
+                <input type="checkbox" id="basement-no"> <label for="basement-no">No</label>
+            </span>
+            <div class="explanation" style="display: none;">
+                Please explain:
+                <textarea style="width: 100%; height: 60px;"></textarea>
+            </div>
+        </div>
+        
+        <!-- Termites/Wood Section -->
+        <div class="question">
+            <strong>TERMITES/WOOD DESTROYING INSECTS:</strong> Are you aware of any termites/wood destroying insects or damage to the Property?
+            <span class="checkboxes">
+                <input type="checkbox" id="termites-yes"> <label for="termites-yes">Yes</label>
+                <input type="checkbox" id="termites-no"> <label for="termites-no">No</label>
+            </span>
+            <div class="explanation" style="display: none;">
+                Please explain:
+                <textarea style="width: 100%; height: 60px;"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">ENVIRONMENTAL CONCERNS</div>
+        
+        <!-- Asbestos Section -->
+        <div class="question">
+            <strong>ASBESTOS:</strong> Are you aware of the presence of any asbestos-containing materials on the Property?
+            <span class="checkboxes">
+                <input type="checkbox" id="asbestos-yes"> <label for="asbestos-yes">Yes</label>
+                <input type="checkbox" id="asbestos-no"> <label for="asbestos-no">No</label>
+            </span>
+        </div>
+        
+        <!-- Mold Section -->
+        <div class="question">
+            <strong>MOLD:</strong> Are you aware of the presence of any mold on the Property?
+            <span class="checkboxes">
+                <input type="checkbox" id="mold-yes"> <label for="mold-yes">Yes</label>
+                <input type="checkbox" id="mold-no"> <label for="mold-no">No</label>
+            </span>
+        </div>
+        
+        <!-- Radon Section -->
+        <div class="question">
+            <strong>RADON:</strong> Are you aware of the presence of radon gas on the Property?
+            <span class="checkboxes">
+                <input type="checkbox" id="radon-yes"> <label for="radon-yes">Yes</label>
+                <input type="checkbox" id="radon-no"> <label for="radon-no">No</label>
+            </span>
+        </div>
+        
+        <!-- Lead Section -->
+        <div class="question">
+            <strong>LEAD:</strong> Are you aware of the presence of any lead hazards on the Property?
+            <span class="checkboxes">
+                <input type="checkbox" id="lead-hazard-yes"> <label for="lead-hazard-yes">Yes</label>
+                <input type="checkbox" id="lead-hazard-no"> <label for="lead-hazard-no">No</label>
+            </span>
+        </div>
+        
+        <!-- Other Environmental Section -->
+        <div class="question">
+            <strong>OTHER ENVIRONMENTAL CONCERNS:</strong> Are you aware of any other environmental concerns that may affect the Property?
+            <span class="checkboxes">
+                <input type="checkbox" id="other-env-yes"> <label for="other-env-yes">Yes</label>
+                <input type="checkbox" id="other-env-no"> <label for="other-env-no">No</label>
+            </span>
+            <div class="explanation" style="display: none;">
+                Please explain:
+                <textarea style="width: 100%; height: 60px;"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">OTHER DISCLOSURES</div>
+        
+        <!-- HOA Section -->
+        <div class="question">
+            <strong>HOA/SUBDIVISION:</strong> Is the Property part of a homeowners association?
+            <span class="checkboxes">
+                <input type="checkbox" id="hoa-yes"> <label for="hoa-yes">Yes</label>
+                <input type="checkbox" id="hoa-no"> <label for="hoa-no">No</label>
+            </span>
+            <div class="explanation" style="display: none;">
+                HOA Name: <input type="text" style="width: 300px;"><br>
+                Dues: $ <input type="text" style="width: 100px;"> per <input type="text" style="width: 100px;">
+            </div>
+        </div>
+        
+        <!-- Insurance Claims Section -->
+        <div class="question">
+            <strong>INSURANCE CLAIMS:</strong> Have any insurance claims been filed for damage to the Property?
+            <span class="checkboxes">
+                <input type="checkbox" id="insurance-yes"> <label for="insurance-yes">Yes</label>
+                <input type="checkbox" id="insurance-no"> <label for="insurance-no">No</label>
+            </span>
+            <div class="explanation" style="display: none;">
+                Please explain:
+                <textarea style="width: 100%; height: 60px;"></textarea>
+            </div>
+        </div>
+        
+        <!-- Flooding Section -->
+        <div class="question">
+            <strong>FLOODING/DRAINAGE:</strong> Is any portion of the Property located in a flood hazard area?
+            <span class="checkboxes">
+                <input type="checkbox" id="flood-yes"> <label for="flood-yes">Yes</label>
+                <input type="checkbox" id="flood-no"> <label for="flood-no">No</label>
+                <input type="checkbox" id="flood-unknown"> <label for="flood-unknown">Unknown</label>
+            </span>
+            <div class="explanation" style="display: none;">
+                Please explain:
+                <textarea style="width: 100%; height: 60px;"></textarea>
+            </div>
+        </div>
+        
+        <!-- Additional Disclosures -->
+        <div class="question">
+            <strong>ADDITIONAL INFORMATION:</strong> Are there any other material defects affecting this Property not disclosed above?
+            <span class="checkboxes">
+                <input type="checkbox" id="additional-yes"> <label for="additional-yes">Yes</label>
+                <input type="checkbox" id="additional-no"> <label for="additional-no">No</label>
+            </span>
+            <div class="explanation">
+                Please explain any additional information that should be disclosed:
+                <textarea style="width: 100%; height: 80px;"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="signature">
+        <p><strong>Seller's Acknowledgement:</strong></p>
+        <ol>
+            <li>All real estate licensee(s) are hereby authorized to distribute this Disclosure Statement to potential buyers of the Property.</li>
+            <li>Seller has carefully examined this Disclosure Statement and acknowledges that the information contained herein is true and accurate to the best of Seller's knowledge.</li>
+            <li>Seller will fully and promptly disclose in writing to Buyer any new information pertaining to the Property that is discovered by or made known to Seller at any time prior to closing.</li>
+        </ol>
+
+        <div class="signature-info">
+            <div>
+                <div class="signature-line"></div>
+                <p>Seller Date</p>
+                <p>Print Name: _______________________________</p>
+            </div>
+            <div>
+                <div class="signature-line"></div>
+                <p>Seller Date</p>
+                <p>Print Name: _______________________________</p>
+            </div>
+        </div>
+        
+        <p><strong>Buyer's Acknowledgement:</strong></p>
+        <ol>
+            <li>The statements made by Seller in this Disclosure Statement are not warranties of any kind.</li>
+            <li>Buyer understands that there may be aspects or areas of the Property about which Seller has no knowledge.</li>
+            <li>Buyer should verify all information contained in this Disclosure Statement.</li>
+            <li>Buyer acknowledges having received a signed copy of this Disclosure Statement.</li>
+        </ol>
+
+        <div class="signature-info">
+            <div>
+                <div class="signature-line"></div>
+                <p>Buyer Date</p>
+                <p>Print Name: _______________________________</p>
+            </div>
+            <div>
+                <div class="signature-line"></div>
+                <p>Buyer Date</p>
+                <p>Print Name: _______________________________</p>
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px; font-size: 12px; color: #777;">
+        <p>BROKERLESS-SD-1000 | Page 4 of 4</p>
+        <p>©2025 Brokerless. All rights reserved.</p>
+    </div>
+
+    <script>
+        // Simple toggle for explanations when "Yes" is clicked
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            if (checkbox.id.endsWith('-yes')) {
+                checkbox.addEventListener('change', function() {
+                    const questionDiv = this.closest('.question');
+                    const explanationDiv = questionDiv.querySelector('.explanation');
+                    if (explanationDiv) {
+                        explanationDiv.style.display = this.checked ? 'block' : 'none';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

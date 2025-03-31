@@ -263,7 +263,130 @@
             </div>
         </div>
         <% } %>
-                  
+          
+        <!-- Seller's Disclosures Section - Add after the received offers section -->
+<% if (isSeller && sellerData.listings && sellerData.listings.length > 0) { %>
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">
+                <i class="bi bi-file-earmark-text me-2"></i>Property Disclosures
+            </h4>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Status</th>
+                            <th>Last Updated</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% sellerData.listings.forEach(listing => { %>
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <% if (listing.image) { %>
+                                            <img src="<%= listing.image %>" alt="Property" class="me-2 rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                                        <% } else { %>
+                                            <div class="bg-secondary me-2 rounded d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                                <i class="bi bi-house text-white"></i>
+                                            </div>
+                                        <% } %>
+                                        <div>
+                                            <%= listing.address %><br>
+                                            <small class="text-muted">
+                                                <%= listing.city %>, <%= listing.state %> <%= listing.zip %>
+                                            </small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <% 
+                                    let progress = { percent: 0, completedSections: 0, totalSections: 4 };
+                                    let isComplete = false;
+                                    
+                                    if (listing.disclosures && listing.disclosures.status) {
+                                        let completedSections = 0;
+                                        if (listing.disclosures.status.section1Completed) completedSections++;
+                                        if (listing.disclosures.status.section2Completed) completedSections++;
+                                        if (listing.disclosures.status.section3Completed) completedSections++;
+                                        if (listing.disclosures.status.section4Completed) completedSections++;
+                                        
+                                        progress.completedSections = completedSections;
+                                        progress.percent = (completedSections / 4) * 100;
+                                        isComplete = listing.disclosures.status.fullyCompleted;
+                                    }
+                                    %>
+                                    
+                                    <% if (isComplete) { %>
+                                        <span class="badge bg-success">Complete</span>
+                                    <% } else if (progress.percent > 0) { %>
+                                        <div>
+                                            <div class="progress" style="height: 8px;">
+                                                <div class="progress-bar bg-info" role="progressbar" style="width: <%= progress.percent %>%;" aria-valuenow="<%= progress.percent %>" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <small class="text-muted mt-1 d-block">
+                                                <%= progress.completedSections %> of <%= progress.totalSections %> sections complete
+                                            </small>
+                                        </div>
+                                    <% } else { %>
+                                        <span class="badge bg-warning text-dark">Not Started</span>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <% if (listing.disclosures && listing.disclosures.status && listing.disclosures.status.lastUpdated) { %>
+                                        <%= new Date(listing.disclosures.status.lastUpdated).toLocaleDateString() %>
+                                    <% } else { %>
+                                        --
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <% if (isComplete) { %>
+                                        <a href="/disclosures/listing/<%= listing._id %>/generate-pdf" class="btn btn-sm btn-success">
+                                            <i class="bi bi-file-earmark-pdf me-1"></i> Download PDF
+                                        </a>
+                                    <% } else if (progress.percent > 0) { %>
+                                        <% 
+                                        let nextSection = 'section1';
+                                        if (listing.disclosures && listing.disclosures.status) {
+                                            if (!listing.disclosures.status.section1Completed) {
+                                                nextSection = 'section1';
+                                            } else if (!listing.disclosures.status.section2Completed) {
+                                                nextSection = 'section2';
+                                            } else if (!listing.disclosures.status.section3Completed) {
+                                                nextSection = 'section3';
+                                            } else if (!listing.disclosures.status.section4Completed) {
+                                                nextSection = 'section4';
+                                            }
+                                        }
+                                        %>
+                                        <a href="/disclosures/listing/<%= listing._id %>/edit/<%= nextSection %>" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-pencil-square me-1"></i> Continue
+                                        </a>
+                                    <% } else { %>
+                                        <a href="/disclosures/listing/<%= listing._id %>/edit/section1" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-clipboard-check me-1"></i> Start Disclosures
+                                        </a>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-light text-center p-2">
+            <small class="text-muted">
+                <i class="bi bi-info-circle me-1"></i>
+                Complete property disclosures are required for all active listings
+            </small>
+        </div>
+    </div>
+    <% } %>
+
     <!-- Enhanced Pre-Approval Status Card -->
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-light">

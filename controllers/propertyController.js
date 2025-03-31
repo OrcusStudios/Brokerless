@@ -20,13 +20,25 @@ exports.showCreateForm = (req, res) => {
 };
 
 // Create Listing
+// In propertyController.js - createListing method
 exports.createListing = async (req, res) => {
     try {
-        // ✅ Extract Cloudinary image URLs
+        // Extract Cloudinary image URLs
         const image = req.file.path;
-        const { address, city, state, zip, county, description, price, bedrooms, bathrooms, squareFootage, propertyType, acres } = req.body;
+        const { 
+            address, city, state, zip, county, description, price, 
+            bedrooms, bathrooms, squareFootage, propertyType, acres,
+            // New fields
+            measurementSource, otherSourceText, measurementAcknowledgment
+        } = req.body;
+        
+        // Process measurement source (convert to array if needed)
+        const measurementSources = Array.isArray(measurementSource) ? measurementSource : [measurementSource];
+        
+        // Create full address
         const fullAddress = `${address}, ${city}, ${state} ${zip}`;
 
+        // Geocode the address
         const geoResponse = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json`, {
             params: {
                 address: fullAddress,
@@ -34,9 +46,9 @@ exports.createListing = async (req, res) => {
             }
         });
 
-
         const { lat, lng } = geoResponse.data.results[0].geometry.location;
-        // ✅ Save Listing to Database
+        
+        // Save Listing to Database
         const listing = new Listing({
             address,
             city,
@@ -50,19 +62,23 @@ exports.createListing = async (req, res) => {
             squareFootage,
             propertyType,
             acres,
-            lat,  // ✅ Now includes lat, lng
+            lat,
             lng,
-            image, // ✅ Stores Cloudinary URLs
-            seller: req.user._id
+            image,
+            seller: req.user._id,
+            // Save measurement disclaimer information
+            measurementSources: measurementSources,
+            otherMeasurementSource: otherSourceText,
+            measurementDisclaimerAcknowledged: measurementAcknowledgment === 'on'
         });
 
         await listing.save();
         req.flash("success", "Listing created successfully!");
         res.redirect("/listings");
-     } catch (error) {
-          console.error("❌ Error creating listing:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
-          res.status(500).send(`Error creating listing: <pre>${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}</pre>`);
-     }
+    } catch (error) {
+        console.error("❌ Error creating listing:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+        res.status(500).send(`Error creating listing: <pre>${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}</pre>`);
+    }
 };
 
 

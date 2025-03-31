@@ -1,0 +1,208 @@
+<%- include('../../../partials/layout.ejs') %>
+
+<div class="container mt-4">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Seller's Disclosure - Property Systems</h4>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                <strong>Step 2 of 4:</strong> Please complete this section about the property systems for your property at <%= listing.address %>.
+            </div>
+
+            <form action="/disclosures/listing/<%= listing._id %>/update/section2" method="POST">
+                <h5 class="border-bottom pb-2 mt-4">HEATING, VENTILATION AND COOLING (HVAC)</h5>
+                
+                <div class="mb-3">
+                    <p class="form-label"><strong>Are you aware of any problem or repair needed or made to the HVAC systems?</strong></p>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="hvacIssues" id="hvacIssuesYes" value="true" <%= listing.disclosures && listing.disclosures.systems && listing.disclosures.systems.hvacIssues ? 'checked' : '' %>>
+                        <label class="form-check-label" for="hvacIssuesYes">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="hvacIssues" id="hvacIssuesNo" value="false" <%= listing.disclosures && listing.disclosures.systems && listing.disclosures.systems.hvacIssues === false ? 'checked' : '' %>>
+                        <label class="form-check-label" for="hvacIssuesNo">No</label>
+                    </div>
+                    
+                    <div class="mt-3 explanation-container" id="hvacExplanationContainer">
+                        <label for="hvacExplanation" class="form-label">Please explain any issues or repairs (include dates and details):</label>
+                        <textarea class="form-control" id="hvacExplanation" name="hvacExplanation" rows="3"><%= listing.disclosures && listing.disclosures.systems ? listing.disclosures.systems.hvacExplanation || '' : '' %></textarea>
+                    </div>
+                </div>
+
+                <h5 class="border-bottom pb-2 mt-4">ELECTRICAL SYSTEMS</h5>
+                
+                <div class="mb-3">
+                    <p class="form-label"><strong>Are you aware of any problem or repair needed or made to the electrical systems?</strong></p>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="electricalIssues" id="electricalIssuesYes" value="true" <%= listing.disclosures && listing.disclosures.systems && listing.disclosures.systems.electricalIssues ? 'checked' : '' %>>
+                        <label class="form-check-label" for="electricalIssuesYes">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="electricalIssues" id="electricalIssuesNo" value="false" <%= listing.disclosures && listing.disclosures.systems && listing.disclosures.systems.electricalIssues === false ? 'checked' : '' %>>
+                        <label class="form-check-label" for="electricalIssuesNo">No</label>
+                    </div>
+                    
+                    <div class="mt-3 explanation-container" id="electricalExplanationContainer">
+                        <label for="electricalExplanation" class="form-label">Please explain any issues or repairs (include dates and details):</label>
+                        <textarea class="form-control" id="electricalExplanation" name="electricalExplanation" rows="3"><%= listing.disclosures && listing.disclosures.systems ? listing.disclosures.systems.electricalExplanation || '' : '' %></textarea>
+                    </div>
+                </div>
+
+                <h5 class="border-bottom pb-2 mt-4">PLUMBING & APPLIANCES</h5>
+                
+                <div class="mb-3">
+                    <p class="form-label"><strong>Are you aware of any problem or repair needed or made to the plumbing systems or appliances?</strong></p>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="plumbingIssues" id="plumbingIssuesYes" value="true" <%= listing.disclosures && listing.disclosures.systems && listing.disclosures.systems.plumbingIssues ? 'checked' : '' %>>
+                        <label class="form-check-label" for="plumbingIssuesYes">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="plumbingIssues" id="plumbingIssuesNo" value="false" <%= listing.disclosures && listing.disclosures.systems && listing.disclosures.systems.plumbingIssues === false ? 'checked' : '' %>>
+                        <label class="form-check-label" for="plumbingIssuesNo">No</label>
+                    </div>
+                    
+                    <div class="mt-3 explanation-container" id="plumbingExplanationContainer">
+                        <label for="plumbingExplanation" class="form-label">Please explain any issues or repairs (include dates and details):</label>
+                        <textarea class="form-control" id="plumbingExplanation" name="plumbingExplanation" rows="3"><%= listing.disclosures && listing.disclosures.systems ? listing.disclosures.systems.plumbingExplanation || '' : '' %></textarea>
+                    </div>
+                </div>
+
+                <h5 class="border-bottom pb-2 mt-4">WATER SOURCE/TREATMENT</h5>
+                
+                <div class="mb-3">
+                    <p class="form-label"><strong>Water Systems/Source:</strong></p>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="waterSource" id="waterSourcePublic" value="public" <%= listing.disclosures && listing.disclosures.systems && listing.disclosures.systems.waterSource === 'public' ? 'checked' : '' %>>
+                        <label class="form-check-label" for="waterSourcePublic">Public (e.g., City/Water District)</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="waterSource" id="waterSourceWell" value="well" <%= listing.disclosures && listing.disclosures.systems && listing.disclosures.systems.waterSource === 'well' ? 'checked' : '' %>>
+                        <label class="form-check-label" for="waterSourceWell">Well (e.g., private, shared, or community)</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="waterSource" id="waterSourceOther" value="other" <%= listing.disclosures && listing.disclosures.systems && listing.disclosures.systems.waterSource === 'other' ? 'checked' : '' %>>
+                        <label class="form-check-label" for="waterSourceOther">Other</label>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <p class="form-label"><strong>Are you aware of any problem relating to the quality or source of water?</strong></p>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="waterIssues" id="waterIssuesYes" value="true" <%= listing.disclosures && listing.disclosures.systems && listing.disclosures.systems.waterIssues ? 'checked' : '' %>>
+                        <label class="form-check-label" for="waterIssuesYes">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="waterIssues" id="waterIssuesNo" value="false" <%= listing.disclosures && listing.disclosures.systems && listing.disclosures.systems.waterIssues === false ? 'checked' : '' %>>
+                        <label class="form-check-label" for="waterIssuesNo">No</label>
+                    </div>
+                    
+                    <div class="mt-3 explanation-container" id="waterExplanationContainer">
+                        <label for="waterExplanation" class="form-label">Please explain any issues with water quality or source:</label>
+                        <textarea class="form-control" id="waterExplanation" name="waterExplanation" rows="3"><%= listing.disclosures && listing.disclosures.systems ? listing.disclosures.systems.waterExplanation || '' : '' %></textarea>
+                    </div>
+                </div>
+
+                <h5 class="border-bottom pb-2 mt-4">SEWAGE SYSTEM</h5>
+                
+                <div class="mb-3">
+                    <p class="form-label"><strong>Type of sewage system to which the Property is connected:</strong></p>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="sewageSystem" id="sewageSystemPublic" value="public" <%= listing.disclosures && listing.disclosures.systems && listing.disclosures.systems.sewageSystem === 'public' ? 'checked' : '' %>>
+                        <label class="form-check-label" for="sewageSystemPublic">Public (e.g., City/Sewer District)</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="sewageSystem" id="sewageSystemSeptic" value="septic" <%= listing.disclosures && listing.disclosures.systems && listing.disclosures.systems.sewageSystem === 'septic' ? 'checked' : '' %>>
+                        <label class="form-check-label" for="sewageSystemSeptic">Septic or Lagoon</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="sewageSystem" id="sewageSystemOther" value="other" <%= listing.disclosures && listing.disclosures.systems && listing.disclosures.systems.sewageSystem === 'other' ? 'checked' : '' %>>
+                        <label class="form-check-label" for="sewageSystemOther">Other</label>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <p class="form-label"><strong>Are you aware of any problem with the sewage system?</strong></p>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="sewageIssues" id="sewageIssuesYes" value="true" <%= listing.disclosures && listing.disclosures.systems && listing.disclosures.systems.sewageIssues ? 'checked' : '' %>>
+                        <label class="form-check-label" for="sewageIssuesYes">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="sewageIssues" id="sewageIssuesNo" value="false" <%= listing.disclosures && listing.disclosures.systems && listing.disclosures.systems.sewageIssues === false ? 'checked' : '' %>>
+                        <label class="form-check-label" for="sewageIssuesNo">No</label>
+                    </div>
+                    
+                    <div class="mt-3 explanation-container" id="sewageExplanationContainer">
+                        <label for="sewageExplanation" class="form-label">Please explain any issues with the sewage system:</label>
+                        <textarea class="form-control" id="sewageExplanation" name="sewageExplanation" rows="3"><%= listing.disclosures && listing.disclosures.systems ? listing.disclosures.systems.sewageExplanation || '' : '' %></textarea>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="/disclosures/listing/<%= listing._id %>/edit/section1" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left me-1"></i> Previous Section
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        Save & Continue <i class="bi bi-arrow-right ms-1"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Show/hide explanation fields based on radio selection
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to toggle explanation containers
+        function toggleExplanation(issueFieldId, containerFieldId) {
+            const issueField = document.getElementById(issueFieldId);
+            const container = document.getElementById(containerFieldId);
+            
+            if (issueField && container) {
+                container.style.display = issueField.checked ? 'block' : 'none';
+            }
+        }
+        
+        // Initialize all explanation fields
+        toggleExplanation('hvacIssuesYes', 'hvacExplanationContainer');
+        toggleExplanation('electricalIssuesYes', 'electricalExplanationContainer');
+        toggleExplanation('plumbingIssuesYes', 'plumbingExplanationContainer');
+        toggleExplanation('waterIssuesYes', 'waterExplanationContainer');
+        toggleExplanation('sewageIssuesYes', 'sewageExplanationContainer');
+        
+        // Add event listeners for yes/no radio buttons
+        document.querySelectorAll('input[name="hvacIssues"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                toggleExplanation('hvacIssuesYes', 'hvacExplanationContainer');
+            });
+        });
+        
+        document.querySelectorAll('input[name="electricalIssues"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                toggleExplanation('electricalIssuesYes', 'electricalExplanationContainer');
+            });
+        });
+        
+        document.querySelectorAll('input[name="plumbingIssues"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                toggleExplanation('plumbingIssuesYes', 'plumbingExplanationContainer');
+            });
+        });
+        
+        document.querySelectorAll('input[name="waterIssues"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                toggleExplanation('waterIssuesYes', 'waterExplanationContainer');
+            });
+        });
+        
+        document.querySelectorAll('input[name="sewageIssues"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                toggleExplanation('sewageIssuesYes', 'sewageExplanationContainer');
+            });
+        });
+    });
+</script>
+
+<%- include('../../../partials/footer.ejs') %>

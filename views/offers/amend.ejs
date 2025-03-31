@@ -1,0 +1,99 @@
+<%- include('../partials/layout.ejs') %>
+
+<div class="container mt-5">
+  <h2 class="mb-4">Amend Contract</h2>
+  <form action="/offers/<%= offer._id %>/submitAmendment" method="POST">
+    <input type="hidden" name="offerId" value="<%= offer._id %>">
+
+    <!-- Section 1: Property and Parties -->
+    <div class="card shadow-lg mb-4">
+      <div class="card-header bg-primary text-white">
+        <h2 class="h4 mb-0">1. Property and Parties</h2>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Seller Name</label>
+            <input type="text" class="form-control" name="sellerName" value="<%= offer.seller.name %>" readonly>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Buyer Name</label>
+            <input type="text" class="form-control" name="buyerName" value="<%= offer.buyer.name %>" readonly>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Property Address</label>
+          <input type="text" class="form-control" name="propertyAddress" value="<%= offer.listing.address %>, <%= offer.listing.city %>, MO <%= offer.listing.zip %> (<%= offer.listing.county %> County)" readonly>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: Amendment Options -->
+    <div class="card shadow-lg mb-4">
+      <div class="card-header bg-primary text-white">
+        <h2 class="h4 mb-0">2. Amendments</h2>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Change Closing Date (optional)</label>
+            <input type="date" class="form-control" name="newClosingDate">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Change Possession Date (optional)</label>
+            <input type="date" class="form-control" name="newPossessionDate">
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Condition Deadlines to Change</label>
+          <textarea class="form-control" name="conditionsToChange" rows="3" placeholder="Describe which conditions and dates to change..."></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Conditions to Remove</label>
+          <textarea class="form-control" name="conditionsToRemove" rows="3" placeholder="List any conditions you want to remove from the original contract..."></textarea>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Change Purchase Price (optional)</label>
+            <input type="number" class="form-control" name="newPurchasePrice">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Change Earnest Money (optional)</label>
+            <input type="number" class="form-control" name="newEarnestMoney">
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Other Amendments</label>
+          <textarea class="form-control" name="otherAmendments" rows="4" placeholder="Specify any additional changes to the contract..."></textarea>
+        </div>
+
+        <p class="text-muted mt-3">All other terms and conditions of the original contract remain unchanged.</p>
+      </div>
+    </div>
+
+    <!-- Section 3: Submit -->
+    <div class="d-flex justify-content-end mb-5">
+      <button type="submit" class="btn btn-primary">Submit Amendment</button>
+    </div>
+  </form>
+</div>
+
+<%- include('../partials/footer.ejs') %>
+
+<script>
+    document.getElementById('previewAmendBtn').addEventListener('click', function() {
+    const form = document.getElementById('amendForm');
+    const queryString = new URLSearchParams(new FormData(form)).toString();
+    window.open(`/offers/amendment/preview?${queryString}`, '_blank');
+    });
+
+    document.getElementById('downloadAmendPdfBtn').addEventListener('click', function() {
+    const form = document.getElementById('amendForm');
+    const queryString = new URLSearchParams(new FormData(form)).toString();
+    window.open(`/offers/amendment/pdf?${queryString}`, '_blank');
+    });
+</script>

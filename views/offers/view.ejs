@@ -197,12 +197,15 @@
                         </div>
                         <% } else {  %>
                             <div>
-                                <a href="/offers/<%= offer._id %>/showAmend" class="btn btn-info me-2">
-                                    <i class="bi bi-reply me-1"></i> Amend
-                                </a>                                
-                            <a href="/offers/<%= offer._id %>/showRelease" class="btn btn-danger me-2">
+                                <a href="/offers/<%= offer._id %>/showAmend" class="btn btn-info me-2" title="Modify key terms like closing date or price.">
+                                    <i class="bi bi-reply me-1"></i> Amend Contract
+                                </a>                                                              
+                                <a href="/offers/<%= offer._id %>/showRelease" class="btn btn-danger me-2">
                                 <i class="bi bi-reply me-1"></i> Mutually Release
-                            </a>
+                                </a>
+                                <% if (user._id.equals(offer.buyer._id)) { %>
+                                    <a href="/offers/<%= offer._id %>/walkThrough" class="btn btn-outline-primary">Walk-Through Notice</a>
+                                <% } %>
                             </div>                            
                         <% } %>
                     </div>

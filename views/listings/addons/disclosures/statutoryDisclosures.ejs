@@ -1,0 +1,202 @@
+<%- include('../../partials/layout.ejs') %>
+
+<div class="container mt-4">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Seller's Disclosure - Statutory Disclosures</h4>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                <strong>Step 1 of 4:</strong> Please complete this section about statutory disclosures for your property at <%= listing.address %>.
+            </div>
+
+            <form action="/disclosures/listing/<%= listing._id %>/update/section1" method="POST">
+                <h5 class="border-bottom pb-2 mt-4">ACQUISITION/OCCUPANCY</h5>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="yearBuilt" class="form-label">Approximate year built:</label>
+                        <input type="number" class="form-control" id="yearBuilt" name="yearBuilt" value="<%= listing.disclosures && listing.disclosures.statutory ? listing.disclosures.statutory.yearBuilt : '' %>">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="dateAcquired" class="form-label">Date acquired:</label>
+                        <input type="date" class="form-control" id="dateAcquired" name="dateAcquired" value="<%= listing.disclosures && listing.disclosures.statutory && listing.disclosures.statutory.dateAcquired ? new Date(listing.disclosures.statutory.dateAcquired).toISOString().split('T')[0] : '' %>">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p class="form-label">Is the Property vacant?</p>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="isVacant" id="isVacantYes" value="true" <%= listing.disclosures && listing.disclosures.statutory && listing.disclosures.statutory.isVacant ? 'checked' : '' %>>
+                            <label class="form-check-label" for="isVacantYes">Yes</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="isVacant" id="isVacantNo" value="false" <%= listing.disclosures && listing.disclosures.statutory && listing.disclosures.statutory.isVacant === false ? 'checked' : '' %>>
+                            <label class="form-check-label" for="isVacantNo">No</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="form-label">Does Seller occupy the Property?</p>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="sellerOccupies" id="sellerOccupiesYes" value="true" <%= listing.disclosures && listing.disclosures.statutory && listing.disclosures.statutory.sellerOccupies ? 'checked' : '' %>>
+                            <label class="form-check-label" for="sellerOccupiesYes">Yes</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="sellerOccupies" id="sellerOccupiesNo" value="false" <%= listing.disclosures && listing.disclosures.statutory && listing.disclosures.statutory.sellerOccupies === false ? 'checked' : '' %>>
+                            <label class="form-check-label" for="sellerOccupiesNo">No</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p class="form-label">Has Seller ever occupied the Property?</p>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="sellerOccupiedPast" id="sellerOccupiedPastYes" value="true" <%= listing.disclosures && listing.disclosures.statutory && listing.disclosures.statutory.sellerOccupiedPast ? 'checked' : '' %>>
+                            <label class="form-check-label" for="sellerOccupiedPastYes">Yes</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="sellerOccupiedPast" id="sellerOccupiedPastNo" value="false" <%= listing.disclosures && listing.disclosures.statutory && listing.disclosures.statutory.sellerOccupiedPast === false ? 'checked' : '' %>>
+                            <label class="form-check-label" for="sellerOccupiedPastNo">No</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="form-label">Is Seller a "foreign person" as described in FIRPTA?</p>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="isForeignPerson" id="isForeignPersonYes" value="true" <%= listing.disclosures && listing.disclosures.statutory && listing.disclosures.statutory.isForeignPerson ? 'checked' : '' %>>
+                            <label class="form-check-label" for="isForeignPersonYes">Yes</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="isForeignPerson" id="isForeignPersonNo" value="false" <%= listing.disclosures && listing.disclosures.statutory && listing.disclosures.statutory.isForeignPerson === false ? 'checked' : '' %>>
+                            <label class="form-check-label" for="isForeignPersonNo">No</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3" id="vacancyExplanationContainer">
+                    <label for="vacancyExplanation" class="form-label">Please explain if the Property is vacant or not occupied by Seller on a full-time basis:</label>
+                    <textarea class="form-control" id="vacancyExplanation" name="vacancyExplanation" rows="3"><%= listing.disclosures && listing.disclosures.statutory ? listing.disclosures.statutory.vacancyExplanation || '' : '' %></textarea>
+                </div>
+
+                <h5 class="border-bottom pb-2 mt-4">STATUTORY DISCLOSURES</h5>
+                <div class="alert alert-warning">
+                    <strong>Note:</strong> The following information, if applicable to the Property, is required by federal or state law to be disclosed to prospective buyers.
+                </div>
+
+                <div class="mb-3">
+                    <p class="form-label"><strong>1. METHAMPHETAMINE:</strong> Are you aware if the Property is or was used as a site for methamphetamine production or the place of residence of a person convicted of a crime involving methamphetamine?</p>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="methDisclosure" id="methDisclosureYes" value="true" <%= listing.disclosures && listing.disclosures.statutory && listing.disclosures.statutory.methDisclosure ? 'checked' : '' %>>
+                        <label class="form-check-label" for="methDisclosureYes">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="methDisclosure" id="methDisclosureNo" value="false" <%= listing.disclosures && listing.disclosures.statutory && listing.disclosures.statutory.methDisclosure === false ? 'checked' : '' %>>
+                        <label class="form-check-label" for="methDisclosureNo">No</label>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <p class="form-label"><strong>2. LEAD-BASED PAINT:</strong> Does the Property include a residential dwelling built prior to 1978?</p>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="leadPaintDisclosure" id="leadPaintDisclosureYes" value="true" <%= listing.disclosures && listing.disclosures.statutory && listing.disclosures.statutory.leadPaintDisclosure ? 'checked' : '' %>>
+                        <label class="form-check-label" for="leadPaintDisclosureYes">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="leadPaintDisclosure" id="leadPaintDisclosureNo" value="false" <%= listing.disclosures && listing.disclosures.statutory && listing.disclosures.statutory.leadPaintDisclosure === false ? 'checked' : '' %>>
+                        <label class="form-check-label" for="leadPaintDisclosureNo">No</label>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <p class="form-label"><strong>3. WASTE DISPOSAL SITE OR DEMOLITION LANDFILL:</strong> Are you aware of a solid waste disposal site or demolition landfill on the Property?</p>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="wasteDisposalDisclosure" id="wasteDisposalDisclosureYes" value="true" <%= listing.disclosures && listing.disclosures.statutory && listing.disclosures.statutory.wasteDisposalDisclosure ? 'checked' : '' %>>
+                        <label class="form-check-label" for="wasteDisposalDisclosureYes">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="wasteDisposalDisclosure" id="wasteDisposalDisclosureNo" value="false" <%= listing.disclosures && listing.disclosures.statutory && listing.disclosures.statutory.wasteDisposalDisclosure === false ? 'checked' : '' %>>
+                        <label class="form-check-label" for="wasteDisposalDisclosureNo">No</label>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <p class="form-label"><strong>4. RADIOACTIVE OR HAZARDOUS MATERIALS:</strong> Have you ever received a report stating affirmatively that the Property is or was previously contaminated with radioactive material or other hazardous material?</p>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="radioactiveDisclosure" id="radioactiveDisclosureYes" value="true" <%= listing.disclosures && listing.disclosures.statutory && listing.disclosures.statutory.radioactiveDisclosure ? 'checked' : '' %>>
+                        <label class="form-check-label" for="radioactiveDisclosureYes">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="radioactiveDisclosure" id="radioactiveDisclosureNo" value="false" <%= listing.disclosures && listing.disclosures.statutory && listing.disclosures.statutory.radioactiveDisclosure === false ? 'checked' : '' %>>
+                        <label class="form-check-label" for="radioactiveDisclosureNo">No</label>
+                    </div>
+                </div>
+
+                <div class="card bg-light mb-4">
+                    <div class="card-body">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="noAdditionalDisclosures" name="noAdditionalDisclosures" <%= listing.disclosures && listing.disclosures.statutory && listing.disclosures.statutory.noAdditionalDisclosures ? 'checked' : '' %>>
+                            <label class="form-check-label" for="noAdditionalDisclosures">
+                                <strong>Seller elects to make no additional disclosures</strong> (check only if applicable).
+                            </label>
+                        </div>
+                        <div class="mt-3" id="noDisclosureReasonContainer">
+                            <label for="noDisclosureReason" class="form-label">Seller, please provide explanation (if any):</label>
+                            <textarea class="form-control" id="noDisclosureReason" name="noDisclosureReason" rows="3"><%= listing.disclosures && listing.disclosures.statutory ? listing.disclosures.statutory.noDisclosureReason || '' : '' %></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="/listings/manage" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left me-1"></i> Back to Listings
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        Save & Continue <i class="bi bi-arrow-right ms-1"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Show/hide vacancy explanation based on radio selection
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initial state check
+        toggleVacancyExplanation();
+        toggleNoDisclosureReason();
+        
+        // Add event listeners
+        document.querySelectorAll('input[name="isVacant"], input[name="sellerOccupies"]').forEach(radio => {
+            radio.addEventListener('change', toggleVacancyExplanation);
+        });
+        
+        document.getElementById('noAdditionalDisclosures').addEventListener('change', toggleNoDisclosureReason);
+        
+        function toggleVacancyExplanation() {
+            const isVacantYes = document.getElementById('isVacantYes').checked;
+            const sellerOccupiesNo = document.getElementById('sellerOccupiesNo').checked;
+            
+            // Show explanation if property is vacant OR seller doesn't occupy
+            if (isVacantYes || sellerOccupiesNo) {
+                document.getElementById('vacancyExplanationContainer').style.display = 'block';
+            } else {
+                document.getElementById('vacancyExplanationContainer').style.display = 'none';
+            }
+        }
+        
+        function toggleNoDisclosureReason() {
+            const noAdditionalDisclosures = document.getElementById('noAdditionalDisclosures').checked;
+            
+            if (noAdditionalDisclosures) {
+                document.getElementById('noDisclosureReasonContainer').style.display = 'block';
+            } else {
+                document.getElementById('noDisclosureReasonContainer').style.display = 'none';
+            }
+        }
+    });
+</script>
+
+<%- include('../../partials/footer.ejs') %>

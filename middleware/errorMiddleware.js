@@ -86,7 +86,7 @@ class AppError extends Error {
         // Add timestamp
         this.timestamp = new Date().toISOString();
     }
-}
+};
 
 // 404 Not Found handler
 const notFoundHandler = (req, res, next) => {
