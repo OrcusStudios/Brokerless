@@ -242,6 +242,24 @@ const OfferSchema = new mongoose.Schema({
       date: Date,
       amount: Number,
       confirmationNumber: String
+    },
+    // Add payment tracking
+    paymentStatus: {
+      method: { 
+        type: String, 
+        enum: ['check', 'wire', 'other'], 
+        default: null 
+      },
+      status: { 
+        type: String, 
+        enum: ['pending', 'initiated', 'sent', 'received', 'completed'], 
+        default: 'pending' 
+      },
+      initiatedDate: Date,
+      completedDate: Date,
+      checkNumber: String,
+      wireConfirmationNumber: String,
+      notes: String
     }
   },  
 // Rider Support

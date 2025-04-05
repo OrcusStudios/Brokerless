@@ -9,7 +9,7 @@ router.get("/listing/:listingId/edit/:section", ensureAuthenticated, ensureRole(
 router.post("/listing/:listingId/update/:section", ensureAuthenticated, ensureRole("seller"), catchAsync(disclosureController.updateSection));
 
 // Generate PDF disclosure document
-router.get("/listing/:listingId/generate-pdf", ensureAuthenticated, ensureRole("seller"), catchAsync(disclosureController.generateDisclosurePDF));
+router.get("/listing/:listingId/generatePDF", ensureAuthenticated, ensureRole("seller"), catchAsync(disclosureController.generateDisclosurePDF));
 
 // Acknowledge completed disclosure
 router.post("/listing/:listingId/acknowledge", ensureAuthenticated, ensureRole("seller"), catchAsync(disclosureController.acknowledgeDisclosure));

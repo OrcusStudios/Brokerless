@@ -20,7 +20,6 @@ exports.showCreateForm = (req, res) => {
 };
 
 // Create Listing
-// In propertyController.js - createListing method
 exports.createListing = async (req, res) => {
     try {
         // Extract Cloudinary image URLs
@@ -33,8 +32,32 @@ exports.createListing = async (req, res) => {
         } = req.body;
         
         // Process measurement source (convert to array if needed)
-        const measurementSources = Array.isArray(measurementSource) ? measurementSource : [measurementSource];
-        
+        const measurementSources = measurementSource ? 
+            (Array.isArray(measurementSource) ? measurementSource : [measurementSource]) 
+            : [];
+       
+        // Initialize empty seller disclosure structure with default values
+        const defaultDisclosures = {
+            status: {
+                section1Completed: false,
+                section2Completed: false,
+                section3Completed: false,
+                section4Completed: false,
+                fullyCompleted: false,
+                lastUpdated: new Date()
+            },
+            statutory: {
+                methDisclosure: false,
+                leadPaintDisclosure: false,
+                wasteDisposalDisclosure: false,
+                radioactiveDisclosure: false,
+                noAdditionalDisclosures: false
+            },
+            systems: {},
+            structure: {},
+            environmental: {}
+        };
+
         // Create full address
         const fullAddress = `${address}, ${city}, ${state} ${zip}`;
 
@@ -69,10 +92,18 @@ exports.createListing = async (req, res) => {
             // Save measurement disclaimer information
             measurementSources: measurementSources,
             otherMeasurementSource: otherSourceText,
-            measurementDisclaimerAcknowledged: measurementAcknowledgment === 'on'
+            measurementDisclaimerAcknowledged: measurementAcknowledgment === 'on',            
+            disclosures: defaultDisclosures
         });
 
-        await listing.save();
+        const savedListing = await listing.save();
+        // Now update the User model to reference this listing
+        const User = require('../models/User'); // Import User model if not already imported
+        const user = await User.findById(req.user._id);
+        
+        user.seller.listings.push(savedListing._id);
+            
+        await user.save();
         req.flash("success", "Listing created successfully!");
         res.redirect("/listings");
     } catch (error) {

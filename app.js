@@ -25,68 +25,70 @@ const app = express();
 // Security Middleware
 app.use(
     helmet({
-      contentSecurityPolicy: {
-        directives: {
-          defaultSrc: ["'self'"],
-          // Scripts - Add unsafe-eval for WebAssembly
-          scriptSrc: [
-            "'self'", 
-            "'unsafe-inline'",
-            "'unsafe-eval'", // Add this for WebAssembly
-            "cdn.jsdelivr.net", 
-            "https://maps.googleapis.com",
-            "https://*.gstatic.com", // Add this for Google Maps
-            "https://cdnjs.cloudflare.com"
-          ],
-          // Workers - Add Google domains
-          workerSrc: ["'self'", "blob:", "https://*.googleapis.com", "https://*.gstatic.com"],
-          // Child sources - Add Google domains
-          childSrc: ["'self'", "blob:", "https://*.googleapis.com", "https://*.gstatic.com"],
-          // Styles
-          styleSrc: [
-            "'self'", 
-            "'unsafe-inline'", 
-            "cdn.jsdelivr.net", 
-            "fonts.googleapis.com",
-            "https://*.gstatic.com" // Add this for Google Maps
-          ],
-          // Fonts
-          fontSrc: [
-            "'self'", 
-            "fonts.gstatic.com", 
-            "cdn.jsdelivr.net"
-          ],
-          // Images - Make sure blob: is included
-          imgSrc: [
-            "'self'", 
-            "data:", 
-            "blob:",  // Explicitly add blob:
-            "res.cloudinary.com", 
-            "*.googleapis.com",
-            "*.gstatic.com", // Add this for Google Maps
-            "*" 
-          ],
-          // Connect - Add data: for Google Maps
-          connectSrc: [
-            "'self'", 
-            "maps.googleapis.com",
-            "*.googleapis.com",
-            "*.gstatic.com", // Add this for Google Maps
-            "data:" // Add this for Google Maps data URIs
-          ],
-          // Frame sources
-          frameSrc: ["'self'", "https://www.google.com"],
-          // Other directives remain the same
-          mediaSrc: ["'self'"],
-          objectSrc: ["'none'"],
-          manifestSrc: ["'self'"],
-        },
-      },
-      // Other security headers
-      xssFilter: true,
-      noSniff: true,
-      referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
-    })
+      contentSecurityPolicy: false
+      
+    //   {
+    //     directives: {
+    //       defaultSrc: ["'self'"],
+    //       // Scripts - Add unsafe-eval for WebAssembly
+    //       scriptSrc: [
+    //         "'self'", 
+    //         "'unsafe-inline'",
+    //         "'unsafe-eval'", // Add this for WebAssembly
+    //         "cdn.jsdelivr.net", 
+    //         "https://maps.googleapis.com",
+    //         "https://*.gstatic.com", // Add this for Google Maps
+    //         "https://cdnjs.cloudflare.com"
+    //       ],
+    //       // Workers - Add Google domains
+    //       workerSrc: ["'self'", "blob:", "https://*.googleapis.com", "https://*.gstatic.com"],
+    //       // Child sources - Add Google domains
+    //       childSrc: ["'self'", "blob:", "https://*.googleapis.com", "https://*.gstatic.com"],
+    //       // Styles
+    //       styleSrc: [
+    //         "'self'", 
+    //         "'unsafe-inline'", 
+    //         "cdn.jsdelivr.net", 
+    //         "fonts.googleapis.com",
+    //         "https://*.gstatic.com" // Add this for Google Maps
+    //       ],
+    //       // Fonts
+    //       fontSrc: [
+    //         "'self'", 
+    //         "fonts.gstatic.com", 
+    //         "cdn.jsdelivr.net"
+    //       ],
+    //       // Images - Make sure blob: is included
+    //       imgSrc: [
+    //         "'self'", 
+    //         "data:", 
+    //         "blob:",  // Explicitly add blob:
+    //         "res.cloudinary.com", 
+    //         "*.googleapis.com",
+    //         "*.gstatic.com", // Add this for Google Maps
+    //         "*" 
+    //       ],
+    //       // Connect - Add data: for Google Maps
+    //       connectSrc: [
+    //         "'self'", 
+    //         "maps.googleapis.com",
+    //         "*.googleapis.com",
+    //         "*.gstatic.com", // Add this for Google Maps
+    //         "data:" // Add this for Google Maps data URIs
+    //       ],
+    //       // Frame sources
+    //       frameSrc: ["'self'", "https://www.google.com"],
+    //       // Other directives remain the same
+    //       mediaSrc: ["'self'"],
+    //       objectSrc: ["'none'"],
+    //       manifestSrc: ["'self'"],
+    //     },
+    //   },
+    //   // Other security headers
+    //   xssFilter: true,
+    //   noSniff: true,
+    //   referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
+     })
   );
 
 // Rate Limiting
@@ -121,7 +123,8 @@ app.use(session({
     resave: true,
     saveUninitialized: true,
     cookie: {
-        secure: process.env.NODE_ENV === 'production', 
+        secure: false,
+        //process.env.NODE_ENV === 'production', 
         httpOnly: true,
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     }
@@ -262,13 +265,12 @@ const io = messagingService.init(server);
 
 // Optional: Handle server startup errors
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
     logger.info(`🚀 Server running on port ${PORT}`);
 });
 
 // Keep the error handling:
 server.on('error', (error) => {
-
     console.error('Server error:', error);
     console.log('Server running on port 3000');
 });

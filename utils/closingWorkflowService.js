@@ -69,6 +69,18 @@ class ClosingWorkflowService {
                 }
             }
 
+            // Check payment status
+            if (offer.closingStatus === 'signed' || offer.closingStatus === 'funded') {
+                if (!offer.titleCompanyDetails.paymentStatus || 
+                    offer.titleCompanyDetails.paymentStatus.status !== 'completed') {
+                    validationResults.isValid = false;
+                    validationResults.errors.push({
+                        type: 'PAYMENT_INCOMPLETE',
+                        details: 'Payment has not been completed'
+                    });
+                }
+            }
+
             // Check step completeness
             offer.closingSteps.forEach(step => {
                 validationResults.totalSteps++;
@@ -140,6 +152,21 @@ class ClosingWorkflowService {
             titleCompany: {
                 name: offer.titleCompanyDetails.company.companyName,
                 contact: offer.titleCompanyDetails.contactPerson
+            },
+            payment: {
+                method: offer.titleCompanyDetails.paymentStatus ? 
+                    offer.titleCompanyDetails.paymentStatus.method : 'Not specified',
+                status: offer.titleCompanyDetails.paymentStatus ? 
+                    offer.titleCompanyDetails.paymentStatus.status : 'Not specified',
+                completedDate: offer.titleCompanyDetails.paymentStatus && 
+                    offer.titleCompanyDetails.paymentStatus.completedDate ? 
+                    offer.titleCompanyDetails.paymentStatus.completedDate : null,
+                reference: offer.titleCompanyDetails.paymentStatus && 
+                    offer.titleCompanyDetails.paymentStatus.method === 'check' ? 
+                    offer.titleCompanyDetails.paymentStatus.checkNumber : 
+                    (offer.titleCompanyDetails.paymentStatus && 
+                     offer.titleCompanyDetails.paymentStatus.method === 'wire' ? 
+                     offer.titleCompanyDetails.paymentStatus.wireConfirmationNumber : null)
             },
             documents: documents.map(doc => ({
                 name: doc.name,

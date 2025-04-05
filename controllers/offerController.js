@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const path = require('path');
+const fs = require('fs');
 const Offer = require("../models/Offer");
 const Listing = require("../models/Listing");
 const Professional = require("../models/Professional");
@@ -718,7 +720,7 @@ exports.generateAmendmentPDF = async (req, res) => {
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', 'attachment; filename="Walk_Through_Notice.pdf"');
     res.end(pdfBuffer);
-  };
+};
 
 // Update the existing submitOffer function in offerController.js
 exports.submitOffer = catchAsync(async (req, res, next) => {
@@ -747,6 +749,7 @@ exports.submitOffer = catchAsync(async (req, res, next) => {
         saleOfAnotherAddress,
         closingDate,
         titleCompany,
+        titleCompanyClosing,
         titleCompanyAddress,
         closingCosts,
         offerExpiration,
@@ -819,6 +822,7 @@ exports.submitOffer = catchAsync(async (req, res, next) => {
         saleOfAnotherAddress: formattedContingencies.includes("saleOfAnotherHome") ? saleOfAnotherAddress : null,
         closingDate: formattedClosingDate,
         titleCompany,
+        titleCompanyClosing,
         titleCompanyAddress,
         closingCosts,
         offerExpiration: formattedOfferExpiration,
@@ -929,7 +933,7 @@ exports.submitOffer = catchAsync(async (req, res, next) => {
     await notificationController.createNotification(
         listing.seller._id,  // seller's user ID
         `New offer received for ${listing.address} at $${offerPrice.toLocaleString()}.`,
-        "New Offer",
+        "Offer",
         `/offers/${offer._id}`,  // Link to view the offer
         "OFFER"  // Notification type
     );
@@ -941,6 +945,12 @@ exports.submitOffer = catchAsync(async (req, res, next) => {
 // Accept Offer
 exports.acceptOffer = async (req, res) => {
     try {
+        // Make sure we're using a valid MongoDB ObjectId
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            req.flash("error", "Invalid offer ID format");
+            return res.redirect("/offers/seller");
+        }
+        
         const offer = await Offer.findById(req.params.id)
             .populate("buyer", "name email")
             .populate("seller", "name email")
@@ -986,7 +996,7 @@ exports.acceptOffer = async (req, res) => {
         await notificationController.createNotification(
             offer.buyer._id,
             `Your offer for ${offer.listing.address} has been accepted!`,
-            'Offer Accepted',
+            'Accepted',
             `/offers/${offer._id}`,
             'SUCCESS'
         );
@@ -1003,6 +1013,12 @@ exports.acceptOffer = async (req, res) => {
 // Reject Offer
 exports.rejectOffer = async (req, res) => {
     try {
+        // Make sure we're using a valid MongoDB ObjectId
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            req.flash("error", "Invalid offer ID format");
+            return res.redirect("/offers/seller");
+        }
+        
         const offer = await Offer.findById(req.params.id);
         if (!offer || offer.seller.toString() !== req.user._id.toString()) {
             req.flash("error", "Unauthorized to reject this offer.");
@@ -1424,6 +1440,12 @@ function formatQueryToOffer(query) {
 
 exports.withdrawOffer = async (req, res) => {
     try {
+        // Make sure we're using a valid MongoDB ObjectId
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            req.flash("error", "Invalid offer ID format");
+            return res.redirect("/offers/buyer");
+        }
+        
         const offer = await Offer.findById(req.params.id)
             .populate("buyer", "name email")
             .populate("seller", "name email")
@@ -1471,7 +1493,7 @@ exports.withdrawOffer = async (req, res) => {
         await notificationController.createNotification(
             offer.seller._id,
             `The offer on ${offer.listing.address} has been withdrawn by the buyer.`,
-            "Offer Withdrawn",
+            "Withdrawn",
             `/offers/${offer._id}`,
             "OFFER"
         );

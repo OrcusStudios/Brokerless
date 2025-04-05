@@ -15,6 +15,8 @@ const notificationSchema = new mongoose.Schema({
             "Completed",     // Transaction completed
             "Offer",         // New offer submitted
             "Countered",     // Offer countered
+            "Withdrawn",    // Offer Withhdrawn
+            "Accepted",     // Offer countered
             "General",       // General notification
             "info",          // Informational notification
             "success",       // Success notification

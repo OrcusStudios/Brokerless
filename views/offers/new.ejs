@@ -39,8 +39,7 @@
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Property Type</label>
                         <input type="text" class="form-control" name="propertyType" 
-                               value="<%= listing.propertyType ? getPropertyTypeLabel(listing.propertyType) : 'Not specified' %>" readonly>
-                        <input type="hidden" name="propertyType" value="<%= listing.propertyType %>">
+                               value="<%= listing.propertyType ? listing.propertyType : 'Not specified' %>" readonly>
                       </div>
                 </div>
                 <div class="mb-3">
@@ -83,8 +82,8 @@
                         <label class="form-check-label" for="financingSeller">Seller Financing</label>
                     </div>
                 </div>
-                <div id="bankFinancingFields" style="display:none;">
-                    <div class="mb-3">
+                <div class="row" id="bankFinancingFields" style="display:none;">
+                    <div class="col-md-3 mb-3">
                         <label for="loanType" class="form-label">Loan Type</label>
                         <select class="form-select" name="loanType" id="loanType">
                             <option value="">Select Loan Type</option>
@@ -94,12 +93,12 @@
                             <option value="usda">USDA</option>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label for="loanAmount" class="form-label">Loan Amount ($)</label>
+                    <div class="col-md-3 mb-3">
+                        <label for="loanAmount" class="form-label">Approval Amount ($)</label>
                         <input type="number" class="form-control" id="loanAmount" name="loanAmount">
                     </div>
-                    <div class="mb-3">
-                        <label for="interestRate" class="form-label">Interest Rate (%)</label>
+                    <div class="col-md-3 mb-3">
+                        <label for="interestRate" class="form-label">Approval Interest Rate (%)</label>
                         <input type="number" class="form-control" id="interestRate" name="interestRate" step="0.01">
                     </div>
                 </div>
@@ -127,9 +126,22 @@
                         <input type="date" class="form-control" id="earnestDueDate" name="earnestDueDate" required>
                     </div>
                 </div>
-                <div class="mb-3">
-                    <label for="titleCompany" class="form-label">Title Company (Escrow Agent)</label>
-                    <input type="text" class="form-control" id="titleCompany" name="titleCompany" required>
+                <div class="col-md-12 mb-3">
+                  <label for="titleCompany" class="form-label">
+                    Title Company
+                    <small class="text-muted d-block">(Company that processes documents for closing)</small>
+                  </label>
+                  <select id="titleCompany" name="titleCompany" class="form-select" required>
+                    <option value="">Select Title Company</option>
+                    <% if (titleCompanies && titleCompanies.length > 0) { %>
+                      <% titleCompanies.forEach(company => { %>
+                        <option value="<%= company.companyName %>" data-address="<%= company.address %>">
+                          <%= company.companyName %>
+                        </option>
+                      <% }); %>
+                    <% } %>
+                  </select>
+                  <input type="hidden" id="titleCompanyAddress" name="titleCompanyAddress">
                 </div>
             </div>
         </div>
@@ -338,29 +350,21 @@
     </div>
     <div class="card-body">
       <div class="row">
-        <div class="col-md-6 mb-3">
-          <label for="closingDate" class="form-label">
-            Proposed Closing Date
-            <small class="text-muted d-block">(Date you want to sign documents and take control of the property)</small>
-          </label>
-          <input type="date" class="form-control" id="closingDate" name="closingDate" required>
-        </div>
-        <div class="col-md-6 mb-3">
+        <div class="col-md-12 mb-3">
           <label for="titleCompany" class="form-label">
             Title Company
             <small class="text-muted d-block">(Company that processes documents for closing)</small>
           </label>
-          <select id="titleCompany" name="titleCompany" class="form-select" required>
+          <select id="titleCompanyClosing" name="titleCompanyClosing" class="form-select" required>
             <option value="">Select Title Company</option>
             <% if (titleCompanies && titleCompanies.length > 0) { %>
               <% titleCompanies.forEach(company => { %>
                 <option value="<%= company.companyName %>" data-address="<%= company.address %>">
-                  <%= company.companyName %>
+                  <%= company.companyName %>   -   <%= company.address %>
                 </option>
               <% }); %>
             <% } %>
           </select>
-          <input type="hidden" id="titleCompanyAddress" name="titleCompanyAddress">
         </div>
       </div>
       <div class="mb-4">
@@ -369,46 +373,55 @@
           <small class="text-muted d-block">(Defines who is responsible for closing costs)</small>
         </label>
         <div class="row">
-    <div class="col-md-6">
-      <div class="form-check mb-3">
-        <input type="radio" class="form-check-input" name="closingCosts" id="buyerPays" value="buyer" required>
-        <label class="form-check-label" for="buyerPays">
-          Buyer Pays All
-          <small class="d-block text-muted">(Buyer pays all closing costs from both sides)</small>
-        </label>
+          <div class="col-md-6">
+            <div class="form-check mb-3">
+              <input type="radio" class="form-check-input" name="closingCosts" id="buyerPays" value="buyer" required>
+              <label class="form-check-label" for="buyerPays">
+                Buyer Pays All
+                <small class="d-block text-muted">(Buyer pays all closing costs from both sides)</small>
+              </label>
+            </div>
+            <div class="form-check mb-3">
+              <input type="radio" class="form-check-input" name="closingCosts" id="splitCosts" value="split">
+              <label class="form-check-label" for="splitCosts">
+                Split Costs
+                <small class="d-block text-muted">(Even 50/50 split)</small>
+              </label>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-check mb-3">
+              <input type="radio" class="form-check-input" name="closingCosts" id="sellerPays" value="seller">
+              <label class="form-check-label" for="sellerPays">
+                Seller Pays All
+                <small class="d-block text-muted">(Seller pays all closing costs from both sides)</small>
+              </label>
+            </div>
+            <div class="form-check mb-3">
+              <input type="radio" class="form-check-input" name="closingCosts" id="each_pays_own" value="each_pays_own">
+              <label class="form-check-label" for="each_pays_own">
+                Each Pays Own
+                <small class="d-block text-muted">(Buyer & Seller each pay their own; concessions may apply)</small>
+              </label>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="form-check mb-3">
-        <input type="radio" class="form-check-input" name="closingCosts" id="splitCosts" value="split">
-        <label class="form-check-label" for="splitCosts">
-          Split Costs
-          <small class="d-block text-muted">(Even 50/50 split)</small>
-        </label>
-      </div>
-    </div>
-    <div class="col-md-6">
-      <div class="form-check mb-3">
-        <input type="radio" class="form-check-input" name="closingCosts" id="sellerPays" value="seller">
-        <label class="form-check-label" for="sellerPays">
-          Seller Pays All
-          <small class="d-block text-muted">(Seller pays all closing costs from both sides)</small>
-        </label>
-      </div>
-      <div class="form-check mb-3">
-        <input type="radio" class="form-check-input" name="closingCosts" id="each_pays_own" value="each_pays_own">
-        <label class="form-check-label" for="each_pays_own">
-          Each Pays Own
-          <small class="d-block text-muted">(Buyer & Seller each pay their own; concessions may apply)</small>
-        </label>
-      </div>
-    </div>
-  </div>
-      </div>
-      <div class="col-md-6 mb-3">
-        <label for="maxConcession" class="form-label">
-          Max Concession Amount ($)
-          <small class="text-muted d-block">(Max the seller will contribute toward concessions, including closing costs)</small>
-        </label>
-        <input type="number" class="form-control" id="maxConcession" name="maxConcession" required>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="maxConcession" class="form-label">
+            Max Concession Amount ($)
+            <small class="text-muted d-block">(Max the seller will contribute toward concessions, including closing costs)</small>
+          </label>
+          <input type="number" class="form-control" id="maxConcession" name="maxConcession" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="closingDate" class="form-label">
+            Proposed Closing Date
+            <small class="text-muted d-block">(Date you want to sign documents and take control of the property)</small>
+          </label>
+          <input type="date" class="form-control" id="closingDate" name="closingDate" required>
+        </div>
       </div>
     </div>
   </div>
@@ -502,11 +515,11 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Financing Method Conditional Fields
     const financingRadios = document.querySelectorAll('input[name="financingType"]');
-    const bankFinancingDetails = document.getElementById('bankFinancingDetails');
+    const bankFinancingFields = document.getElementById('bankFinancingFields');
 
     financingRadios.forEach(radio => {
         radio.addEventListener('change', function() {
-            bankFinancingDetails.style.display = 
+          bankFinancingFields.style.display = 
                 this.value === 'bank' ? 'flex' : 'none';
             
             // Reset or disable fields when not selected

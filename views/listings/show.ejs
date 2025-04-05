@@ -10,15 +10,54 @@
                     <h1 class="card-title h3 mb-3"><%= listing.address %></h1>
                     <p class="text-muted mb-4"><%= listing.city %>, <%= listing.state %> <%= listing.zip %></p>
                     
-                    <!-- Property Image Gallery -->
                     <div class="mb-4">
-                        <% if (listing.image) { %>
-                            <img src="<%= listing.image %>" alt="Property Image" class="img-fluid rounded">
-                        <% } else { %>
-                            <img src="/images/default-home.jpg" alt="No Image Available" class="img-fluid rounded">
-                        <% } %>
+                        <div id="propertyImageCarousel" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-indicators">
+                                <!-- Indicator for main image -->
+                                <button type="button" data-bs-target="#propertyImageCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Main image"></button>
+                                
+                                <!-- Indicators for additional images -->
+                                <% if (listing.images && listing.images.length > 0) { %>
+                                    <% listing.images.forEach((img, index) => { %>
+                                        <button type="button" data-bs-target="#propertyImageCarousel" data-bs-slide-to="<%= index + 1 %>" aria-label="Image <%= index + 1 %>"></button>
+                                    <% }); %>
+                                <% } %>
+                            </div>
+                            
+                            <div class="carousel-inner rounded">
+                                <!-- Main image -->
+                                <div class="carousel-item active">
+                                    <% if (listing.image) { %>
+                                        <img src="<%= listing.image %>" class="d-block w-100" alt="Property Main Image" style="object-fit: cover; height: 400px;">
+                                    <% } else { %>
+                                        <img src="/images/default-home.jpg" class="d-block w-100" alt="No Image Available" style="object-fit: cover; height: 400px;">
+                                    <% } %>
+                                </div>
+                                
+                                <!-- Additional images -->
+                                <% if (listing.images && listing.images.length > 0) { %>
+                                    <% listing.images.forEach(img => { %>
+                                        <div class="carousel-item">
+                                            <img src="<%= img %>" class="d-block w-100" alt="Property Image" style="object-fit: cover; height: 400px;">
+                                        </div>
+                                    <% }); %>
+                                <% } %>
+                            </div>
+                            
+                            <!-- Carousel controls (only show if there are multiple images) -->
+                            <% if (listing.images && listing.images.length > 0) { %>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#propertyImageCarousel" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#propertyImageCarousel" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            <% } %>
+                        </div>
                     </div>
-                    
+                                        
                     <!-- Property Details -->
                     <div class="row mb-4">
                         <div class="col-md-4 mb-3">

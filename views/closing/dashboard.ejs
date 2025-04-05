@@ -8,7 +8,42 @@
         <i class="bi bi-house-check me-2"></i>Closing Process
       </h2>
       <span class="badge bg-light text-dark"><%= offer.closingStatus.replace('_', ' ').toUpperCase() %></span>
-    </div>
+</div>
+
+<script>
+  // Initialize payment method toggle when the document is loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    // Toggle payment method details
+    const paymentMethod = document.getElementById('paymentMethod');
+    if (paymentMethod) {
+      paymentMethod.addEventListener('change', function() {
+        const checkDetails = document.querySelector('.check-details');
+        const wireDetails = document.querySelector('.wire-details');
+        
+        if (this.value === 'check') {
+          checkDetails.style.display = 'block';
+          wireDetails.style.display = 'none';
+        } else if (this.value === 'wire') {
+          checkDetails.style.display = 'none';
+          wireDetails.style.display = 'block';
+        } else {
+          checkDetails.style.display = 'none';
+          wireDetails.style.display = 'none';
+        }
+      });
+      
+      // Trigger the change event to set initial visibility
+      paymentMethod.dispatchEvent(new Event('change'));
+    }
+  });
+  
+  // Set offer ID when opening modal
+  function openPaymentModal(offerId) {
+    document.getElementById('paymentOfferId').value = offerId;
+    const modal = new bootstrap.Modal(document.getElementById('paymentStatusModal'));
+    modal.show();
+  }
+</script>
     
     <div class="card-body">
       <!-- Property and Offer Summary -->
@@ -62,6 +97,90 @@
           </p>
         </div>
       </div>
+      
+      <!-- Payment Status Section -->
+      <% if (offer.titleCompanyDetails && offer.titleCompanyDetails.paymentStatus) { %>
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">Payment Status</h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="row mb-2">
+                  <div class="col-5 text-muted">Method:</div>
+                  <div class="col-7">
+                    <%= offer.titleCompanyDetails.paymentStatus.method ? 
+                        offer.titleCompanyDetails.paymentStatus.method.charAt(0).toUpperCase() + 
+                        offer.titleCompanyDetails.paymentStatus.method.slice(1) : 
+                        'Not specified' %>
+                  </div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-5 text-muted">Status:</div>
+                  <div class="col-7">
+                    <% if (offer.titleCompanyDetails.paymentStatus.status === 'pending') { %>
+                      <span class="badge bg-secondary">Pending</span>
+                    <% } else if (offer.titleCompanyDetails.paymentStatus.status === 'initiated') { %>
+                      <span class="badge bg-info">Initiated</span>
+                    <% } else if (offer.titleCompanyDetails.paymentStatus.status === 'sent') { %>
+                      <span class="badge bg-primary">Sent</span>
+                    <% } else if (offer.titleCompanyDetails.paymentStatus.status === 'received') { %>
+                      <span class="badge bg-warning">Received</span>
+                    <% } else if (offer.titleCompanyDetails.paymentStatus.status === 'completed') { %>
+                      <span class="badge bg-success">Completed</span>
+                    <% } %>
+                  </div>
+                </div>
+                <% if (offer.titleCompanyDetails.paymentStatus.method === 'check' && 
+                       offer.titleCompanyDetails.paymentStatus.checkNumber) { %>
+                  <div class="row mb-2">
+                    <div class="col-5 text-muted">Check Number:</div>
+                    <div class="col-7"><%= offer.titleCompanyDetails.paymentStatus.checkNumber %></div>
+                  </div>
+                <% } %>
+                <% if (offer.titleCompanyDetails.paymentStatus.method === 'wire' && 
+                       offer.titleCompanyDetails.paymentStatus.wireConfirmationNumber) { %>
+                  <div class="row mb-2">
+                    <div class="col-5 text-muted">Wire Confirmation:</div>
+                    <div class="col-7"><%= offer.titleCompanyDetails.paymentStatus.wireConfirmationNumber %></div>
+                  </div>
+                <% } %>
+              </div>
+              <div class="col-md-6">
+                <% if (offer.titleCompanyDetails.paymentStatus.initiatedDate) { %>
+                  <div class="row mb-2">
+                    <div class="col-5 text-muted">Initiated Date:</div>
+                    <div class="col-7"><%= new Date(offer.titleCompanyDetails.paymentStatus.initiatedDate).toLocaleDateString() %></div>
+                  </div>
+                <% } %>
+                <% if (offer.titleCompanyDetails.paymentStatus.completedDate) { %>
+                  <div class="row mb-2">
+                    <div class="col-5 text-muted">Completed Date:</div>
+                    <div class="col-7"><%= new Date(offer.titleCompanyDetails.paymentStatus.completedDate).toLocaleDateString() %></div>
+                  </div>
+                <% } %>
+                <% if (offer.titleCompanyDetails.paymentStatus.notes) { %>
+                  <div class="row mb-2">
+                    <div class="col-5 text-muted">Notes:</div>
+                    <div class="col-7"><%= offer.titleCompanyDetails.paymentStatus.notes %></div>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+            
+            <% if (user.professionalType === 'title' && 
+                   offer.titleCompanyDetails.company && 
+                   user._id.equals(offer.titleCompanyDetails.company)) { %>
+              <div class="text-end mt-3">
+                <button class="btn btn-sm btn-primary" onclick="openPaymentModal('<%= offer._id %>')">
+                  <i class="bi bi-pencil-square me-1"></i>Update Payment Status
+                </button>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      <% } %>
       
       <!-- Closing Steps -->
       <div class="card mb-4">
@@ -173,6 +292,62 @@
           <% } %>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Status Modal -->
+<div class="modal fade" id="paymentStatusModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Update Payment Status</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="/closing/payment-status-update" method="POST">
+        <div class="modal-body">
+          <input type="hidden" name="offerId" id="paymentOfferId" value="">
+          
+          <div class="mb-3">
+            <label for="paymentMethod" class="form-label">Payment Method</label>
+            <select id="paymentMethod" name="method" class="form-select" required>
+              <option value="check">Check</option>
+              <option value="wire">Wire Transfer</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          
+          <div class="mb-3">
+            <label for="paymentStatus" class="form-label">Status</label>
+            <select id="paymentStatus" name="status" class="form-select" required>
+              <option value="pending">Pending</option>
+              <option value="initiated">Initiated</option>
+              <option value="sent">Sent</option>
+              <option value="received">Received</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+          
+          <div class="mb-3 check-details">
+            <label for="checkNumber" class="form-label">Check Number</label>
+            <input type="text" id="checkNumber" name="checkNumber" class="form-control">
+          </div>
+          
+          <div class="mb-3 wire-details" style="display: none;">
+            <label for="wireConfirmationNumber" class="form-label">Wire Confirmation Number</label>
+            <input type="text" id="wireConfirmationNumber" name="wireConfirmationNumber" class="form-control">
+          </div>
+          
+          <div class="mb-3">
+            <label for="paymentNotes" class="form-label">Notes</label>
+            <textarea id="paymentNotes" name="notes" class="form-control" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Update Status</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>

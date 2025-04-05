@@ -25,6 +25,7 @@ router.post('/title-work-update', ensureAuthenticated, ensureProfessional, title
 router.post('/send-settlement-statements', fileUploadMiddleware, ensureAuthenticated, ensureProfessional, titleController.sendSettlementStatements);
 router.post('/update-status', ensureAuthenticated, ensureProfessional, titleController.updateClosingStatus);
 router.post('/complete-closing', ensureAuthenticated, ensureProfessional, titleController.completeClosing);
+router.post('/payment-status-update', ensureAuthenticated, ensureProfessional, titleController.updatePaymentStatus);
 
 // Closing initialization
 router.post('/initialize/:offerId', ensureAuthenticated, closingController.initializeClosing);

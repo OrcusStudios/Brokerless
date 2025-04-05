@@ -10,8 +10,8 @@ mongoose.connect(MONGO_URI)
     .catch(err => console.error("❌ MongoDB Connection Error:", err));
     
 
-// Sample Lenders Data
-const lenders = [
+    // Sample Lenders Data
+    const lenders = [
     {
         name: "John Doe",
         email: "johndoe@example.com",
@@ -20,7 +20,7 @@ const lenders = [
         phone: "555-123-4567",
         address: "123 Main St, Anytown, USA",
         state: "MO",
-        professionalType: "Lender",
+        professionalType: "lender",
         loanTypes: ["Conventional", "FHA", "VA"],
         licenseNumber: "LEND12345",
         isVerified: true,
@@ -37,7 +37,7 @@ const lenders = [
         phone: "555-987-6543",
         address: "456 Oak St, Springfield, USA",
         state: "MO",
-        professionalType: "Lender",
+        professionalType: "lender",
         loanTypes: ["USDA", "Jumbo"],
         licenseNumber: "LEND67890",
         isVerified: true,
@@ -54,7 +54,7 @@ const lenders = [
         phone: "555-321-7890",
         address: "789 Pine St, Columbia, USA",
         state: "MO",
-        professionalType: "Lender",
+        professionalType: "lender",
         loanTypes: ["Conventional", "FHA"],
         licenseNumber: "LEND54321",
         isVerified: true,
@@ -68,7 +68,7 @@ const lenders = [
 // Insert Lenders into Database
 const seedLenders = async () => {
     try {
-        await Professional.deleteMany({ professionalType: "Lender" }); // Clears old lender data
+        await Professional.deleteMany({ professionalType: "lender" }); // Clears old lender data
         await Professional.insertMany(lenders);
         console.log("✅ Lenders successfully seeded!");
     } catch (error) {

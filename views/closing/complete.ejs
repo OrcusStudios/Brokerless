@@ -59,6 +59,50 @@
                 <div class="col-5 text-muted">Recording #:</div>
                 <div class="col-7"><%= offer.recordingDetails ? offer.recordingDetails.recordingNumber : 'Not available' %></div>
               </div>
+              
+              <!-- Payment Information -->
+              <% if (offer.titleCompanyDetails && offer.titleCompanyDetails.paymentStatus) { %>
+                <h6 class="mt-3">Payment Information</h6>
+                <div class="row mb-2">
+                  <div class="col-5 text-muted">Method:</div>
+                  <div class="col-7">
+                    <%= offer.titleCompanyDetails.paymentStatus.method ? 
+                        offer.titleCompanyDetails.paymentStatus.method.charAt(0).toUpperCase() + 
+                        offer.titleCompanyDetails.paymentStatus.method.slice(1) : 
+                        'Not specified' %>
+                  </div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-5 text-muted">Status:</div>
+                  <div class="col-7">
+                    <% if (offer.titleCompanyDetails.paymentStatus.status === 'completed') { %>
+                      <span class="badge bg-success">Completed</span>
+                    <% } else { %>
+                      <span class="badge bg-secondary"><%= offer.titleCompanyDetails.paymentStatus.status.charAt(0).toUpperCase() + offer.titleCompanyDetails.paymentStatus.status.slice(1) %></span>
+                    <% } %>
+                  </div>
+                </div>
+                <% if (offer.titleCompanyDetails.paymentStatus.method === 'check' && 
+                       offer.titleCompanyDetails.paymentStatus.checkNumber) { %>
+                  <div class="row mb-2">
+                    <div class="col-5 text-muted">Check Number:</div>
+                    <div class="col-7"><%= offer.titleCompanyDetails.paymentStatus.checkNumber %></div>
+                  </div>
+                <% } %>
+                <% if (offer.titleCompanyDetails.paymentStatus.method === 'wire' && 
+                       offer.titleCompanyDetails.paymentStatus.wireConfirmationNumber) { %>
+                  <div class="row mb-2">
+                    <div class="col-5 text-muted">Wire Confirmation:</div>
+                    <div class="col-7"><%= offer.titleCompanyDetails.paymentStatus.wireConfirmationNumber %></div>
+                  </div>
+                <% } %>
+                <% if (offer.titleCompanyDetails.paymentStatus.completedDate) { %>
+                  <div class="row mb-2">
+                    <div class="col-5 text-muted">Completed Date:</div>
+                    <div class="col-7"><%= new Date(offer.titleCompanyDetails.paymentStatus.completedDate).toLocaleDateString() %></div>
+                  </div>
+                <% } %>
+              <% } %>
             </div>
             
             <div class="col-md-6">

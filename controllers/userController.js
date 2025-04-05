@@ -96,7 +96,7 @@ exports.registerUser = async (req, res, next) => {
         });
     } catch (error) {
         req.flash('error', 'Registration failed');
-        res.redirect('/users/register');
+        res.redirect('/');
     }
 };
 
@@ -170,7 +170,7 @@ exports.getDashboard = async (req, res) => {
 
         if (activeRoles.includes("seller")) {
             // Seller's listings
-            sellerData.listings = await Listing.find({ owner: req.user._id }).lean();
+            sellerData.listings = await Listing.find({ seller: req.user._id }).lean();
             
             // Offers received on seller's listings
             sellerData.receivedOffers = await Offer.find({ seller: req.user._id })

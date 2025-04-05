@@ -480,3 +480,110 @@ exports.completeClosing = async (req, res) => {
     return res.redirect('/professionals/dashboard');
   }
 };
+
+// Update payment status
+exports.updatePaymentStatus = async (req, res) => {
+  try {
+    const { 
+      offerId, 
+      method, 
+      status, 
+      checkNumber, 
+      wireConfirmationNumber, 
+      notes 
+    } = req.body;
+    
+    // Find the offer
+    const offer = await Offer.findById(offerId)
+      .populate('buyer', 'name email')
+      .populate('seller', 'name email')
+      .populate('listing', 'address');
+    
+    if (!offer) {
+      req.flash('error', 'Offer not found');
+      return res.redirect('/professionals/dashboard');
+    }
+    
+    // Verify this title company is assigned to this transaction
+    if (!offer.titleCompanyDetails.company || 
+        !offer.titleCompanyDetails.company.equals(req.user._id)) {
+      req.flash('error', 'You are not authorized to update this transaction');
+      return res.redirect('/professionals/dashboard');
+    }
+    
+    // Update payment status
+    if (!offer.titleCompanyDetails.paymentStatus) {
+      offer.titleCompanyDetails.paymentStatus = {};
+    }
+    
+    offer.titleCompanyDetails.paymentStatus.method = method;
+    offer.titleCompanyDetails.paymentStatus.status = status;
+    
+    if (method === 'check' && checkNumber) {
+      offer.titleCompanyDetails.paymentStatus.checkNumber = checkNumber;
+    }
+    
+    if (method === 'wire' && wireConfirmationNumber) {
+      offer.titleCompanyDetails.paymentStatus.wireConfirmationNumber = wireConfirmationNumber;
+    }
+    
+    if (notes) {
+      offer.titleCompanyDetails.paymentStatus.notes = notes;
+    }
+    
+    // Update dates based on status
+    if (status === 'initiated' || status === 'sent') {
+      offer.titleCompanyDetails.paymentStatus.initiatedDate = new Date();
+    }
+    
+    if (status === 'received' || status === 'completed') {
+      offer.titleCompanyDetails.paymentStatus.completedDate = new Date();
+      
+      // If payment is completed, update the closing step
+      const fundingStep = offer.closingSteps.find(step => 
+        step.name.toLowerCase().includes('funding') || 
+        step.name.toLowerCase().includes('payment')
+      );
+      
+      if (fundingStep) {
+        fundingStep.status = 'complete';
+        fundingStep.completedDate = new Date();
+        fundingStep.notes = `Payment ${status} via ${method}. ${notes || ''}`;
+      }
+      
+      // Update closing status if appropriate
+      if (offer.closingStatus === 'signed') {
+        offer.closingStatus = 'funded';
+      }
+    }
+    
+    await offer.save();
+    
+    // Notify parties of payment status
+    const statusDisplay = status.charAt(0).toUpperCase() + status.slice(1);
+    const methodDisplay = method.charAt(0).toUpperCase() + method.slice(1);
+    
+    await notificationController.createNotification(
+      offer.buyer._id,
+      `Payment for ${offer.listing.address} has been ${status} via ${method}`,
+      'Payment Update',
+      `/closing/${offerId}`,
+      'INFO'
+    );
+    
+    await notificationController.createNotification(
+      offer.seller._id,
+      `Payment for ${offer.listing.address} has been ${status} via ${method}`,
+      'Payment Update',
+      `/closing/${offerId}`,
+      'INFO'
+    );
+    
+    req.flash('success', `Payment status updated to ${statusDisplay}`);
+    return res.redirect('/professionals/dashboard');
+  } catch (error) {
+    console.error('Error updating payment status:', error);
+    req.flash('error', 'Error updating payment status: ' + error.message);
+    return res.redirect('/professionals/dashboard');
+  }
+};

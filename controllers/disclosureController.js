@@ -31,13 +31,13 @@ exports.editSection = async (req, res) => {
         
         // Map section to its template name
         const sectionTemplates = {
-            'section1': 'statutory_disclosures',
-            'section2': 'property_systems',
-            'section3': 'structure_exterior',
-            'section4': 'environmental_other'
+            'section1': 'statutoryDisclosures',
+            'section2': 'propertySystems',
+            'section3': 'structureExterior',
+            'section4': 'environmentalOther'
         };
         
-        res.render(`disclosures/sections/${sectionTemplates[section]}`, {
+        res.render(`listings/addons/disclosures/${sectionTemplates[section]}`, {
             listing,
             section,
             sectionTitle: getSectionTitle(section)
@@ -64,10 +64,19 @@ exports.updateSection = async (req, res) => {
         // Initialize disclosure object if it doesn't exist
         if (!listing.disclosures) {
             listing.disclosures = {
-                status: {}
+                status: {
+                    lastUpdated: new Date()
+                }
             };
         }
         
+        // Ensure status object exists
+        if (!listing.disclosures.status) {
+            listing.disclosures.status = {
+                lastUpdated: new Date()
+            };
+        }
+
         // Update appropriate section based on form data
         switch(section) {
             case 'section1':
@@ -162,36 +171,29 @@ exports.updateSection = async (req, res) => {
         }
         
         // Update last updated timestamp
-        if (!listing.disclosures.status) {
-            listing.disclosures.status = {};
-        }
         listing.disclosures.status.lastUpdated = new Date();
         
         // Check if all sections are complete
-        if (listing.isDisclosureComplete && listing.isDisclosureComplete()) {
-            listing.disclosures.status.fullyCompleted = true;
-        }
+        const allSectionsCompleted = 
+            listing.disclosures.status.section1Completed &&
+            listing.disclosures.status.section2Completed &&
+            listing.disclosures.status.section3Completed &&
+            listing.disclosures.status.section4Completed;
         
+        // Set fully completed flag
+        listing.disclosures.status.fullyCompleted = allSectionsCompleted;
+
+        // Save the listing
         await listing.save();
         
-        // Determine next section or redirect to dashboard if complete
-        let nextSection;
-        if (section === 'section1') nextSection = 'section2';
-        else if (section === 'section2') nextSection = 'section3';
-        else if (section === 'section3') nextSection = 'section4';
-        
-        if (nextSection && listing.disclosures.status && !listing.disclosures.status[`${nextSection}Completed`]) {
-            req.flash("success", "Section saved! Please complete the next section.");
-            return res.redirect(`/disclosures/listing/${listingId}/edit/${nextSection}`);
+        // Determine next steps
+        if (allSectionsCompleted) {
+            req.flash("success", "All sections completed! Your disclosure is now ready for review.");
         } else {
-            // If we're at the end or other sections are already complete
-            if (listing.isDisclosureComplete && listing.isDisclosureComplete()) {
-                req.flash("success", "All sections completed! Your disclosure is now ready for review.");
-            } else {
-                req.flash("success", "Section saved! Please complete any remaining sections.");
-            }
-            return res.redirect("/listings/manage");
+            req.flash("success", "Section saved! Please complete any remaining sections.");
         }
+        
+        return res.redirect("/listings/manage");
     } catch (error) {
         console.error(`❌ Error updating ${req.params.section}:`, error);
         req.flash("error", "Error saving disclosure section.");
