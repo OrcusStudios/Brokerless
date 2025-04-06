@@ -60,12 +60,16 @@
 
     <!-- notificationUpdater JS -->
     <script src="/js/notificationUpdater.js"></script>
+    
+    <!-- Form Guidance JS -->
+    <script src="/js/form-guidance.js"></script>
 
     <script>
-        // Automatically remove flash messages after 5 seconds
+        // Automatically remove non-persistent flash messages after 5 seconds
         document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
-                const alerts = document.querySelectorAll('.alert');
+                // Only select alerts that don't have the alert-persistent class
+                const alerts = document.querySelectorAll('.alert:not(.alert-persistent)');
                 alerts.forEach(alert => {
                     alert.classList.remove('show');
                     alert.classList.add('fade');

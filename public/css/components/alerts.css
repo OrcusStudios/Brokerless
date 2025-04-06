@@ -1,0 +1,80 @@
+/* Persistent Alert Styles */
+
+/* Base alert styles */
+.alert {
+  position: relative;
+  padding: 1rem 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+}
+
+/* Persistent alerts - no auto-dismiss */
+.alert-persistent {
+  /* Add a subtle box shadow for emphasis */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  /* Add a left border for visual distinction */
+  border-left-width: 4px;
+}
+
+/* Success alert */
+.alert-success.alert-persistent {
+  background-color: #d1e7dd;
+  border-color: #badbcc;
+  border-left-color: #198754;
+  color: #0f5132;
+}
+
+/* Info alert */
+.alert-info.alert-persistent {
+  background-color: #cff4fc;
+  border-color: #b6effb;
+  border-left-color: #0dcaf0;
+  color: #055160;
+}
+
+/* Warning alert */
+.alert-warning.alert-persistent {
+  background-color: #fff3cd;
+  border-color: #ffecb5;
+  border-left-color: #ffc107;
+  color: #664d03;
+}
+
+/* Danger alert */
+.alert-danger.alert-persistent {
+  background-color: #f8d7da;
+  border-color: #f5c2c7;
+  border-left-color: #dc3545;
+  color: #842029;
+}
+
+/* Icon styling */
+.alert-persistent i {
+  margin-right: 0.5rem;
+  font-size: 1.1rem;
+}
+
+/* Alert with title */
+.alert-persistent .alert-title {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+/* Alert content */
+.alert-persistent .alert-content {
+  margin-bottom: 0;
+}
+
+/* Dismissible alerts - keep the close button */
+.alert-dismissible {
+  padding-right: 3rem;
+}
+
+.alert-dismissible .btn-close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  padding: 1.25rem 1rem;
+}

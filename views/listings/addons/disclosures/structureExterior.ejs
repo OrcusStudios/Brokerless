@@ -1,14 +1,46 @@
 <%- include('../../../partials/layout.ejs') %>
 
 <div class="container mt-4">
+    <div id="disclosure-container">
+        <!-- Breadcrumb Navigation -->
+        <div class="form-breadcrumb">
+            <div class="form-breadcrumb-item"><a href="/disclosures/listing/<%= listing._id %>/edit/section1">Statutory Disclosures</a></div>
+            <div class="form-breadcrumb-item"><a href="/disclosures/listing/<%= listing._id %>/edit/section2">Property Systems</a></div>
+            <div class="form-breadcrumb-item active">Structure & Exterior</div>
+            <div class="form-breadcrumb-item"><a href="/disclosures/listing/<%= listing._id %>/edit/section4">Environmental & Other</a></div>
+        </div>
+        
+        <!-- Progress Indicator -->
+        <div class="form-progress mb-4">
+            <div class="form-progress-bar" data-current-step="3">
+                <div class="form-progress-step completed"><i class="bi bi-check"></i></div>
+                <div class="form-progress-step completed"><i class="bi bi-check"></i></div>
+                <div class="form-progress-step active">3</div>
+                <div class="form-progress-step">4</div>
+            </div>
+            <div class="form-progress-labels">
+                <div class="form-progress-label completed">Statutory</div>
+                <div class="form-progress-label completed">Systems</div>
+                <div class="form-progress-label active">Structure</div>
+                <div class="form-progress-label">Environmental</div>
+            </div>
+        </div>
+    </div>
+
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-primary text-white">
             <h4 class="mb-0">Seller's Disclosure - Structure and Exterior</h4>
         </div>
         <div class="card-body">
-            <div class="alert alert-info">
-                <i class="bi bi-info-circle me-2"></i>
-                <strong>Step 3 of 4:</strong> Please complete this section about the structure and exterior of your property at <%= listing.address %>.
+            <!-- Section Help Box -->
+            <div class="section-help">
+                <div class="section-help-title"><i class="bi bi-info-circle"></i>About This Section</div>
+                <p class="section-help-content">This section covers the physical structure of your property including the roof, foundation, and exterior elements. Being thorough about structural conditions helps buyers understand potential maintenance needs.</p>
+            </div>
+            
+            <div class="alert alert-info alert-persistent">
+                <div class="alert-title">Step 3 of 4: Structure and Exterior</div>
+                <p class="alert-content">Please complete this section about the structure and exterior of your property at <%= listing.address %>.</p>
             </div>
 
             <form action="/disclosures/listing/<%= listing._id %>/update/section3" method="POST">

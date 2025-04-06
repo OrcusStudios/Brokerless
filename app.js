@@ -123,8 +123,7 @@ app.use(session({
     resave: true,
     saveUninitialized: true,
     cookie: {
-        secure: false,
-        //process.env.NODE_ENV === 'production', 
+        secure: process.env.NODE_ENV === 'production', 
         httpOnly: true,
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     }
@@ -262,6 +261,10 @@ mongoose.connection.on('disconnected', () => {
 
 const server = http.createServer(app);
 const io = messagingService.init(server);
+
+// Initialize socket.io for notifications
+const socket = require('./utils/socket');
+socket.init(server);
 
 // Optional: Handle server startup errors
 const PORT = process.env.PORT || 3000;

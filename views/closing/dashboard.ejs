@@ -8,51 +8,16 @@
         <i class="bi bi-house-check me-2"></i>Closing Process
       </h2>
       <span class="badge bg-light text-dark"><%= offer.closingStatus.replace('_', ' ').toUpperCase() %></span>
-</div>
-
-<script>
-  // Initialize payment method toggle when the document is loaded
-  document.addEventListener('DOMContentLoaded', function() {
-    // Toggle payment method details
-    const paymentMethod = document.getElementById('paymentMethod');
-    if (paymentMethod) {
-      paymentMethod.addEventListener('change', function() {
-        const checkDetails = document.querySelector('.check-details');
-        const wireDetails = document.querySelector('.wire-details');
-        
-        if (this.value === 'check') {
-          checkDetails.style.display = 'block';
-          wireDetails.style.display = 'none';
-        } else if (this.value === 'wire') {
-          checkDetails.style.display = 'none';
-          wireDetails.style.display = 'block';
-        } else {
-          checkDetails.style.display = 'none';
-          wireDetails.style.display = 'none';
-        }
-      });
-      
-      // Trigger the change event to set initial visibility
-      paymentMethod.dispatchEvent(new Event('change'));
-    }
-  });
-  
-  // Set offer ID when opening modal
-  function openPaymentModal(offerId) {
-    document.getElementById('paymentOfferId').value = offerId;
-    const modal = new bootstrap.Modal(document.getElementById('paymentStatusModal'));
-    modal.show();
-  }
-</script>
+    </div>
     
     <div class="card-body">
       <!-- Property and Offer Summary -->
       <div class="row mb-4">
         <div class="col-md-6">
-          <div class="d-flex">
+          <div class="d-flex property-summary-card">
             <img src="<%= offer.listing.image || '/images/default-home.jpg' %>" 
-                 alt="Property" class="img-thumbnail me-3" style="width: 120px; height: 120px; object-fit: cover;">
-            <div>
+                 alt="Property" class="property-image me-3">
+            <div class="property-details">
               <h4><%= offer.listing.address %></h4>
               <p class="text-muted"><%= offer.listing.city %>, <%= offer.listing.state %> <%= offer.listing.zip %></p>
               <p><strong>Purchase Price:</strong> $<%= offer.offerPrice.toLocaleString() %></p>
@@ -62,7 +27,7 @@
         </div>
         
         <div class="col-md-6">
-          <div class="card h-100">
+          <div class="card h-100 transaction-parties-card">
             <div class="card-body">
               <h5>Transaction Parties</h5>
               <div class="row mb-2">
@@ -83,15 +48,15 @@
       </div>
       
       <!-- Progress Bar -->
-      <div class="card mb-4">
+      <div class="card mb-4 closing-progress-container">
         <div class="card-body">
           <h5>Closing Progress</h5>
-          <div class="progress mb-3" style="height: 25px;">
-            <div class="progress-bar bg-success" role="progressbar" style="width: <%= progressPercentage %>%;" 
+            <div class="progress mb-3" style="height: 25px;">
+              <div class="progress-bar bg-success" role="progressbar" style="width: <%= progressPercentage %>%" 
                  aria-valuenow="<%= progressPercentage %>" aria-valuemin="0" aria-valuemax="100">
               <%= progressPercentage %>%
+              </div>
             </div>
-          </div>
           <p class="text-center text-muted">
             <%= offer.closingSteps.filter(step => step.status === 'complete').length %> of <%= offer.closingSteps.length %> steps completed
           </p>
@@ -100,7 +65,7 @@
       
       <!-- Payment Status Section -->
       <% if (offer.titleCompanyDetails && offer.titleCompanyDetails.paymentStatus) { %>
-        <div class="card mb-4">
+        <div class="card mb-4 payment-status-card">
           <div class="card-header bg-light">
             <h5 class="mb-0">Payment Status</h5>
           </div>
@@ -183,7 +148,7 @@
       <% } %>
       
       <!-- Closing Steps -->
-      <div class="card mb-4">
+      <div class="card mb-4 closing-steps-card">
         <div class="card-header bg-light">
           <h5 class="mb-0">Closing Steps</h5>
         </div>
@@ -268,8 +233,33 @@
         </div>
       </div>
       
+      <!-- Inspection Prompt for Buyer -->
+      <% if (user._id.equals(offer.buyer._id) && 
+             offer.closingStatus === 'in_progress' && 
+             (!offer.inspection || offer.inspection.status === 'pending')) { %>
+        <div class="card mb-4 border-primary">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-clipboard-check me-2"></i>Home Inspection Required</h5>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-info alert-persistent">
+              <div class="alert-title">Important Next Step</div>
+              <p class="alert-content">Your offer has been accepted! Now you need to decide about a home inspection.</p>
+            </div>
+            
+            <p>A home inspection is a crucial step in the home buying process. It helps identify potential issues with the property before you complete your purchase.</p>
+            
+            <div class="d-grid gap-2 mt-3">
+              <a href="/closing/<%= offer._id %>/inspection-options" class="btn btn-primary">
+                <i class="bi bi-clipboard-check me-2"></i>View Inspection Options
+              </a>
+            </div>
+          </div>
+        </div>
+      <% } %>
+      
       <!-- Action Buttons -->
-      <div class="d-flex justify-content-between">
+      <div class="d-flex justify-content-between action-buttons">
         <a href="/offers/<%= offer._id %>" class="btn btn-secondary">
           <i class="bi bi-arrow-left me-2"></i>Back to Offer
         </a>
@@ -297,7 +287,7 @@
 </div>
 
 <!-- Payment Status Modal -->
-<div class="modal fade" id="paymentStatusModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade payment-modal" id="paymentStatusModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -399,3 +389,38 @@
     </div>
   </form>
 </div>
+
+<script>
+  // Initialize payment method toggle when the document is loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    // Toggle payment method details
+    const paymentMethod = document.getElementById('paymentMethod');
+    if (paymentMethod) {
+      paymentMethod.addEventListener('change', function() {
+        const checkDetails = document.querySelector('.check-details');
+        const wireDetails = document.querySelector('.wire-details');
+        
+        if (this.value === 'check') {
+          checkDetails.style.display = 'block';
+          wireDetails.style.display = 'none';
+        } else if (this.value === 'wire') {
+          checkDetails.style.display = 'none';
+          wireDetails.style.display = 'block';
+        } else {
+          checkDetails.style.display = 'none';
+          wireDetails.style.display = 'none';
+        }
+      });
+      
+      // Trigger the change event to set initial visibility
+      paymentMethod.dispatchEvent(new Event('change'));
+    }
+  });
+  
+  // Set offer ID when opening modal
+  function openPaymentModal(offerId) {
+    document.getElementById('paymentOfferId').value = offerId;
+    const modal = new bootstrap.Modal(document.getElementById('paymentStatusModal'));
+    modal.show();
+  }
+</script>

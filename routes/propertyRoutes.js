@@ -10,7 +10,10 @@ const upload = multer({ storage });
 router.get("/", catchAsync(propertyController.getListings));
 
 // Handle listing creation with image upload
-router.post("/", ensureAuthenticated, ensureRole("seller"), upload.single("image"), propertyController.createListing);
+router.post("/", ensureAuthenticated, ensureRole("seller"), upload.fields([
+    { name: 'image', maxCount: 1 },
+    { name: 'images', maxCount: 10 }
+]), propertyController.createListing);
 
 // Show listing creation form
 router.get("/new", ensureAuthenticated, ensureRole("seller"), propertyController.showCreateForm);
@@ -22,7 +25,10 @@ router.get("/manage", ensureAuthenticated, ensureRole("seller"), propertyControl
 router.get("/:id/edit", ensureAuthenticated, ensureRole("seller"), propertyController.showEditForm);
 
 // Handle listing update with optional image upload
-router.put("/:id", ensureAuthenticated, ensureRole("seller"), upload.array("images", 10), propertyController.updateListing);
+router.put("/:id", ensureAuthenticated, ensureRole("seller"), upload.fields([
+    { name: 'image', maxCount: 1 },
+    { name: 'images', maxCount: 10 }
+]), propertyController.updateListing);
 
 // Handle listing deletion
 router.delete("/:id", ensureAuthenticated, ensureRole("seller"), propertyController.deleteListing);

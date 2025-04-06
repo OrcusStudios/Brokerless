@@ -1,0 +1,198 @@
+<%- include('../partials/layout.ejs') %>
+
+<div class="container py-4">
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+      <h2 class="mb-0">
+        <i class="bi bi-clipboard-check me-2"></i>Home Inspection Options
+      </h2>
+    </div>
+    
+    <div class="card-body">
+      <!-- Property Summary -->
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <div class="d-flex property-summary-card">
+            <img src="<%= offer.listing.image || '/images/default-home.jpg' %>" 
+                 alt="Property" class="property-image me-3">
+            <div class="property-details">
+              <h4><%= offer.listing.address %></h4>
+              <p class="text-muted"><%= offer.listing.city %>, <%= offer.listing.state %> <%= offer.listing.zip %></p>
+              <p><strong>Purchase Price:</strong> $<%= offer.offerPrice.toLocaleString() %></p>
+              <p><strong>Closing Date:</strong> <%= new Date(offer.closingDate).toLocaleDateString() %></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Section Help Box -->
+      <div class="section-help mb-4">
+        <div class="section-help-title"><i class="bi bi-info-circle"></i>About Home Inspections</div>
+        <p class="section-help-content">
+          A home inspection is a thorough examination of a property's condition by a qualified professional. 
+          It helps identify potential issues with the structure, systems, and components of the home before you complete your purchase.
+          While not required, a home inspection is highly recommended to protect your investment.
+        </p>
+      </div>
+      
+      <!-- Inspection Options -->
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <div class="card h-100 border-primary">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0">Schedule a Home Inspection</h5>
+            </div>
+            <div class="card-body">
+              <p>A professional home inspector will examine:</p>
+              <ul>
+                <li>Structural components (foundation, roof, etc.)</li>
+                <li>Electrical, plumbing, and HVAC systems</li>
+                <li>Insulation and ventilation</li>
+                <li>Interior and exterior elements</li>
+                <li>Appliances and fixtures</li>
+              </ul>
+              <p><strong>Typical Cost:</strong> $300-$500</p>
+              <p><strong>Time Required:</strong> 2-4 hours</p>
+              
+              <div class="d-grid gap-2 mt-4">
+                <a href="/closing/<%= offer._id %>/schedule-inspection" class="btn btn-primary">
+                  <i class="bi bi-calendar-check me-2"></i>Schedule Inspection
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="card h-100 border-danger">
+            <div class="card-header bg-danger text-white">
+              <h5 class="mb-0">Waive Home Inspection</h5>
+            </div>
+            <div class="card-body">
+              <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <strong>Important:</strong> Waiving a home inspection means you accept the property in its current condition.
+              </div>
+              
+              <p>By waiving the inspection, you understand that:</p>
+              <ul>
+                <li>You will not have a professional assessment of the property's condition</li>
+                <li>You may not discover hidden defects until after purchase</li>
+                <li>You may have limited recourse for issues discovered later</li>
+                <li>You assume all risks related to the property's condition</li>
+              </ul>
+              
+              <div class="d-grid gap-2 mt-4">
+                <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#waiveInspectionModal">
+                  <i class="bi bi-x-circle me-2"></i>Waive Inspection
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Action Buttons -->
+      <div class="d-flex justify-content-between action-buttons">
+        <a href="/closing/<%= offer._id %>" class="btn btn-secondary">
+          <i class="bi bi-arrow-left me-2"></i>Back to Closing Dashboard
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Waive Inspection Modal -->
+<div class="modal fade" id="waiveInspectionModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-exclamation-triangle me-2"></i>Waive Home Inspection
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="/closing/<%= offer._id %>/waive-inspection" method="POST">
+        <div class="modal-body">
+          <div class="alert alert-danger">
+            <strong>Warning:</strong> Waiving a home inspection is a significant decision that may impact your purchase.
+          </div>
+          
+          <h5 class="border-bottom pb-2 mb-3">Inspection Waiver Acknowledgment</h5>
+          
+          <p>By signing this waiver, I acknowledge and agree to the following:</p>
+          
+          <ol>
+            <li>I have been advised of the importance of obtaining a professional home inspection.</li>
+            <li>I understand that a home inspection could reveal defects or issues with the property that may not be visible during a casual viewing.</li>
+            <li>I am voluntarily choosing to waive my right to a professional home inspection.</li>
+            <li>I accept the property in its current condition, with all existing defects, whether known or unknown.</li>
+            <li>I release the seller, real estate agents, and brokers from any liability related to physical defects in the property.</li>
+            <li>I understand that this waiver may affect my legal rights regarding property condition issues discovered after closing.</li>
+          </ol>
+          
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="acknowledgment1" name="acknowledgments[]" value="advised" required>
+            <label class="form-check-label" for="acknowledgment1">
+              I acknowledge that I have been advised to obtain a professional home inspection.
+            </label>
+          </div>
+          
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="acknowledgment2" name="acknowledgments[]" value="understand_risks" required>
+            <label class="form-check-label" for="acknowledgment2">
+              I understand the risks of waiving a home inspection.
+            </label>
+          </div>
+          
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="acknowledgment3" name="acknowledgments[]" value="accept_condition" required>
+            <label class="form-check-label" for="acknowledgment3">
+              I accept the property in its current condition.
+            </label>
+          </div>
+          
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="acknowledgment4" name="acknowledgments[]" value="release_liability" required>
+            <label class="form-check-label" for="acknowledgment4">
+              I release the seller and agents from liability related to property defects.
+            </label>
+          </div>
+          
+          <div class="mb-3">
+            <label for="reason" class="form-label">Reason for waiving inspection (optional):</label>
+            <textarea id="reason" name="reason" class="form-control" rows="3"></textarea>
+          </div>
+          
+          <div class="mb-3">
+            <label for="signature" class="form-label">Electronic Signature (type your full legal name):</label>
+            <input type="text" id="signature" name="signature" class="form-control" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger">Submit Waiver</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Tooltip Script -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
+    const tooltips = document.querySelectorAll('.tooltip-container');
+    tooltips.forEach(tooltip => {
+      tooltip.addEventListener('mouseenter', function() {
+        this.querySelector('.tooltip-text').style.visibility = 'visible';
+        this.querySelector('.tooltip-text').style.opacity = '1';
+      });
+      
+      tooltip.addEventListener('mouseleave', function() {
+        this.querySelector('.tooltip-text').style.visibility = 'hidden';
+        this.querySelector('.tooltip-text').style.opacity = '0';
+      });
+    });
+  });
+</script>

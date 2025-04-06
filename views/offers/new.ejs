@@ -2,6 +2,34 @@
 
 <div class="container mt-5">
     <h2 class="mb-4">Submit an Offer</h2>
+    
+    <!-- Progress Indicator -->
+    <div class="form-progress mb-4">
+        <div class="form-progress-bar" data-current-step="1">
+            <div class="form-progress-step active">1</div>
+            <div class="form-progress-step">2</div>
+            <div class="form-progress-step">3</div>
+            <div class="form-progress-step">4</div>
+            <div class="form-progress-step">5</div>
+            <div class="form-progress-step">6</div>
+            <div class="form-progress-step">7</div>
+        </div>
+        <div class="form-progress-labels">
+            <div class="form-progress-label active">Buyer Info</div>
+            <div class="form-progress-label">Price</div>
+            <div class="form-progress-label">Earnest</div>
+            <div class="form-progress-label">Contingencies</div>
+            <div class="form-progress-label">Riders</div>
+            <div class="form-progress-label">Closing</div>
+            <div class="form-progress-label">Acknowledge</div>
+        </div>
+    </div>
+    
+    <!-- Section Help Box -->
+    <div class="section-help mb-4">
+        <div class="section-help-title"><i class="bi bi-info-circle"></i>About This Form</div>
+        <p class="section-help-content">This form allows you to submit a legally binding offer on a property. Complete all required fields carefully. You can preview your offer before submitting. Hover over terms with question marks for more information.</p>
+    </div>
     <form id="offerForm" action="/offers" method="POST">
         <!-- Hidden Inputs -->
         <input type="hidden" name="listingId" value="<%= listing._id %>">
@@ -68,7 +96,12 @@
                     <input type="number" class="form-control" id="offerPrice" name="offerPrice" min="0" required>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Financing Type</label>
+                    <label class="form-label">Financing Type
+                        <span class="tooltip-container">
+                            <i class="bi bi-question-circle tooltip-icon"></i>
+                            <span class="tooltip-text">The method you'll use to pay for the property. Cash offers are often more attractive to sellers as they don't depend on lender approval and can close faster.</span>
+                        </span>
+                    </label>
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="financingType" id="financingCash" value="cash" required>
                         <label class="form-check-label" for="financingCash">Cash</label>
@@ -111,11 +144,14 @@
                 <h2 class="h4 mb-0">3. Earnest Money</h2>
             </div>
             <div class="card-body">
-                <p class="text-muted">
-                    Earnest money is a good-faith deposit made by the buyer to show serious intent to purchase the property.
-                    This deposit is typically held by the title company and applied toward the purchase price at closing.
-                    Failure to deliver earnest money on time may give the seller the right to cancel the agreement.
-                </p>
+                <div class="alert alert-info alert-persistent">
+                    <div class="alert-title"><i class="bi bi-info-circle me-2"></i>About Earnest Money</div>
+                    <p class="alert-content">
+                        Earnest money is a good-faith deposit made by the buyer to show serious intent to purchase the property.
+                        This deposit is typically held by the title company and applied toward the purchase price at closing.
+                        Failure to deliver earnest money on time may give the seller the right to cancel the agreement.
+                    </p>
+                </div>
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="earnestMoney" class="form-label">Earnest Money Amount ($)</label>
@@ -152,10 +188,13 @@
                 <h2 class="h4 mb-0">4. Contingencies</h2>
             </div>
             <div class="card-body">
-                <p class="text-muted">
-                    Contingencies allow the buyer to cancel or renegotiate the contract based on specific conditions like financing, inspections, or appraisal.
-                    If selected, deadlines must be met for each contingency to remain valid.
-                </p>
+                <div class="alert alert-info alert-persistent">
+                    <div class="alert-title"><i class="bi bi-info-circle me-2"></i>About Contingencies</div>
+                    <p class="alert-content">
+                        Contingencies allow the buyer to cancel or renegotiate the contract based on specific conditions like financing, inspections, or appraisal.
+                        If selected, deadlines must be met for each contingency to remain valid.
+                    </p>
+                </div>
 
                 <div class="form-check mb-2">
                     <input class="form-check-input" type="checkbox" id="inspectionContingency" name="contingencies" value="inspection">
@@ -172,6 +211,10 @@
                     <input class="form-check-input" type="checkbox" id="appraisalContingency" name="contingencies" value="appraisal">
                     <label class="form-check-label" for="appraisalContingency">
                         Appraisal Contingency
+                        <span class="tooltip-container">
+                            <i class="bi bi-question-circle tooltip-icon"></i>
+                            <span class="tooltip-text">An appraisal contingency protects you if the property appraises for less than your offer price. If the appraisal comes in low, you can renegotiate the price or back out of the deal without losing your earnest money.</span>
+                        </span>
                     </label>
                     <div class="ms-4 mt-2">
                         <label for="appraisalDeadlineDays" class="form-label">Appraisal Deadline (Typically 25–30 days)</label>
@@ -553,18 +596,20 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Price Validation
     const offerPriceInput = document.getElementById('offerPrice');
-    const listingPrice = <%= listing.price %>;
+    const listingPrice = parseInt('<%= listing.price %>');
     
-    offerPriceInput.addEventListener('input', function() {
-        const minPrice = Math.round(listingPrice * 0.5);
-        const maxPrice = Math.round(listingPrice * 1.5);
-        
-        if (this.value < minPrice || this.value > maxPrice) {
-            this.setCustomValidity(`Offer price must be between $${minPrice.toLocaleString()} and $${maxPrice.toLocaleString()}`);
-        } else {
-            this.setCustomValidity('');
-        }
-    });
+    if (offerPriceInput) {
+        offerPriceInput.addEventListener('input', function() {
+            const minPrice = Math.round(listingPrice * 0.5);
+            const maxPrice = Math.round(listingPrice * 1.5);
+            
+            if (this.value < minPrice || this.value > maxPrice) {
+                this.setCustomValidity("Offer price must be between $" + minPrice.toLocaleString() + " and $" + maxPrice.toLocaleString());
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    }
 
     // Closing Date Validation
     const closingDateInput = document.getElementById('closingDate');

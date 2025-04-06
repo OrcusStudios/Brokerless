@@ -179,9 +179,163 @@
       </div>
     </div>
   </div>
+  
+  <!-- Loan Status Updates During Closing -->
+  <div class="col-md-12 mb-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Loan Status Updates</h5>
+        <span class="badge bg-info"><%= activeLoans ? activeLoans.length : 0 %></span>
+      </div>
+      
+      <!-- Section Help Box -->
+      <div class="section-help m-3">
+        <div class="section-help-title"><i class="bi bi-info-circle"></i>Loan Status Management</div>
+        <p class="section-help-content">
+          Keeping all parties informed about loan status is critical to a smooth closing process. Regular updates help:
+          <ul>
+            <li>Reduce uncertainty for buyers and sellers</li>
+            <li>Allow title companies to prepare closing documents</li>
+            <li>Prevent closing delays due to miscommunication</li>
+            <li>Maintain transparency throughout the transaction</li>
+          </ul>
+          Update each loan's status as it progresses through the approval process.
+        </p>
+      </div>
+      
+      <div class="card-body">
+        <% if (!activeLoans || activeLoans.length === 0) { %>
+          <div class="alert alert-info mb-0">
+            <i class="bi bi-info-circle me-2"></i>No active loans in the closing process.
+          </div>
+        <% } else { %>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Buyer</th>
+                  <th>Property</th>
+                  <th>Closing Date</th>
+                  <th>Loan Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% activeLoans.forEach(loan => { %>
+                  <tr>
+                    <td><%= loan.buyer && loan.buyer.name ? loan.buyer.name : 'Unknown Buyer' %></td>
+                    <td><%= loan.property ? loan.property.address : 'Unknown Property' %></td>
+                    <td><%= new Date(loan.closingDate).toLocaleDateString() %></td>
+                    <td>
+                      <% if (loan.loanStatus === 'processing') { %>
+                        <span class="badge bg-warning">Processing</span>
+                      <% } else if (loan.loanStatus === 'conditionally_approved') { %>
+                        <span class="badge bg-info">Conditionally Approved</span>
+                      <% } else if (loan.loanStatus === 'clear_to_close') { %>
+                        <span class="badge bg-success">Clear to Close</span>
+                      <% } else if (loan.loanStatus === 'funded') { %>
+                        <span class="badge bg-primary">Funded</span>
+                      <% } else { %>
+                        <span class="badge bg-secondary">Unknown</span>
+                      <% } %>
+                      
+                      <span class="tooltip-container ms-1">
+                        <i class="bi bi-question-circle tooltip-icon"></i>
+                        <span class="tooltip-text">
+                          <strong>Processing:</strong> Initial review of documentation<br>
+                          <strong>Conditionally Approved:</strong> Approved pending specific conditions<br>
+                          <strong>Clear to Close:</strong> Final approval, ready for closing<br>
+                          <strong>Funded:</strong> Loan has been funded
+                        </span>
+                      </span>
+                    </td>
+                    <td>
+                      <button type="button" class="btn btn-sm btn-primary update-loan-btn" data-id="<%= loan._id %>">
+                        <i class="bi bi-pencil-square me-1"></i>Update Status
+                      </button>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
 </div>
 
-<!-- JavaScript for handling approvals/denials -->
+<!-- Loan Status Update Modal -->
+<div class="modal fade" id="updateLoanStatusModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Update Loan Status</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="updateLoanStatusForm">
+        <div class="modal-body">
+          <input type="hidden" id="loanId" name="loanId">
+          
+          <!-- Section Help Box -->
+          <div class="section-help mb-3">
+            <div class="section-help-title"><i class="bi bi-info-circle"></i>About Loan Status Updates</div>
+            <p class="section-help-content">
+              Accurate and timely loan status updates are essential for all parties involved in the transaction. 
+              Each status change should be communicated promptly to ensure a smooth closing process.
+            </p>
+          </div>
+          
+          <div class="mb-3">
+            <label for="loanStatus" class="form-label">Loan Status</label>
+            <select id="loanStatus" name="loanStatus" class="form-select" required>
+              <option value="">Select Status</option>
+              <option value="processing">Processing</option>
+              <option value="conditionally_approved">Conditionally Approved</option>
+              <option value="clear_to_close">Clear to Close</option>
+              <option value="funded">Funded</option>
+            </select>
+            <div class="form-text">
+              <span class="tooltip-container">
+                <i class="bi bi-info-circle"></i>
+                <span class="tooltip-text">
+                  <strong>Processing:</strong> Initial review of documentation<br>
+                  <strong>Conditionally Approved:</strong> Approved pending specific conditions<br>
+                  <strong>Clear to Close:</strong> Final approval, ready for closing<br>
+                  <strong>Funded:</strong> Loan has been funded
+                </span>
+              </span>
+              Select the current status of the loan
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="statusNotes" class="form-label">Notes</label>
+            <textarea id="statusNotes" name="statusNotes" class="form-control" rows="3" placeholder="Add any relevant details about the current status"></textarea>
+          </div>
+          
+          <div class="mb-3">
+            <label for="estimatedCompletionDate" class="form-label">Estimated Completion Date</label>
+            <input type="date" id="estimatedCompletionDate" name="estimatedCompletionDate" class="form-control">
+          </div>
+          
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="notifyParties" name="notifyParties" checked>
+            <label class="form-check-label" for="notifyParties">
+              Notify all transaction parties of this update
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Update Status</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript for handling approvals/denials and loan status updates -->
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     // Handle application approval
@@ -204,6 +358,31 @@
           showDenialModal(applicantId);
         }
       });
+    });
+    
+    // Handle loan status updates
+    document.querySelectorAll('.update-loan-btn').forEach(button => {
+      button.addEventListener('click', function() {
+        const loanId = this.dataset.id;
+        document.getElementById('loanId').value = loanId;
+        
+        // Show the modal
+        const modal = new bootstrap.Modal(document.getElementById('updateLoanStatusModal'));
+        modal.show();
+      });
+    });
+    
+    // Handle loan status update form submission
+    document.getElementById('updateLoanStatusForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const loanId = document.getElementById('loanId').value;
+      const loanStatus = document.getElementById('loanStatus').value;
+      const statusNotes = document.getElementById('statusNotes').value;
+      const estimatedCompletionDate = document.getElementById('estimatedCompletionDate').value;
+      const notifyParties = document.getElementById('notifyParties').checked;
+      
+      updateLoanStatus(loanId, loanStatus, statusNotes, estimatedCompletionDate, notifyParties);
     });
 
     // Functions to show modals (implement these based on your UI framework)
@@ -261,6 +440,40 @@
       .then(data => {
         if (data.success) {
           alert('Application denied successfully.');
+          window.location.reload();
+        } else {
+          alert('Error: ' + (data.error || 'Unknown error'));
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+      });
+    }
+    
+    // API call for updating loan status
+    function updateLoanStatus(loanId, status, notes, estimatedCompletionDate, notifyParties) {
+      fetch('/lender/update-loan-status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          loanId, 
+          status, 
+          notes, 
+          estimatedCompletionDate,
+          notifyParties
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Close the modal
+          bootstrap.Modal.getInstance(document.getElementById('updateLoanStatusModal')).hide();
+          
+          // Show success message
+          alert('Loan status updated successfully!');
           window.location.reload();
         } else {
           alert('Error: ' + (data.error || 'Unknown error'));

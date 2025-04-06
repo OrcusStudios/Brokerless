@@ -23,7 +23,18 @@ exports.showCreateForm = (req, res) => {
 exports.createListing = async (req, res) => {
     try {
         // Extract Cloudinary image URLs
-        const image = req.file.path;
+        let image = null;
+        let additionalImages = [];
+        
+        // Handle primary image
+        if (req.files && req.files.image && req.files.image.length > 0) {
+            image = req.files.image[0].path;
+        }
+        
+        // Handle additional images
+        if (req.files && req.files.images) {
+            additionalImages = req.files.images.map(file => file.path);
+        }
         const { 
             address, city, state, zip, county, description, price, 
             bedrooms, bathrooms, squareFootage, propertyType, acres,
@@ -88,6 +99,7 @@ exports.createListing = async (req, res) => {
             lat,
             lng,
             image,
+            images: additionalImages,
             seller: req.user._id,
             // Save measurement disclaimer information
             measurementSources: measurementSources,
@@ -137,21 +149,27 @@ exports.updateListing = async (req, res) => {
             return res.redirect("/listings");
         }
 
-        listing.title = req.body.title;
+        // Update listing fields
         listing.description = req.body.description;
         listing.price = req.body.price;
-        listing.location = req.body.location;
         listing.squareFootage = req.body.squareFootage;
         listing.acres = req.body.acres;
 
-        if (req.files.length > 0) {
-            listing.images = req.files.map(file => file.path); // Update with new images
+        // Handle primary image update
+        if (req.files && req.files.image && req.files.image.length > 0) {
+            listing.image = req.files.image[0].path;
+        }
+        
+        // Handle additional images update
+        if (req.files && req.files.images && req.files.images.length > 0) {
+            listing.images = req.files.images.map(file => file.path);
         }
 
         await listing.save();
         req.flash("success", "Listing updated successfully!");
         res.redirect("/listings");
     } catch (error) {
+        console.error("❌ Error updating listing:", error);
         req.flash("error", "Error updating listing.");
         res.redirect("/listings");
     }
@@ -200,4 +218,3 @@ exports.getSellerListings = async (req, res) => {
         res.redirect("/dashboard");
     }
 };
-

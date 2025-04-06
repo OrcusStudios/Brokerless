@@ -1,6 +1,24 @@
 <%- include('../partials/layout.ejs') %>
 
 <div class="container py-4">
+    <div id="listing-form-container">
+        <!-- Progress Indicator -->
+        <div class="form-progress mb-4">
+            <div class="form-progress-bar" data-current-step="1">
+                <div class="form-progress-step active">1</div>
+                <div class="form-progress-step">2</div>
+                <div class="form-progress-step">3</div>
+                <div class="form-progress-step">4</div>
+            </div>
+            <div class="form-progress-labels">
+                <div class="form-progress-label active">Location</div>
+                <div class="form-progress-label">Details</div>
+                <div class="form-progress-label">Description</div>
+                <div class="form-progress-label">Images</div>
+            </div>
+        </div>
+    </div>
+
     <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
             <h2 class="mb-0">
@@ -8,6 +26,14 @@
             </h2>
         </div>
         <div class="card-body">
+            <!-- Section Help Box -->
+            <div class="section-help mb-4">
+                <div class="section-help-title"><i class="bi bi-info-circle"></i>About This Form</div>
+                <p class="section-help-content">
+                    This form allows you to create a new property listing. Fill out all required information about your property, 
+                    including location, details, description, and images. The more complete your listing, the more attractive it will be to potential buyers.
+                </p>
+            </div>
             <form action="/listings" method="POST" enctype="multipart/form-data">
                 <!-- Address Section -->
                 <div class="card mb-4">
@@ -55,6 +81,10 @@
                         <div class="form-floating mb-3">
                             <input type="number" id="price" class="form-control" name="price" required>
                             <label for="price">Price ($)</label>
+                            <span class="tooltip-container">
+                                <i class="bi bi-question-circle tooltip-icon"></i>
+                                <span class="tooltip-text">Set a competitive price based on comparable properties in your area. Consider recent sales, property condition, and market trends.</span>
+                            </span>
                         </div>
                         <div class="row g-3">
                             <div class="col-md-6">
@@ -108,6 +138,17 @@
                                         <option value="duplex">Duplex</option>
                                         <option value="land">Land</option>
                                     </select>
+                                    <label for="propertyType">Property Type</label>
+                                    <span class="tooltip-container">
+                                        <i class="bi bi-question-circle tooltip-icon"></i>
+                                        <span class="tooltip-text">
+                                            <strong>Single-Family:</strong> Standalone structure for one family<br>
+                                            <strong>Condominium:</strong> Unit in a shared building with HOA fees<br>
+                                            <strong>Townhouse:</strong> Multi-floor home sharing walls with adjacent units<br>
+                                            <strong>Duplex:</strong> Building with two separate units<br>
+                                            <strong>Land:</strong> Undeveloped property without structures
+                                        </span>
+                                    </span>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -126,6 +167,22 @@
                         <h4 class="mb-0">Property Description</h4>
                     </div>
                     <div class="card-body">
+                        <!-- Section Help Box -->
+                        <div class="section-help mb-3">
+                            <div class="section-help-title"><i class="bi bi-info-circle"></i>Writing an Effective Description</div>
+                            <p class="section-help-content">
+                                A compelling description can significantly increase buyer interest. Include:
+                                <ul>
+                                    <li>Key selling points and unique features</li>
+                                    <li>Recent upgrades or renovations</li>
+                                    <li>Neighborhood amenities and benefits</li>
+                                    <li>Special views or natural features</li>
+                                    <li>Energy-efficient features</li>
+                                </ul>
+                                Avoid using all caps, excessive punctuation, or discriminatory language.
+                            </p>
+                        </div>
+                        
                         <div class="form-floating">
                             <textarea id="description" class="form-control" name="description" style="height: 150px" required></textarea>
                             <label for="description">Describe your property in detail</label>
@@ -139,13 +196,31 @@
                         <h4 class="mb-0">Property Images</h4>
                     </div>
                     <div class="card-body">
+                        <!-- Section Help Box -->
+                        <div class="section-help mb-3">
+                            <div class="section-help-title"><i class="bi bi-info-circle"></i>Property Photography Tips</div>
+                            <p class="section-help-content">
+                                Quality photos significantly increase buyer interest. For best results:
+                                <ul>
+                                    <li>Use landscape orientation for all photos</li>
+                                    <li>Take photos during daylight hours with lights on</li>
+                                    <li>Ensure rooms are clean and decluttered</li>
+                                    <li>Include photos of all main rooms and outdoor spaces</li>
+                                    <li>Choose a front exterior shot for your primary image</li>
+                                </ul>
+                                High-quality images can increase views by up to 40%.
+                            </p>
+                        </div>
+                        
                         <div class="mb-3">
                             <label for="image" class="form-label">Upload Primary Image</label>
                             <input type="file" id="image" name="image" class="form-control" accept="image/*">
+                            <small class="text-muted">This will be the main image shown in search results</small>
                         </div>
                         <div class="mb-3">
                             <label for="images" class="form-label">Upload Additional Images (optional)</label>
                             <input type="file" id="images" name="images" class="form-control" accept="image/*" multiple>
+                            <small class="text-muted">Select multiple files to upload (up to 20 images)</small>
                         </div>
                     </div>
                 </div>
@@ -155,8 +230,9 @@
                         <h4 class="mb-0">Measurement Disclaimer</h4>
                     </div>
                     <div class="card-body">
-                        <div class="alert alert-info">
-                            <p>Any measurements information shared has not been independently verified and is for marketing purposes only. Measurements are approximations and may not be exact. Measurements are not to be relied upon for the purpose of a loan, valuation, or any other purpose.</p>
+                        <div class="alert alert-info alert-persistent">
+                            <div class="alert-title">Important Measurement Disclaimer</div>
+                            <p class="alert-content">Any measurements information shared has not been independently verified and is for marketing purposes only. Measurements are approximations and may not be exact. Measurements are not to be relied upon for the purpose of a loan, valuation, or any other purpose.</p>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="measurementAcknowledgment" name="measurementAcknowledgment" required>
@@ -181,6 +257,57 @@
         document.getElementById('otherSource').addEventListener('change', function() {
             document.getElementById('otherSourceText').style.display = this.checked ? 'block' : 'none';
         });
+        
+        // Progress indicator functionality
+        const formSections = [
+            document.querySelector('.card:nth-of-type(1)'), // Location
+            document.querySelector('.card:nth-of-type(2)'), // Details
+            document.querySelector('.card:nth-of-type(3)'), // Description
+            document.querySelector('.card:nth-of-type(4)')  // Images
+        ];
+        
+        const progressSteps = document.querySelectorAll('.form-progress-step');
+        const progressLabels = document.querySelectorAll('.form-progress-label');
+        const progressBar = document.querySelector('.form-progress-bar');
+        
+        // Function to update progress indicator
+        function updateProgress(step) {
+            // Update data attribute
+            progressBar.setAttribute('data-current-step', step);
+            
+            // Update active classes
+            progressSteps.forEach((stepEl, index) => {
+                if (index < step) {
+                    stepEl.classList.add('active');
+                } else {
+                    stepEl.classList.remove('active');
+                }
+            });
+            
+            progressLabels.forEach((labelEl, index) => {
+                if (index < step) {
+                    labelEl.classList.add('active');
+                } else {
+                    labelEl.classList.remove('active');
+                }
+            });
+        }
+        
+        // Track scroll position to update progress indicator
+        window.addEventListener('scroll', function() {
+            const scrollPosition = window.scrollY + 200; // Offset to trigger earlier
+            
+            // Determine which section is currently in view
+            for (let i = formSections.length - 1; i >= 0; i--) {
+                if (formSections[i] && formSections[i].offsetTop <= scrollPosition) {
+                    updateProgress(i + 1);
+                    break;
+                }
+            }
+        });
+        
+        // Initial progress update
+        updateProgress(1);
     });
 </script>
 

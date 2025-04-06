@@ -189,11 +189,18 @@ exports.updateSection = async (req, res) => {
         // Determine next steps
         if (allSectionsCompleted) {
             req.flash("success", "All sections completed! Your disclosure is now ready for review.");
+            return res.redirect("/listings/manage");
         } else {
-            req.flash("success", "Section saved! Please complete any remaining sections.");
+            req.flash("success", "Section saved successfully!");
+            
+            // Determine the next section to redirect to
+            const nextSection = getNextSection(section, listing.disclosures.status);
+            if (nextSection) {
+                return res.redirect(`/disclosures/listing/${listingId}/edit/${nextSection}`);
+            } else {
+                return res.redirect("/listings/manage");
+            }
         }
-        
-        return res.redirect("/listings/manage");
     } catch (error) {
         console.error(`❌ Error updating ${req.params.section}:`, error);
         req.flash("error", "Error saving disclosure section.");
@@ -281,6 +288,28 @@ function getSectionTitle(section) {
         case 'section4': return 'Environmental Concerns & Other';
         default: return 'Disclosures';
     }
+}
+
+// Helper function to determine the next section to redirect to
+function getNextSection(currentSection, status) {
+    const sections = ['section1', 'section2', 'section3', 'section4'];
+    const currentIndex = sections.indexOf(currentSection);
+    
+    // If current section is the last one, return null
+    if (currentIndex === sections.length - 1) {
+        return null;
+    }
+    
+    // Find the next incomplete section
+    for (let i = currentIndex + 1; i < sections.length; i++) {
+        const sectionKey = `${sections[i]}Completed`;
+        if (!status[sectionKey]) {
+            return sections[i];
+        }
+    }
+    
+    // If all remaining sections are complete, return null
+    return null;
 }
 
 module.exports = exports;

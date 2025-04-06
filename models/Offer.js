@@ -318,6 +318,55 @@ riders: {
   },
 },
 
+// Inspection Details
+inspection: {
+  status: {
+    type: String,
+    enum: ['pending', 'scheduled', 'completed', 'waived'],
+    default: 'pending'
+  },
+  // For scheduled inspections
+  scheduledDate: { type: Date },
+  timeSlot: { 
+    type: String,
+    enum: ['morning', 'afternoon', 'evening']
+  },
+  alternateDate: { type: Date },
+  notes: { type: String },
+  inspector: {
+    id: { type: mongoose.Schema.Types.ObjectId, ref: 'Professional' },
+    name: { type: String },
+    companyName: { type: String },
+    email: { type: String },
+    phone: { type: String },
+    contact: { type: String } // For custom inspectors
+  },
+  contact: {
+    name: { type: String },
+    phone: { type: String },
+    email: { type: String },
+    willAttend: { type: Boolean, default: true }
+  },
+  scheduledBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  scheduledAt: { type: Date },
+  
+  // For completed inspections
+  completedDate: { type: Date },
+  report: {
+    fileUrl: { type: String },
+    uploadedAt: { type: Date },
+    findings: { type: String },
+    recommendations: { type: String }
+  },
+  
+  // For waived inspections
+  waiverReason: { type: String },
+  waiverAcknowledgments: [{ type: String }],
+  waiverSignature: { type: String },
+  waivedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  waivedAt: { type: Date }
+},
+
 // Document Signature Tracking
 signatures: {
   mainContract: {

@@ -27,6 +27,12 @@ router.post('/update-status', ensureAuthenticated, ensureProfessional, titleCont
 router.post('/complete-closing', ensureAuthenticated, ensureProfessional, titleController.completeClosing);
 router.post('/payment-status-update', ensureAuthenticated, ensureProfessional, titleController.updatePaymentStatus);
 
+// Inspection routes
+router.get('/:offerId/inspection-options', ensureAuthenticated, closingController.getInspectionOptions);
+router.get('/:offerId/schedule-inspection', ensureAuthenticated, closingController.getScheduleInspection);
+router.post('/:offerId/schedule-inspection', ensureAuthenticated, closingController.scheduleInspection);
+router.post('/:offerId/waive-inspection', ensureAuthenticated, closingController.waiveInspection);
+
 // Closing initialization
 router.post('/initialize/:offerId', ensureAuthenticated, closingController.initializeClosing);
 

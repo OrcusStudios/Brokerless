@@ -1,0 +1,204 @@
+<%- include('../partials/layout.ejs') %>
+
+<div class="container py-4">
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+      <h2 class="mb-0">
+        <i class="bi bi-calendar-check me-2"></i>Schedule Home Inspection
+      </h2>
+    </div>
+    
+    <div class="card-body">
+      <!-- Property Summary -->
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <div class="d-flex property-summary-card">
+            <img src="<%= offer.listing.image || '/images/default-home.jpg' %>" 
+                 alt="Property" class="property-image me-3">
+            <div class="property-details">
+              <h4><%= offer.listing.address %></h4>
+              <p class="text-muted"><%= offer.listing.city %>, <%= offer.listing.state %> <%= offer.listing.zip %></p>
+              <p><strong>Purchase Price:</strong> $<%= offer.offerPrice.toLocaleString() %></p>
+              <p><strong>Closing Date:</strong> <%= new Date(offer.closingDate).toLocaleDateString() %></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Section Help Box -->
+      <div class="section-help mb-4">
+        <div class="section-help-title"><i class="bi bi-info-circle"></i>About This Process</div>
+        <p class="section-help-content">
+          Select a home inspector from our network of certified professionals and choose a date and time for your inspection.
+          The inspector will contact you to confirm the appointment and provide any additional information needed.
+        </p>
+      </div>
+      
+      <!-- Inspection Scheduling Form -->
+      <form action="/closing/<%= offer._id %>/schedule-inspection" method="POST">
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">Select a Home Inspector</h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <% if (inspectors && inspectors.length > 0) { %>
+                <% inspectors.forEach(inspector => { %>
+                  <div class="col-md-6 mb-3">
+                    <div class="card h-100 inspector-card">
+                      <div class="card-body">
+                        <div class="form-check">
+                          <input class="form-check-input" type="radio" name="inspectorId" 
+                                 id="inspector<%= inspector._id %>" value="<%= inspector._id %>" required>
+                          <label class="form-check-label" for="inspector<%= inspector._id %>">
+                            <h5 class="mb-1"><%= inspector.companyName %></h5>
+                            <p class="text-muted mb-2"><%= inspector.name %></p>
+                          </label>
+                        </div>
+                        
+                        <div class="inspector-details ms-4">
+                          <p><i class="bi bi-geo-alt me-2"></i><%= inspector.address %></p>
+                          <p><i class="bi bi-telephone me-2"></i><%= inspector.phone %></p>
+                          <p><i class="bi bi-envelope me-2"></i><%= inspector.email %></p>
+                          <p><i class="bi bi-cash me-2"></i>Inspection Fee: $<%= inspector.inspectionFee.toLocaleString() %></p>
+                          
+                          <% if (inspector.certifications && inspector.certifications.length > 0) { %>
+                            <p><i class="bi bi-award me-2"></i>Certifications: <%= inspector.certifications.join(', ') %></p>
+                          <% } %>
+                          
+                          <% if (inspector.yearsExperience) { %>
+                            <p><i class="bi bi-clock-history me-2"></i><%= inspector.yearsExperience %> years of experience</p>
+                          <% } %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <% }); %>
+              <% } else { %>
+                <div class="col-12">
+                  <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    No inspectors are currently available in your area. Please contact us for assistance.
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label for="customInspector" class="form-label">If you have your own inspector, please provide their information:</label>
+                    <input type="text" id="customInspector" name="customInspector" class="form-control" placeholder="Inspector Name/Company">
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label for="customInspectorContact" class="form-label">Contact Information:</label>
+                    <input type="text" id="customInspectorContact" name="customInspectorContact" class="form-control" placeholder="Phone or Email">
+                  </div>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">Select Inspection Date and Time</h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="inspectionDate" class="form-label">Preferred Date:</label>
+                <input type="date" id="inspectionDate" name="inspectionDate" class="form-control" required
+                       min="<%= new Date().toISOString().split('T')[0] %>"
+                       max="<%= new Date(new Date().setDate(new Date().getDate() + 30)).toISOString().split('T')[0] %>">
+                <div class="form-text">Select a date within the next 30 days</div>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label for="inspectionTime" class="form-label">Preferred Time:</label>
+                <select id="inspectionTime" name="inspectionTime" class="form-select" required>
+                  <option value="">Select a time...</option>
+                  <option value="morning">Morning (8:00 AM - 12:00 PM)</option>
+                  <option value="afternoon">Afternoon (12:00 PM - 4:00 PM)</option>
+                  <option value="evening">Evening (4:00 PM - 7:00 PM)</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="alternateDate" class="form-label">Alternate Date (optional):</label>
+              <input type="date" id="alternateDate" name="alternateDate" class="form-control"
+                     min="<%= new Date().toISOString().split('T')[0] %>"
+                     max="<%= new Date(new Date().setDate(new Date().getDate() + 30)).toISOString().split('T')[0] %>">
+            </div>
+            
+            <div class="mb-3">
+              <label for="notes" class="form-label">Special Instructions or Notes (optional):</label>
+              <textarea id="notes" name="notes" class="form-control" rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">Contact Information</h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="contactName" class="form-label">Contact Name:</label>
+                <input type="text" id="contactName" name="contactName" class="form-control" 
+                       value="<%= user.name %>" required>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label for="contactPhone" class="form-label">Contact Phone:</label>
+                <input type="tel" id="contactPhone" name="contactPhone" class="form-control" 
+                       value="<%= user.phone %>" required>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="contactEmail" class="form-label">Contact Email:</label>
+              <input type="email" id="contactEmail" name="contactEmail" class="form-control" 
+                     value="<%= user.email %>" required>
+            </div>
+            
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="attendInspection" name="attendInspection" value="true" checked>
+              <label class="form-check-label" for="attendInspection">
+                I plan to attend the inspection
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="d-flex justify-content-between action-buttons">
+          <a href="/closing/<%= offer._id %>/inspection-options" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Inspection Options
+          </a>
+          
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-calendar-check me-2"></i>Schedule Inspection
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Tooltip Script -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
+    const tooltips = document.querySelectorAll('.tooltip-container');
+    tooltips.forEach(tooltip => {
+      tooltip.addEventListener('mouseenter', function() {
+        this.querySelector('.tooltip-text').style.visibility = 'visible';
+        this.querySelector('.tooltip-text').style.opacity = '1';
+      });
+      
+      tooltip.addEventListener('mouseleave', function() {
+        this.querySelector('.tooltip-text').style.visibility = 'hidden';
+        this.querySelector('.tooltip-text').style.opacity = '0';
+      });
+    });
+  });
+</script>

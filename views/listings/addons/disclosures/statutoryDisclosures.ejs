@@ -1,14 +1,46 @@
 <%- include('../../../partials/layout.ejs') %>
 
 <div class="container mt-4">
+    <div id="disclosure-container">
+        <!-- Breadcrumb Navigation -->
+        <div class="form-breadcrumb">
+            <div class="form-breadcrumb-item active">Statutory Disclosures</div>
+            <div class="form-breadcrumb-item"><a href="/disclosures/listing/<%= listing._id %>/edit/section2">Property Systems</a></div>
+            <div class="form-breadcrumb-item"><a href="/disclosures/listing/<%= listing._id %>/edit/section3">Structure & Exterior</a></div>
+            <div class="form-breadcrumb-item"><a href="/disclosures/listing/<%= listing._id %>/edit/section4">Environmental & Other</a></div>
+        </div>
+        
+        <!-- Progress Indicator -->
+        <div class="form-progress mb-4">
+            <div class="form-progress-bar" data-current-step="1">
+                <div class="form-progress-step active">1</div>
+                <div class="form-progress-step">2</div>
+                <div class="form-progress-step">3</div>
+                <div class="form-progress-step">4</div>
+            </div>
+            <div class="form-progress-labels">
+                <div class="form-progress-label active">Statutory</div>
+                <div class="form-progress-label">Systems</div>
+                <div class="form-progress-label">Structure</div>
+                <div class="form-progress-label">Environmental</div>
+            </div>
+        </div>
+    </div>
+
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-primary text-white">
             <h4 class="mb-0">Seller's Disclosure - Statutory Disclosures</h4>
         </div>
         <div class="card-body">
-            <div class="alert alert-info">
-                <i class="bi bi-info-circle me-2"></i>
-                <strong>Step 1 of 4:</strong> Please complete this section about statutory disclosures for your property at <%= listing.address %>.
+            <!-- Section Help Box -->
+            <div class="section-help">
+                <div class="section-help-title"><i class="bi bi-info-circle"></i>About This Section</div>
+                <p class="section-help-content">This section covers basic information about your property and any legally required disclosures. Accurate information here helps protect both you and potential buyers.</p>
+            </div>
+            
+            <div class="alert alert-info alert-persistent">
+                <div class="alert-title">Step 1 of 4: Statutory Disclosures</div>
+                <p class="alert-content">Please complete this section about statutory disclosures for your property at <%= listing.address %>.</p>
             </div>
 
             <form action="/disclosures/listing/<%= listing._id %>/update/section1" method="POST">
@@ -63,7 +95,12 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <p class="form-label">Is Seller a "foreign person" as described in FIRPTA?</p>
+                        <p class="form-label">Is Seller a "foreign person" as described in FIRPTA? 
+                            <span class="tooltip-container">
+                                <i class="bi bi-question-circle tooltip-icon"></i>
+                                <span class="tooltip-text">FIRPTA (Foreign Investment in Real Property Tax Act) requires foreign persons to pay U.S. income tax when they sell U.S. real estate. A "foreign person" is a non-resident alien individual, foreign corporation, partnership, trust, or estate.</span>
+                            </span>
+                        </p>
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" type="radio" name="isForeignPerson" id="isForeignPersonYes" value="true" <%= listing.disclosures && listing.disclosures.statutory && listing.disclosures.statutory.isForeignPerson ? 'checked' : '' %>>
                             <label class="form-check-label" for="isForeignPersonYes">Yes</label>
@@ -98,7 +135,12 @@
                 </div>
 
                 <div class="mb-3">
-                    <p class="form-label"><strong>2. LEAD-BASED PAINT:</strong> Does the Property include a residential dwelling built prior to 1978?</p>
+                    <p class="form-label"><strong>2. LEAD-BASED PAINT:</strong> Does the Property include a residential dwelling built prior to 1978?
+                        <span class="tooltip-container">
+                            <i class="bi bi-question-circle tooltip-icon"></i>
+                            <span class="tooltip-text">Homes built before 1978 may contain lead-based paint, which can be hazardous to health, especially for children. Federal law requires sellers of pre-1978 homes to disclose known lead-based paint hazards and provide buyers with a 10-day period to conduct a paint inspection.</span>
+                        </span>
+                    </p>
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="radio" name="leadPaintDisclosure" id="leadPaintDisclosureYes" value="true" <%= listing.disclosures && listing.disclosures.statutory && listing.disclosures.statutory.leadPaintDisclosure ? 'checked' : '' %>>
                         <label class="form-check-label" for="leadPaintDisclosureYes">Yes</label>
