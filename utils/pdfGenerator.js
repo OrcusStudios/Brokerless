@@ -180,13 +180,106 @@ async function generatePdfFromTemplate(templateFile, formData) {
 
 async function generateDisclosurePdf(listing) {
     try {
-        // This function would follow the same pattern as generateOfferPdf
-        // but would be tailored for disclosures
+        // Launch puppeteer with appropriate settings
+        const browser = await puppeteer.launch({ 
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+            headless: 'new' // Use new headless mode for better performance
+        });
         
-        // Create a new PDF document or use the same approach as your offer PDFs
-        // Format the disclosure data appropriately
-        
-        // Return a buffer containing the PDF
+        const page = await browser.newPage();
+
+        // Configure viewport for letter size paper
+        await page.setViewport({
+            width: 816,    // 8.5 inches at 96 DPI
+            height: 1056,  // 11 inches at 96 DPI
+            deviceScaleFactor: 1
+        });
+
+        // Define absolute path to views directory
+        const viewsDir = path.resolve(__dirname, '../views/listings/addons/');
+
+        // Path to the disclosure template
+        const templatePath = path.join(viewsDir, 'sellersDisclosures.ejs');
+
+        const bootstrapPath = path.resolve(__dirname, '../public/bootstrap/css/bootstrap.min.css');
+        const logoPath = path.resolve(__dirname, '../public/images/logo.png');
+
+        // Prepare listing data for the template
+        const preparedListing = {
+            ...listing, // Should already be lean (plain object)
+            
+            // Format dates
+            formattedDate: new Date().toLocaleDateString(),
+            
+            // Seller information
+            sellerName: listing.seller?.name || '',
+            sellerEmail: listing.seller?.email || '',
+            
+            // Property information
+            address: listing.address || '',
+            city: listing.city || '',
+            state: listing.state || '',
+            zip: listing.zip || '',
+            county: listing.county || '',
+            
+            // Disclosure information
+            disclosures: listing.disclosures || {},
+            
+            // Static assets
+            cssPath: `file://${bootstrapPath}`,
+            logoPath: `file://${logoPath}`
+        };
+
+        // Render the disclosure template
+        const html = await ejs.renderFile(
+            templatePath,
+            { 
+                listing: preparedListing,
+                showExplanations: false
+            },
+            {
+                root: viewsDir 
+            }
+        );
+
+        // Set the content and wait for network activity to finish
+        await page.setContent(html, { 
+            waitUntil: 'networkidle0',
+            timeout: 30000 // Increase timeout for complex documents
+        });
+
+        // Generate PDF with improved settings
+        const pdfBuffer = await page.pdf({
+            format: 'Letter',
+            printBackground: true,
+            margin: {
+                top: '0.5in',
+                right: '0.5in',
+                bottom: '1in',
+                left: '0.5in'
+            },
+            displayHeaderFooter: true,
+            headerTemplate: `<div></div>`,
+            footerTemplate: `
+                <div style="
+                    font-size:10px;
+                    color:#3c3e40;
+                    width:100%;
+                    padding:5px 20px;
+                    border-top:1px solid #dee2e6;
+                    display:flex;
+                    justify-content: center;
+                    align-items: center;
+                ">
+                    Seller's Property Disclosure | Generated on ${new Date().toLocaleDateString()} | Page <span class="pageNumber"></span> of <span class="totalPages"></span>
+                </div>
+            `,
+            preferCSSPageSize: true
+        });
+
+        // Close browser to free resources
+        await browser.close();
+
         return pdfBuffer;
     } catch (error) {
         console.error("Error generating disclosure PDF:", error);

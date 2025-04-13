@@ -1,17 +1,21 @@
 const Notification = require("../models/Notification");
 const socket = require("../utils/socket"); // Import Socket.io helper
+const { invalidateNotificationCache } = require("../middleware/notificationMiddleware");
 
 // 📌 Create Notification
-exports.createNotification = async (userId, message, type = "Showing", link = "") => {
+exports.createNotification = async (userId, message, type = "Showing", link = "", category = "INFO") => {
     try {
         const notification = new Notification({
             user: userId,
             message: message,
             type: type,
-            link: link
+            link: link,
+            category: category
         });
         await notification.save();
 
+        // Invalidate the notification cache for this user
+        invalidateNotificationCache(userId);
         
         // ✅ Get the initialized Socket.io instance and emit event
         const io = socket.getIo(); 
@@ -52,6 +56,10 @@ exports.getAllNotifications = async (req, res) => {
 exports.markAllAsRead = async (req, res) => {
     try {
         await Notification.deleteMany({ user: req.user._id, isRead: false });
+        
+        // Invalidate the notification cache for this user
+        invalidateNotificationCache(req.user._id);
+        
         res.json({ success: true });
     } catch (error) {
         console.error("❌ Error deleting all notifications:", error);
@@ -64,6 +72,10 @@ exports.markAsRead = async (req, res) => {
     try {
         const { id } = req.params;
         await Notification.findByIdAndDelete(id);
+        
+        // Invalidate the notification cache for this user
+        invalidateNotificationCache(req.user._id);
+        
         res.json({ success: true });
     } catch (error) {
         console.error("❌ Error deleting notification:", error);
@@ -76,6 +88,10 @@ exports.deleteNotification = async (req, res) => {
     try {
         const { id } = req.params;
         await Notification.findByIdAndDelete(id);
+        
+        // Invalidate the notification cache for this user
+        invalidateNotificationCache(req.user._id);
+        
         res.json({ success: true });
     } catch (error) {
         console.error("❌ Error deleting notification:", error);

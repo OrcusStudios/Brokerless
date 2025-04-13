@@ -71,6 +71,12 @@
             </div>
 
             <h4 class="mb-3">Available Lenders</h4>
+            
+            <div class="alert alert-info mb-3" style="opacity: 1 !important;">
+                <i class="bi bi-info-circle me-2"></i>
+                <strong>Important:</strong> When you click "Apply" for a lender, they will be notified of your interest and your pre-approval status will be set to "pending". You will then be redirected to the lender's application system to complete the process.
+            </div>
+            
             <div id="lenderList"></div>
             
             <!-- Pagination Controls -->
@@ -156,9 +162,9 @@
                                                 <i class="bi bi-eye me-2"></i>View
                                             </a>
                                             ${lender.preApprovalLink ? 
-                                                `<a href="${lender.preApprovalLink}" class="btn btn-primary btn-sm apply-financing-btn data-lender-id="${lender._id}">
-                                                    <i class="bi bi-eye me-2"></i>Apply
-                                                </a>`
+                                                `<button class="btn btn-primary btn-sm apply-financing-btn" data-lender-id="${lender._id}">
+                                                    <i class="bi bi-file-earmark-text me-2"></i>Apply
+                                                </button>`
                                                 : 
                                                 `<button class="btn btn-secondary btn-sm" disabled>
                                                     No Application Link
@@ -209,9 +215,11 @@
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Accept": "application/json"
+                    "Accept": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
                 },
-                body: JSON.stringify({ lenderId })
+                body: JSON.stringify({ lenderId }),
+                credentials: "same-origin"
             })
             .then(response => {
                 if (!response.ok) {
@@ -222,17 +230,23 @@
             .then(data => {
                 if (data.success) {
                     alert(data.message);
-                    // Redirect to the lender's application URL
-                    window.location.href = data.applicationUrl;
+                    // Open the lender's application URL in a new tab
+                    window.open(data.applicationUrl, '_blank');
                 } else {
                     throw new Error(data.message || "Unknown error occurred");
                 }
             })
             .catch(error => {
                 console.error("Error:", error);
-                alert(error.message || "Error applying for financing. Please try again.");
-                buttonRef.disabled = false;
-                buttonRef.textContent = "Apply";
+                if (error.message.includes('logged in')) {
+                    // Redirect to login page if not authenticated
+                    alert('You must be logged in to apply for financing. Redirecting to login page...');
+                    window.location.href = '/users/login';
+                } else {
+                    alert(error.message || "Error applying for financing. Please try again.");
+                    buttonRef.disabled = false;
+                    buttonRef.textContent = "Apply";
+                }
             });
         });
     });

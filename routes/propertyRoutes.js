@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const propertyController = require("../controllers/propertyController");
+const coSellerController = require("../controllers/coSellerController");
 const { ensureAuthenticated, ensureRole } = require("../middleware/authMiddleware");
 const { catchAsync } = require("../middleware/errorMiddleware");
 const multer = require('multer');
@@ -36,5 +37,30 @@ router.delete("/:id", ensureAuthenticated, ensureRole("seller"), propertyControl
 // fetch a single property
 router.get("/:id", propertyController.getListingById);
 
+// Co-Seller Management Routes
+// Show co-seller management page
+router.get("/:id/co-sellers", ensureAuthenticated, ensureRole("seller"), coSellerController.showCoSellerManagement);
+
+// Send invitation to co-seller
+router.post("/:id/co-sellers", ensureAuthenticated, ensureRole("seller"), coSellerController.inviteCoSeller);
+
+// Resend invitation
+router.post("/:id/co-sellers/invitations/:invitationId/resend", ensureAuthenticated, ensureRole("seller"), coSellerController.resendInvitation);
+
+// Cancel invitation
+router.delete("/:id/co-sellers/invitations/:invitationId", ensureAuthenticated, ensureRole("seller"), coSellerController.cancelInvitation);
+
+// Remove co-seller
+router.delete("/:id/co-sellers/:coSellerId", ensureAuthenticated, ensureRole("seller"), coSellerController.removeCoSeller);
+
+// Invitation Routes (these don't require authentication initially)
+// Show accept invitation page
+router.get("/invitations/:token", coSellerController.showAcceptInvitation);
+
+// Accept invitation
+router.post("/invitations/:token/accept", ensureAuthenticated, coSellerController.acceptInvitation);
+
+// Reject invitation
+router.post("/invitations/:token/reject", coSellerController.rejectInvitation);
 
 module.exports = router;

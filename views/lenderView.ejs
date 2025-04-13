@@ -107,14 +107,19 @@
                                 <h4 class="mb-0">Pre-Approval</h4>
                             </div>
                             <div class="card-body text-center">
-                                <a href="<%= lender.preApprovalLink %>" class="btn btn-primary btn-lg" target="_blank">
+                                <button id="applyButton" class="btn btn-primary btn-lg" data-lender-id="<%= lender._id %>">
                                     <i class="bi bi-file-earmark-text me-2"></i>Start Pre-Approval Application
-                                </a>
+                                </button>
                                 <p class="text-muted mt-2">Secure online application process</p>
+                                <div class="alert alert-info mt-3" style="opacity: 1 !important;">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    <small>By clicking the button above, you'll be redirected to the lender's application system. 
+                                    The lender will be notified of your interest, and your pre-approval status will be set to "pending".</small>
+                                </div>
                             </div>
                         </div>
                     <% } else { %>
-                        <div class="alert alert-warning">
+                        <div class="alert alert-warning" style="opacity: 1 !important;">
                             <i class="bi bi-exclamation-triangle me-2"></i>
                             Online pre-approval application is not currently available for this lender.
                         </div>
@@ -124,5 +129,61 @@
         </div>
     </div>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const applyButton = document.getElementById('applyButton');
+    
+    if (applyButton) {
+      applyButton.addEventListener('click', function() {
+        const lenderId = this.dataset.lenderId;
+        const buttonRef = this;
+        
+        buttonRef.disabled = true;
+        buttonRef.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Processing...';
+        
+        fetch('/lender/apply', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: JSON.stringify({ lenderId }),
+          credentials: 'same-origin'
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Request failed. Please try again.');
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success) {
+            alert(data.message);
+            // Open the lender's application URL in a new tab
+            window.open(data.applicationUrl, '_blank');
+          } else {
+            throw new Error(data.message || 'Unknown error occurred');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          if (error.message.includes('logged in')) {
+            // Redirect to login page if not authenticated
+            alert('You must be logged in to apply for financing. Redirecting to login page...');
+            window.location.href = '/users/login';
+          } else {
+            alert(error.message || 'Error applying for financing. Please try again.');
+          }
+        })
+        .finally(() => {
+          buttonRef.disabled = false;
+          buttonRef.innerHTML = '<i class="bi bi-file-earmark-text me-2"></i>Start Pre-Approval Application';
+        });
+      });
+    }
+  });
+</script>
 
 <%- include('./partials/footer.ejs') %>

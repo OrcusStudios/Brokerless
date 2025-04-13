@@ -25,9 +25,10 @@ const ProfessionalSchema = new mongoose.Schema({
     // ✅ Pre-Approval Management
     preApprovals: [{
         buyer: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-        status: { type: String, enum: ["pending", "approved", "rejected", "pending"], default: "none" },
+        status: { type: String, enum: ["pending", "approved", "rejected", "denied"], default: "pending" },
         submittedAt: { type: Date, default: Date.now },
-        approvedAt: { type: Date }
+        approvedAt: { type: Date },
+        deniedAt: { type: Date }
     }],
 
     // Only for Lenders

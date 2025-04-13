@@ -25,10 +25,6 @@
         if (user.professionalType) {
             professionalType = user.professionalType.toLowerCase();
             professionalDisplayName = getDisplayName(professionalType);
-            
-            // Debug info (can be removed later)
-            console.log("Detected professionalType:", professionalType);
-            console.log("Display name:", professionalDisplayName);
         }
         
         // Method 2: Check for roles array (new user model)
@@ -78,7 +74,8 @@
             user: user || {},
             pendingApplicants: pendingApplicants || [],
             approvedApplicants: approvedApplicants || [],
-            deniedApplicants: deniedApplicants || []
+            deniedApplicants: deniedApplicants || [],
+            activeLoans: activeLoans || []
         }) %>
     <% } else if (professionalType === "title") { %>
         <%- include('./professionals/titleDashboard.ejs', { user: user || {} }) %>

@@ -2,15 +2,84 @@ const mongoose = require('mongoose');
 
 const OfferSchema = new mongoose.Schema({
   // Parties Information
+  // Primary buyer and additional buyers
+  buyers: [{
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+    role: {
+      type: String,
+      enum: ['primary', 'co-buyer'],
+      default: 'primary'
+    },
+    ownership: {
+      type: Number, // Percentage of ownership
+      default: 100
+    },
+    relationship: String, // e.g., "Spouse", "Partner", "Family member"
+    signatureStatus: {
+      type: String,
+      enum: ['pending', 'invited', 'viewed', 'signed', 'rejected'],
+      default: 'pending'
+    },
+    signatureMethod: {
+      type: String,
+      enum: ['electronic', 'in-person', 'notarized'],
+      default: 'electronic'
+    },
+    signatureToken: String, // Unique token for signature verification
+    signatureIP: String,
+    signatureUserAgent: String,
+    invitedAt: Date,
+    viewedAt: Date,
+    signedAt: Date
+  }],
+  
+  // Primary seller and additional sellers
+  sellers: [{
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+    role: {
+      type: String,
+      enum: ['primary', 'co-seller'],
+      default: 'primary'
+    },
+    ownership: {
+      type: Number, // Percentage of ownership
+      default: 100
+    },
+    relationship: String,
+    signatureStatus: {
+      type: String,
+      enum: ['pending', 'invited', 'viewed', 'signed', 'rejected'],
+      default: 'pending'
+    },
+    signatureMethod: {
+      type: String,
+      enum: ['electronic', 'in-person', 'notarized'],
+      default: 'electronic'
+    },
+    signatureToken: String,
+    signatureIP: String,
+    signatureUserAgent: String,
+    invitedAt: Date,
+    viewedAt: Date,
+    signedAt: Date
+  }],
+  
+  // For backward compatibility
   buyer: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    ref: 'User'
   },
   seller: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', 
-    required: true
+    ref: 'User'
   },
   listing: {
     type: mongoose.Schema.Types.ObjectId,
@@ -82,6 +151,29 @@ const OfferSchema = new mongoose.Schema({
   loanApprovalDeadline: {
     type: Number,
     default: null
+  },
+  // Lender Information
+  lenderInfo: {
+    name: {
+      type: String,
+      default: null
+    },
+    email: {
+      type: String,
+      default: null
+    },
+    phone: {
+      type: String,
+      default: null
+    },
+    company: {
+      type: String,
+      default: null
+    },
+    notificationSent: {
+      type: Boolean,
+      default: false
+    }
   },
 
   // Earnest Money
@@ -370,71 +462,259 @@ inspection: {
 // Document Signature Tracking
 signatures: {
   mainContract: {
+    // For backward compatibility
     buyerSigned: { type: Boolean, default: false },
     buyerSignedDate: { type: Date },
     sellerSigned: { type: Boolean, default: false },
-    sellerSignedDate: { type: Date }
+    sellerSignedDate: { type: Date },
+    
+    // New multi-party signature tracking
+    buyersSigned: { type: Boolean, default: false }, // All buyers have signed
+    sellersSigned: { type: Boolean, default: false }, // All sellers have signed
+    buyerSignatures: [{
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      },
+      signedDate: Date,
+      signatureMethod: {
+        type: String,
+        enum: ['electronic', 'in-person', 'notarized'],
+        default: 'electronic'
+      },
+      signatureIP: String,
+      signatureUserAgent: String
+    }],
+    sellerSignatures: [{
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      },
+      signedDate: Date,
+      signatureMethod: {
+        type: String,
+        enum: ['electronic', 'in-person', 'notarized'],
+        default: 'electronic'
+      },
+      signatureIP: String,
+      signatureUserAgent: String
+    }]
   },
   
   // Signature tracking for each rider
   riders: {
     sightUnseen: {
+      // For backward compatibility
       buyerSigned: { type: Boolean, default: false },
       buyerSignedDate: { type: Date },
       sellerSigned: { type: Boolean, default: false },
-      sellerSignedDate: { type: Date }
+      sellerSignedDate: { type: Date },
+      
+      // New multi-party signature tracking
+      buyersSigned: { type: Boolean, default: false },
+      sellersSigned: { type: Boolean, default: false },
+      buyerSignatures: [{
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User'
+        },
+        signedDate: Date
+      }],
+      sellerSignatures: [{
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User'
+        },
+        signedDate: Date
+      }]
     },
     
     fee: {
+      // For backward compatibility
       buyerSigned: { type: Boolean, default: false },
-      buyerSignedDate: { type: Date }
+      buyerSignedDate: { type: Date },
+      
+      // New multi-party signature tracking
+      buyersSigned: { type: Boolean, default: false },
+      buyerSignatures: [{
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User'
+        },
+        signedDate: Date
+      }]
     },
     
     wireFraudAdvisory: {
+      // For backward compatibility
       buyerSigned: { type: Boolean, default: false },
       buyerSignedDate: { type: Date },
       sellerSigned: { type: Boolean, default: false },
-      sellerSignedDate: { type: Date }
+      sellerSignedDate: { type: Date },
+      
+      // New multi-party signature tracking
+      buyersSigned: { type: Boolean, default: false },
+      sellersSigned: { type: Boolean, default: false },
+      buyerSignatures: [{
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User'
+        },
+        signedDate: Date
+      }],
+      sellerSignatures: [{
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User'
+        },
+        signedDate: Date
+      }]
     },
     
     homeInspectionAdvisory: {
+      // For backward compatibility
       buyerSigned: { type: Boolean, default: false },
-      buyerSignedDate: { type: Date }
+      buyerSignedDate: { type: Date },
+      
+      // New multi-party signature tracking
+      buyersSigned: { type: Boolean, default: false },
+      buyerSignatures: [{
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User'
+        },
+        signedDate: Date
+      }]
     },
     
     governmentLoan: {
+      // For backward compatibility
       buyerSigned: { type: Boolean, default: false },
       buyerSignedDate: { type: Date },
       sellerSigned: { type: Boolean, default: false },
-      sellerSignedDate: { type: Date }
+      sellerSignedDate: { type: Date },
+      
+      // New multi-party signature tracking
+      buyersSigned: { type: Boolean, default: false },
+      sellersSigned: { type: Boolean, default: false },
+      buyerSignatures: [{
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User'
+        },
+        signedDate: Date
+      }],
+      sellerSignatures: [{
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User'
+        },
+        signedDate: Date
+      }]
     },
     
     contingencyForSale: {
+      // For backward compatibility
       buyerSigned: { type: Boolean, default: false },
       buyerSignedDate: { type: Date },
       sellerSigned: { type: Boolean, default: false },
-      sellerSignedDate: { type: Date }
+      sellerSignedDate: { type: Date },
+      
+      // New multi-party signature tracking
+      buyersSigned: { type: Boolean, default: false },
+      sellersSigned: { type: Boolean, default: false },
+      buyerSignatures: [{
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User'
+        },
+        signedDate: Date
+      }],
+      sellerSignatures: [{
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User'
+        },
+        signedDate: Date
+      }]
     },
     
     contingencyForClosing: {
+      // For backward compatibility
       buyerSigned: { type: Boolean, default: false },
       buyerSignedDate: { type: Date },
       sellerSigned: { type: Boolean, default: false },
-      sellerSignedDate: { type: Date }
+      sellerSignedDate: { type: Date },
+      
+      // New multi-party signature tracking
+      buyersSigned: { type: Boolean, default: false },
+      sellersSigned: { type: Boolean, default: false },
+      buyerSignatures: [{
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User'
+        },
+        signedDate: Date
+      }],
+      sellerSignatures: [{
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User'
+        },
+        signedDate: Date
+      }]
     },
     
     amendment: {
+      // For backward compatibility
       buyerSigned: { type: Boolean, default: false },
       buyerSignedDate: { type: Date },
       sellerSigned: { type: Boolean, default: false },
-      sellerSignedDate: { type: Date }
+      sellerSignedDate: { type: Date },
+      
+      // New multi-party signature tracking
+      buyersSigned: { type: Boolean, default: false },
+      sellersSigned: { type: Boolean, default: false },
+      buyerSignatures: [{
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User'
+        },
+        signedDate: Date
+      }],
+      sellerSignatures: [{
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User'
+        },
+        signedDate: Date
+      }]
     },
     
     walkThrough: {
+      // For backward compatibility
       buyerSigned: { type: Boolean, default: false },
       buyerSignedDate: { type: Date },
       sellerSigned: { type: Boolean, default: false },
-      sellerSignedDate: { type: Date }
+      sellerSignedDate: { type: Date },
+      
+      // New multi-party signature tracking
+      buyersSigned: { type: Boolean, default: false },
+      sellersSigned: { type: Boolean, default: false },
+      buyerSignatures: [{
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User'
+        },
+        signedDate: Date
+      }],
+      sellerSignatures: [{
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User'
+        },
+        signedDate: Date
+      }]
     }
   }
 }
@@ -475,6 +755,232 @@ if (this.contingencies.includes('saleOfAnotherHome') &&
 }
 
 return missingRiders;
+};
+
+// Helper method to check if all buyers have signed the main contract
+OfferSchema.methods.allBuyersSigned = function() {
+  // For backward compatibility
+  if (!this.buyers || this.buyers.length === 0) {
+    return this.signatures.mainContract.buyerSigned;
+  }
+  
+  // Check if all buyers have signed
+  return this.buyers.every(buyer => buyer.signatureStatus === 'signed');
+};
+
+// Helper method to check if all sellers have signed the main contract
+OfferSchema.methods.allSellersSigned = function() {
+  // For backward compatibility
+  if (!this.sellers || this.sellers.length === 0) {
+    return this.signatures.mainContract.sellerSigned;
+  }
+  
+  // Check if all sellers have signed
+  return this.sellers.every(seller => seller.signatureStatus === 'signed');
+};
+
+// Helper method to check if all parties have signed the main contract
+OfferSchema.methods.isFullySigned = function() {
+  return this.allBuyersSigned() && this.allSellersSigned();
+};
+
+// Helper method to check if a specific user is a buyer in this offer
+OfferSchema.methods.isUserBuyer = function(userId) {
+  // For backward compatibility
+  if (this.buyer && this.buyer.equals(userId)) {
+    return true;
+  }
+  
+  // Check in buyers array
+  return this.buyers && this.buyers.some(buyer => 
+    buyer.user && buyer.user.equals(userId)
+  );
+};
+
+// Helper method to check if a specific user is a seller in this offer
+OfferSchema.methods.isUserSeller = function(userId) {
+  // For backward compatibility
+  if (this.seller && this.seller.equals(userId)) {
+    return true;
+  }
+  
+  // Check in sellers array
+  return this.sellers && this.sellers.some(seller => 
+    seller.user && seller.user.equals(userId)
+  );
+};
+
+// Helper method to get a user's role in this offer
+OfferSchema.methods.getUserRole = function(userId) {
+  // Check if user is a buyer
+  if (this.isUserBuyer(userId)) {
+    // Check if user is the primary buyer
+    const buyerEntry = this.buyers && this.buyers.find(buyer => 
+      buyer.user && buyer.user.equals(userId)
+    );
+    
+    if (buyerEntry) {
+      return buyerEntry.role; // 'primary' or 'co-buyer'
+    }
+    
+    return 'buyer'; // For backward compatibility
+  }
+  
+  // Check if user is a seller
+  if (this.isUserSeller(userId)) {
+    // Check if user is the primary seller
+    const sellerEntry = this.sellers && this.sellers.find(seller => 
+      seller.user && seller.user.equals(userId)
+    );
+    
+    if (sellerEntry) {
+      return sellerEntry.role; // 'primary' or 'co-seller'
+    }
+    
+    return 'seller'; // For backward compatibility
+  }
+  
+  return null; // User is not involved in this offer
+};
+
+// Helper method to get all buyers' user IDs
+OfferSchema.methods.getBuyerIds = function() {
+  const buyerIds = [];
+  
+  // For backward compatibility
+  if (this.buyer) {
+    buyerIds.push(this.buyer);
+  }
+  
+  // Add from buyers array
+  if (this.buyers && this.buyers.length > 0) {
+    this.buyers.forEach(buyer => {
+      if (buyer.user && !buyerIds.includes(buyer.user)) {
+        buyerIds.push(buyer.user);
+      }
+    });
+  }
+  
+  return buyerIds;
+};
+
+// Helper method to get all sellers' user IDs
+OfferSchema.methods.getSellerIds = function() {
+  const sellerIds = [];
+  
+  // For backward compatibility
+  if (this.seller) {
+    sellerIds.push(this.seller);
+  }
+  
+  // Add from sellers array
+  if (this.sellers && this.sellers.length > 0) {
+    this.sellers.forEach(seller => {
+      if (seller.user && !sellerIds.includes(seller.user)) {
+        sellerIds.push(seller.user);
+      }
+    });
+  }
+  
+  return sellerIds;
+};
+
+// Helper method to update signature status for a user
+OfferSchema.methods.updateSignatureStatus = function(userId, status, metadata = {}) {
+  let updated = false;
+  
+  // Update in buyers array
+  if (this.buyers && this.buyers.length > 0) {
+    this.buyers.forEach(buyer => {
+      if (buyer.user && buyer.user.equals(userId)) {
+        buyer.signatureStatus = status;
+        buyer.signedAt = status === 'signed' ? new Date() : buyer.signedAt;
+        
+        // Add additional metadata if provided
+        if (metadata.signatureMethod) buyer.signatureMethod = metadata.signatureMethod;
+        if (metadata.signatureIP) buyer.signatureIP = metadata.signatureIP;
+        if (metadata.signatureUserAgent) buyer.signatureUserAgent = metadata.signatureUserAgent;
+        
+        updated = true;
+      }
+    });
+  }
+  
+  // Update in sellers array
+  if (this.sellers && this.sellers.length > 0) {
+    this.sellers.forEach(seller => {
+      if (seller.user && seller.user.equals(userId)) {
+        seller.signatureStatus = status;
+        seller.signedAt = status === 'signed' ? new Date() : seller.signedAt;
+        
+        // Add additional metadata if provided
+        if (metadata.signatureMethod) seller.signatureMethod = metadata.signatureMethod;
+        if (metadata.signatureIP) seller.signatureIP = metadata.signatureIP;
+        if (metadata.signatureUserAgent) seller.signatureUserAgent = metadata.signatureUserAgent;
+        
+        updated = true;
+      }
+    });
+  }
+  
+  // Update signature tracking
+  if (updated && status === 'signed') {
+    // Check if user is a buyer
+    if (this.isUserBuyer(userId)) {
+      // Add to buyer signatures
+      const existingSignature = this.signatures.mainContract.buyerSignatures.find(
+        sig => sig.user && sig.user.equals(userId)
+      );
+      
+      if (!existingSignature) {
+        this.signatures.mainContract.buyerSignatures.push({
+          user: userId,
+          signedDate: new Date(),
+          signatureMethod: metadata.signatureMethod || 'electronic',
+          signatureIP: metadata.signatureIP,
+          signatureUserAgent: metadata.signatureUserAgent
+        });
+      }
+      
+      // Update buyersSigned flag
+      this.signatures.mainContract.buyersSigned = this.allBuyersSigned();
+      
+      // For backward compatibility
+      if (this.buyer && this.buyer.equals(userId)) {
+        this.signatures.mainContract.buyerSigned = true;
+        this.signatures.mainContract.buyerSignedDate = new Date();
+      }
+    }
+    
+    // Check if user is a seller
+    if (this.isUserSeller(userId)) {
+      // Add to seller signatures
+      const existingSignature = this.signatures.mainContract.sellerSignatures.find(
+        sig => sig.user && sig.user.equals(userId)
+      );
+      
+      if (!existingSignature) {
+        this.signatures.mainContract.sellerSignatures.push({
+          user: userId,
+          signedDate: new Date(),
+          signatureMethod: metadata.signatureMethod || 'electronic',
+          signatureIP: metadata.signatureIP,
+          signatureUserAgent: metadata.signatureUserAgent
+        });
+      }
+      
+      // Update sellersSigned flag
+      this.signatures.mainContract.sellersSigned = this.allSellersSigned();
+      
+      // For backward compatibility
+      if (this.seller && this.seller.equals(userId)) {
+        this.signatures.mainContract.sellerSigned = true;
+        this.signatures.mainContract.sellerSignedDate = new Date();
+      }
+    }
+  }
+  
+  return updated;
 };
 
 module.exports = mongoose.model('Offer', OfferSchema);

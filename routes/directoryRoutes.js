@@ -4,11 +4,10 @@ const Professional = require("../models/Professional");
 
 router.get("/", async (req, res) => {
     try {
-        const lenders = await Professional.find({ professionalType: "Lender" });
+        const lenders = await Professional.find({ professionalType: "lender" });
         const states = await Professional.distinct("state");
         res.render("lenderDirectory", { lenders, states, totalLenders: lenders.length });
     } catch (err) {
-        console.error("Error fetching lenders:", err);
         res.status(500).send("Error loading lenders.");
     }
 });
@@ -16,7 +15,7 @@ router.get("/", async (req, res) => {
 router.get("/filter", async (req, res) => {
     try {
         const { state, rating, loanType, page = 1, limit = 5 } = req.query;
-        let filter = { professionalType: "Lender" };
+        let filter = { professionalType: "lender" };
 
         if (state) filter.state = state;
         if (rating) filter.rating = { $gte: Number(rating) };
@@ -33,7 +32,6 @@ router.get("/filter", async (req, res) => {
         
         res.json({ lenders, totalLenders });
     } catch (err) {
-        console.error("Error filtering lenders:", err);
         res.status(500).json({ error: "Error filtering lenders." });
     }
 });

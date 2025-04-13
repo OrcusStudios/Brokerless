@@ -51,10 +51,10 @@
       <div class="card mb-4 closing-progress-container">
         <div class="card-body">
           <h5>Closing Progress</h5>
-            <div class="progress mb-3" style="height: 25px;">
+            <div class="progress mb-3" style="height: 25px">
               <div class="progress-bar bg-success" role="progressbar" style="width: <%= progressPercentage %>%" 
-                 aria-valuenow="<%= progressPercentage %>" aria-valuemin="0" aria-valuemax="100">
-              <%= progressPercentage %>%
+                   aria-valuenow="<%= progressPercentage %>" aria-valuemin="0" aria-valuemax="100">
+                <%= progressPercentage %>%
               </div>
             </div>
           <p class="text-center text-muted">
@@ -368,14 +368,14 @@
                 Seller (<%= offer.seller.name %>)
               </label>
             </div>
-            <% if (offer.escrowAccount.agent) { %>
+            <% if (offer.titleCompanyDetails && offer.titleCompanyDetails.company) { %>
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="recipients[]" value="<%= offer.escrowAccount.agent._id %>" id="titleRecipient" checked>
-            <label class="form-check-label" for="titleRecipient">
-              Title Company (<%= offer.escrowAccount.agent.name %>)
-            </label>
-          </div>
-        <% } %>
+                <input class="form-check-input" type="checkbox" name="recipients[]" value="<%= offer.titleCompanyDetails.company._id %>" id="titleRecipient" checked>
+                <label class="form-check-label" for="titleRecipient">
+                  Title Company (<%= offer.titleCompanyDetails.company.name || offer.titleCompanyDetails.contactPerson %>)
+                </label>
+              </div>
+            <% } %>
       </div>
       
       <div class="mb-3">

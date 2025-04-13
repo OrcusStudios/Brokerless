@@ -2,29 +2,7 @@
 
 <div class="container mt-5">
     <h2 class="mb-4">Submit an Offer</h2>
-    
-    <!-- Progress Indicator -->
-    <div class="form-progress mb-4">
-        <div class="form-progress-bar" data-current-step="1">
-            <div class="form-progress-step active">1</div>
-            <div class="form-progress-step">2</div>
-            <div class="form-progress-step">3</div>
-            <div class="form-progress-step">4</div>
-            <div class="form-progress-step">5</div>
-            <div class="form-progress-step">6</div>
-            <div class="form-progress-step">7</div>
-        </div>
-        <div class="form-progress-labels">
-            <div class="form-progress-label active">Buyer Info</div>
-            <div class="form-progress-label">Price</div>
-            <div class="form-progress-label">Earnest</div>
-            <div class="form-progress-label">Contingencies</div>
-            <div class="form-progress-label">Riders</div>
-            <div class="form-progress-label">Closing</div>
-            <div class="form-progress-label">Acknowledge</div>
-        </div>
-    </div>
-    
+        
     <!-- Section Help Box -->
     <div class="section-help mb-4">
         <div class="section-help-title"><i class="bi bi-info-circle"></i>About This Form</div>
@@ -43,16 +21,34 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-4 mb-3">
-                        <label for="buyerFullName" class="form-label">Buyer Full Name</label>
+                        <label for="buyerFullName" class="form-label">Primary Buyer Full Name</label>
                         <input type="text" class="form-control" id="buyerFullName" name="buyerFullName" required>
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label for="buyerEmail" class="form-label">Buyer Email</label>
+                        <label for="buyerEmail" class="form-label">Primary Buyer Email</label>
                         <input type="email" class="form-control" id="buyerEmail" name="buyerEmail" required>
                     </div>
                     <div class="col-md-4 mb-3">
                         <label for="sellerName" class="form-label">Seller Name</label>
                         <input type="text" class="form-control" id="sellerName" name="sellerName" value="<%= listing.seller.name %>" readonly>
+                    </div>
+                </div>
+                
+                <!-- Co-Buyers Section -->
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="mb-0">Co-Buyers (Optional)</h5>
+                        <button type="button" class="btn btn-sm btn-outline-primary" id="addCoBuyerBtn">
+                            <i class="bi bi-plus-circle"></i> Add Co-Buyer
+                        </button>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Add co-buyers if multiple people will be on the title. Each co-buyer must have an account on the platform.
+                    </div>
+                    
+                    <div id="coBuyersContainer">
+                        <!-- Co-buyers will be added here dynamically -->
                     </div>
                 </div>
                 <div class="row">
@@ -115,24 +111,59 @@
                         <label class="form-check-label" for="financingSeller">Seller Financing</label>
                     </div>
                 </div>
-                <div class="row" id="bankFinancingFields" style="display:none;">
-                    <div class="col-md-3 mb-3">
-                        <label for="loanType" class="form-label">Loan Type</label>
-                        <select class="form-select" name="loanType" id="loanType">
-                            <option value="">Select Loan Type</option>
-                            <option value="conventional">Conventional</option>
-                            <option value="fha">FHA</option>
-                            <option value="va">VA</option>
-                            <option value="usda">USDA</option>
-                        </select>
+                <div id="bankFinancingFields" style="display:none;">
+                    <div class="row mb-3">
+                        <div class="col-md-3 mb-3">
+                            <label for="loanType" class="form-label">Loan Type</label>
+                            <select class="form-select" name="loanType" id="loanType">
+                                <option value="">Select Loan Type</option>
+                                <option value="conventional">Conventional</option>
+                                <option value="fha">FHA</option>
+                                <option value="va">VA</option>
+                                <option value="usda">USDA</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="loanAmount" class="form-label">Approval Amount ($)</label>
+                            <input type="number" class="form-control" id="loanAmount" name="loanAmount">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="interestRate" class="form-label">Approval Interest Rate (%)</label>
+                            <input type="number" class="form-control" id="interestRate" name="interestRate" step="0.01">
+                        </div>
                     </div>
-                    <div class="col-md-3 mb-3">
-                        <label for="loanAmount" class="form-label">Approval Amount ($)</label>
-                        <input type="number" class="form-control" id="loanAmount" name="loanAmount">
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label for="interestRate" class="form-label">Approval Interest Rate (%)</label>
-                        <input type="number" class="form-control" id="interestRate" name="interestRate" step="0.01">
+                    
+                    <!-- Lender Information Section -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Lender Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i>
+                                Please provide your lender's contact information. They will be notified when your offer is accepted.
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="lenderName" class="form-label">Lender Name</label>
+                                    <input type="text" class="form-control" id="lenderName" name="lenderInfo.name" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="lenderCompany" class="form-label">Lending Company</label>
+                                    <input type="text" class="form-control" id="lenderCompany" name="lenderInfo.company">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="lenderEmail" class="form-label">Lender Email</label>
+                                    <input type="email" class="form-control" id="lenderEmail" name="lenderInfo.email" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="lenderPhone" class="form-label">Lender Phone</label>
+                                    <input type="tel" class="form-control" id="lenderPhone" name="lenderInfo.phone" required>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -737,6 +768,104 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 </script>
 
+<!-- Co-Buyer Template (hidden) -->
+<template id="coBuyerTemplate">
+    <div class="co-buyer-entry card mb-3">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0">Co-Buyer Information</h6>
+                <button type="button" class="btn btn-sm btn-outline-danger remove-co-buyer-btn">
+                    <i class="bi bi-trash"></i> Remove
+                </button>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Co-Buyer User ID</label>
+                    <input type="text" class="form-control" name="coBuyers[]" placeholder="Enter user ID" required>
+                    <div class="form-text">Enter the user ID of the co-buyer (they must have an account)</div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Ownership Percentage</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control co-buyer-ownership" name="coBuyerOwnership[]" min="1" max="99" required>
+                        <span class="input-group-text">%</span>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Relationship</label>
+                    <select class="form-select" name="coBuyerRelationship[]" required>
+                        <option value="">Select...</option>
+                        <option value="Spouse">Spouse</option>
+                        <option value="Partner">Partner</option>
+                        <option value="Family Member">Family Member</option>
+                        <option value="Friend">Friend</option>
+                        <option value="Business Partner">Business Partner</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
 <script src="/js/riderValidation.js"></script>
 <script src="/js/riderPreview.js"></script>
+
+<!-- Co-Buyer Management Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addCoBuyerBtn = document.getElementById('addCoBuyerBtn');
+    const coBuyersContainer = document.getElementById('coBuyersContainer');
+    const coBuyerTemplate = document.getElementById('coBuyerTemplate');
+    
+    // Add co-buyer button click handler
+    addCoBuyerBtn.addEventListener('click', function() {
+        // Clone the template
+        const coBuyerNode = document.importNode(coBuyerTemplate.content, true);
+        
+        // Add event listener to the remove button
+        const removeBtn = coBuyerNode.querySelector('.remove-co-buyer-btn');
+        removeBtn.addEventListener('click', function() {
+            this.closest('.co-buyer-entry').remove();
+            updatePrimaryBuyerOwnership();
+        });
+        
+        // Add event listener to ownership input
+        const ownershipInput = coBuyerNode.querySelector('.co-buyer-ownership');
+        ownershipInput.addEventListener('input', updatePrimaryBuyerOwnership);
+        
+        // Append to container
+        coBuyersContainer.appendChild(coBuyerNode);
+        
+        // Update primary buyer ownership
+        updatePrimaryBuyerOwnership();
+    });
+    
+    // Function to update primary buyer ownership percentage
+    function updatePrimaryBuyerOwnership() {
+        const coBuyerOwnershipInputs = document.querySelectorAll('.co-buyer-ownership');
+        let totalCoOwnership = 0;
+        
+        // Sum all co-buyer ownership percentages
+        coBuyerOwnershipInputs.forEach(input => {
+            const value = parseInt(input.value) || 0;
+            totalCoOwnership += value;
+        });
+        
+        // Ensure total doesn't exceed 100%
+        if (totalCoOwnership > 99) {
+            alert('Total ownership percentage cannot exceed 100%. Please adjust the values.');
+            return;
+        }
+        
+        // Calculate primary buyer's ownership
+        const primaryOwnership = 100 - totalCoOwnership;
+        
+        // Display primary buyer's ownership somewhere if needed
+        // For example, you could add an element to show this:
+        // document.getElementById('primaryBuyerOwnership').textContent = primaryOwnership + '%';
+    }
+});
+</script>
+
 <%- include('../partials/footer.ejs') %>

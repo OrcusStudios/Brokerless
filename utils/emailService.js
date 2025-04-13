@@ -1,23 +1,13 @@
-// services/emailService.js
-const nodemailer = require('nodemailer');
+// utils/emailService.js
+const sgMail = require('@sendgrid/mail');
 const fs = require('fs');
 const path = require('path');
 
-// Configure email transport
-const transporter = nodemailer.createTransport({
-  // Configure your email service - this is an example setup
-  // You'll need to use real credentials for production
-  host: process.env.EMAIL_HOST || 'smtp.example.com',
-  port: process.env.EMAIL_PORT || 587,
-  secure: process.env.EMAIL_SECURE === 'true',
-  auth: {
-    user: process.env.EMAIL_USER || 'youremail@example.com',
-    pass: process.env.EMAIL_PASSWORD || 'yourpassword'
-  }
-});
+// Set SendGrid API key
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 /**
- * Send an email
+ * Send an email using SendGrid
  * @param {string} to - Recipient email
  * @param {string} subject - Email subject
  * @param {string} text - Plain text body
@@ -26,16 +16,16 @@ const transporter = nodemailer.createTransport({
  */
 const sendEmail = async (to, subject, text, html) => {
   try {
-    const mailOptions = {
-      from: process.env.EMAIL_FROM || 'Real Estate Platform <noreply@example.com>',
+    const msg = {
       to,
+      from: process.env.EMAIL_FROM || 'REMarketplace <noreply@example.com>',
       subject,
       text,
       html: html || text
     };
-
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent:', info.messageId);
+    
+    const info = await sgMail.send(msg);
+    console.log('Email sent with SendGrid');
     return info;
   } catch (error) {
     console.error('Error sending email:', error);
@@ -44,7 +34,7 @@ const sendEmail = async (to, subject, text, html) => {
 };
 
 /**
- * Send an email with attachment
+ * Send an email with attachment using SendGrid
  * @param {string} to - Recipient email
  * @param {string} subject - Email subject
  * @param {string} text - Plain text body
@@ -56,22 +46,35 @@ const sendAttachment = async (to, subject, text, attachmentPath) => {
     if (!fs.existsSync(attachmentPath)) {
       throw new Error(`Attachment file not found: ${attachmentPath}`);
     }
-
-    const mailOptions = {
-      from: process.env.EMAIL_FROM || 'Real Estate Platform <noreply@example.com>',
+    
+    // Read the file and convert to base64
+    const attachment = fs.readFileSync(attachmentPath).toString('base64');
+    const filename = path.basename(attachmentPath);
+    
+    // Determine content type based on file extension
+    let contentType = 'application/octet-stream'; // Default
+    const ext = path.extname(filename).toLowerCase();
+    if (ext === '.pdf') contentType = 'application/pdf';
+    else if (ext === '.jpg' || ext === '.jpeg') contentType = 'image/jpeg';
+    else if (ext === '.png') contentType = 'image/png';
+    
+    const msg = {
       to,
+      from: process.env.EMAIL_FROM || 'REMarketplace <noreply@example.com>',
       subject,
       text,
       attachments: [
         {
-          filename: path.basename(attachmentPath),
-          path: attachmentPath
+          content: attachment,
+          filename: filename,
+          type: contentType,
+          disposition: 'attachment'
         }
       ]
     };
-
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Email with attachment sent:', info.messageId);
+    
+    const info = await sgMail.send(msg);
+    console.log('Email with attachment sent with SendGrid');
     return info;
   } catch (error) {
     console.error('Error sending email with attachment:', error);
@@ -79,7 +82,74 @@ const sendAttachment = async (to, subject, text, attachmentPath) => {
   }
 };
 
-module.exports = {
-  sendEmail,
-  sendAttachment
-};
+// Fallback to Nodemailer if SendGrid API key is not set
+if (!process.env.SENDGRID_API_KEY) {
+  console.warn('SENDGRID_API_KEY not found, falling back to Nodemailer');
+  
+  const nodemailer = require('nodemailer');
+  
+  // Configure email transport
+  const transporter = nodemailer.createTransport({
+    host: process.env.EMAIL_HOST || 'smtp.example.com',
+    port: process.env.EMAIL_PORT || 587,
+    secure: process.env.EMAIL_SECURE === 'true',
+    auth: {
+      user: process.env.EMAIL_USER || 'youremail@example.com',
+      pass: process.env.EMAIL_PASSWORD || 'yourpassword'
+    }
+  });
+  
+  // Override sendEmail function with Nodemailer implementation
+  exports.sendEmail = async (to, subject, text, html) => {
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_FROM || 'Real Estate Platform <noreply@example.com>',
+        to,
+        subject,
+        text,
+        html: html || text
+      };
+
+      const info = await transporter.sendMail(mailOptions);
+      console.log('Email sent with Nodemailer:', info.messageId);
+      return info;
+    } catch (error) {
+      console.error('Error sending email with Nodemailer:', error);
+      throw error;
+    }
+  };
+  
+  // Override sendAttachment function with Nodemailer implementation
+  exports.sendAttachment = async (to, subject, text, attachmentPath) => {
+    try {
+      if (!fs.existsSync(attachmentPath)) {
+        throw new Error(`Attachment file not found: ${attachmentPath}`);
+      }
+
+      const mailOptions = {
+        from: process.env.EMAIL_FROM || 'Real Estate Platform <noreply@example.com>',
+        to,
+        subject,
+        text,
+        attachments: [
+          {
+            filename: path.basename(attachmentPath),
+            path: attachmentPath
+          }
+        ]
+      };
+
+      const info = await transporter.sendMail(mailOptions);
+      console.log('Email with attachment sent with Nodemailer:', info.messageId);
+      return info;
+    } catch (error) {
+      console.error('Error sending email with attachment with Nodemailer:', error);
+      throw error;
+    }
+  };
+} else {
+  module.exports = {
+    sendEmail,
+    sendAttachment
+  };
+}

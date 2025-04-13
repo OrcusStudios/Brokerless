@@ -6,11 +6,32 @@ const Notification = require("../models/Notification");
 const Listing = require("../models/Listing");
 const Offer = require("../models/Offer");
 const mongoose = require("mongoose");
+const { invalidateMessageCache } = require("../middleware/messageMiddleware");
+
+// Cache for conversations to reduce database queries
+const conversationsCache = new Map();
+const CONVERSATIONS_CACHE_TTL = 60000; // 1 minute in milliseconds
 
 // Get inbox with conversations
 exports.getInbox = async (req, res) => {
     try {
-        const userId = req.user._id;
+        const userId = req.user._id.toString();
+        const now = Date.now();
+        
+        // Check if we have a valid cached conversations
+        if (conversationsCache.has(userId)) {
+            const cachedData = conversationsCache.get(userId);
+            // Use cache if it's still valid
+            if (now - cachedData.timestamp < CONVERSATIONS_CACHE_TTL) {
+                res.render('messages/inbox', { 
+                    conversations: cachedData.conversations, 
+                    user: req.user 
+                });
+                return;
+            }
+        }
+        
+        // Fallback to a simpler approach that's more reliable
         // Get all messages where the user is sender or receiver
         const messages = await Message.find({
             $or: [
@@ -18,49 +39,62 @@ exports.getInbox = async (req, res) => {
                 { receiver: req.user._id }
             ]
         })
-        .sort({ createdAt: -1 });
+        .sort({ createdAt: -1 })
+        .limit(100) // Limit to 100 most recent messages
+        .lean();
         
         // Group messages by conversation
         const conversationsMap = new Map();
         
+        // Get all unique user IDs from the messages
+        const userIds = new Set();
+        messages.forEach(message => {
+            if (message.sender.toString() !== req.user._id.toString()) {
+                userIds.add(message.sender.toString());
+            }
+            if (message.receiver.toString() !== req.user._id.toString()) {
+                userIds.add(message.receiver.toString());
+            }
+        });
+        
+        // Fetch all users in one query
+        const users = await User.find({ _id: { $in: Array.from(userIds) } })
+            .select("name email profileImage")
+            .lean();
+            
+        // Fetch all professionals in one query
+        const professionals = await Professional.find({ _id: { $in: Array.from(userIds) } })
+            .select("name email profileImage professionalType companyName")
+            .lean();
+            
+        // Create a map of user/professional IDs to their data
+        const participantsMap = new Map();
+        users.forEach(user => participantsMap.set(user._id.toString(), user));
+        professionals.forEach(prof => participantsMap.set(prof._id.toString(), prof));
+        
         // Process each message
         for (const message of messages) {
-            // First, let's fully populate the sender and receiver
-            let senderObj, receiverObj;
-            
-            // Check User model
-            senderObj = await User.findById(message.sender).select("name email profileImage");
-            if (!senderObj) {
-                // If not found in User model, check Professional model
-                senderObj = await Professional.findById(message.sender).select("name email profileImage");
-            }
-            
-            // Same for receiver
-            receiverObj = await User.findById(message.receiver).select("name email profileImage");
-            if (!receiverObj) {
-                receiverObj = await Professional.findById(message.receiver).select("name email profileImage");
-            }
-            
-            // Skip if either sender or receiver not found
-            if (!senderObj || !receiverObj) continue;
-            
             // Determine the other participant
-            const otherParticipantObj = message.sender.equals(userId) ? receiverObj : senderObj;
-            const otherParticipantId = message.sender.equals(userId) ? message.receiver : message.sender;
+            const otherParticipantId = message.sender.toString() === userId ? 
+                message.receiver.toString() : message.sender.toString();
             
-            // Now we're sure otherParticipantObj exists with name field
-            if (!conversationsMap.has(otherParticipantId.toString())) {
-                conversationsMap.set(otherParticipantId.toString(), {
+            const otherParticipantObj = participantsMap.get(otherParticipantId);
+            
+            // Skip if other participant not found
+            if (!otherParticipantObj) continue;
+            
+            if (!conversationsMap.has(otherParticipantId)) {
+                conversationsMap.set(otherParticipantId, {
                     otherParticipant: otherParticipantObj,
                     lastMessage: message,
-                    unreadCount: message.receiver.equals(userId) && !message.isRead ? 1 : 0
+                    unreadCount: message.receiver.toString() === userId && !message.isRead ? 1 : 0
                 });
             } else {
-                const conversation = conversationsMap.get(otherParticipantId.toString());
+                const conversation = conversationsMap.get(otherParticipantId);
                 if (message.createdAt > conversation.lastMessage.createdAt) {
                     conversation.lastMessage = message;
                 }
-                if (message.receiver.equals(userId) && !message.isRead) {
+                if (message.receiver.toString() === userId && !message.isRead) {
                     conversation.unreadCount++;
                 }
             }
@@ -68,7 +102,14 @@ exports.getInbox = async (req, res) => {
         
         // Convert map to array and sort by the most recent message
         const conversations = Array.from(conversationsMap.values())
-            .sort((a, b) => b.lastMessage.createdAt - a.lastMessage.createdAt);
+            .sort((a, b) => b.lastMessage.createdAt - a.lastMessage.createdAt)
+            .slice(0, 20); // Limit to 20 most recent conversations
+        
+        // Cache the conversations
+        conversationsCache.set(userId, {
+            conversations,
+            timestamp: now
+        });
         
         res.render('messages/inbox', { 
             conversations, 
@@ -76,24 +117,64 @@ exports.getInbox = async (req, res) => {
         });
     } catch (error) {
         console.error('Error getting inbox:', error);
-        req.flash('error', 'Error loading inbox');
+        req.flash('error', 'Error loading inbox: ' + error.message);
         res.redirect('/'); // Redirecting to home instead of /dashboard
     }
 };
+
+// Function to invalidate conversations cache
+const invalidateConversationsCache = (userId) => {
+    if (userId) {
+        conversationsCache.delete(userId.toString());
+    }
+};
+
+// Cache for individual conversations
+const conversationCache = new Map();
+const CONVERSATION_CACHE_TTL = 60000; // 1 minute in milliseconds
 
 // Get a specific conversation
 exports.getConversation = async (req, res) => {
     try {
         const { userId } = req.params;
+        const currentUserId = req.user._id.toString();
+        const cacheKey = `${currentUserId}-${userId}`;
+        const now = Date.now();
+        
+        // Check if we have a valid cached conversation
+        if (conversationCache.has(cacheKey)) {
+            const cachedData = conversationCache.get(cacheKey);
+            // Use cache if it's still valid
+            if (now - cachedData.timestamp < CONVERSATION_CACHE_TTL) {
+                // Still mark messages as read even when using cache
+                await Message.updateMany(
+                    { sender: userId, receiver: req.user._id, isRead: false },
+                    { $set: { isRead: true, readAt: new Date() } }
+                );
+                
+                // Invalidate the message cache for this user
+                invalidateMessageCache(req.user._id);
+                
+                // Invalidate the conversations cache for this user
+                invalidateConversationsCache(req.user._id);
+                
+                res.render("messages/conversation", cachedData.data);
+                return;
+            }
+        }
         
         // Validate that other user exists
         let otherUser;
         
         // Check both User and Professional models
-        otherUser = await User.findById(userId).select("name email profileImage roles");
+        otherUser = await User.findById(userId)
+            .select("name email profileImage roles")
+            .lean();
         
         if (!otherUser) {
-            otherUser = await Professional.findById(userId).select("name email profileImage professionalType");
+            otherUser = await Professional.findById(userId)
+                .select("name email profileImage professionalType")
+                .lean();
         }
         
         if (!otherUser) {
@@ -109,10 +190,74 @@ exports.getConversation = async (req, res) => {
             ]
         })
         .sort({ createdAt: 1 })
-        .populate("sender", "name profileImage")
-        .populate("receiver", "name profileImage")
-        .populate("listingId", "address image")
-        .populate("offerId", "offerPrice status");
+        .limit(100) // Limit to 100 most recent messages
+        .lean();
+        
+        // Get all unique user IDs from the messages
+        const userIds = new Set();
+        const listingIds = new Set();
+        const offerIds = new Set();
+        
+        messages.forEach(message => {
+            userIds.add(message.sender.toString());
+            userIds.add(message.receiver.toString());
+            
+            if (message.listingId) {
+                listingIds.add(message.listingId.toString());
+            }
+            
+            if (message.offerId) {
+                offerIds.add(message.offerId.toString());
+            }
+        });
+        
+        // Fetch all users in one query
+        const users = await User.find({ _id: { $in: Array.from(userIds) } })
+            .select("name profileImage")
+            .lean();
+            
+        // Create a map of user IDs to their data
+        const usersMap = new Map();
+        users.forEach(user => usersMap.set(user._id.toString(), user));
+        
+        // Fetch all listings in one query
+        const listings = listingIds.size > 0 ? 
+            await Listing.find({ _id: { $in: Array.from(listingIds) } })
+                .select("address image")
+                .lean() : 
+            [];
+            
+        // Create a map of listing IDs to their data
+        const listingsMap = new Map();
+        listings.forEach(listing => listingsMap.set(listing._id.toString(), listing));
+        
+        // Fetch all offers in one query
+        const offers = offerIds.size > 0 ? 
+            await Offer.find({ _id: { $in: Array.from(offerIds) } })
+                .select("offerPrice status listing")
+                .populate("listing", "address image")
+                .lean() : 
+            [];
+            
+        // Create a map of offer IDs to their data
+        const offersMap = new Map();
+        offers.forEach(offer => offersMap.set(offer._id.toString(), offer));
+        
+        // Populate the messages with user, listing, and offer data
+        const populatedMessages = messages.map(message => {
+            const sender = usersMap.get(message.sender.toString());
+            const receiver = usersMap.get(message.receiver.toString());
+            const listing = message.listingId ? listingsMap.get(message.listingId.toString()) : null;
+            const offer = message.offerId ? offersMap.get(message.offerId.toString()) : null;
+            
+            return {
+                ...message,
+                sender,
+                receiver,
+                listingId: listing,
+                offerId: offer
+            };
+        });
         
         // Mark all unread messages as read
         await Message.updateMany(
@@ -120,49 +265,41 @@ exports.getConversation = async (req, res) => {
             { $set: { isRead: true, readAt: new Date() } }
         );
         
-        // Get any related listings (for context)
-        let relatedListings = [];
-        let relatedOffers = [];
+        // Invalidate the message cache for this user
+        invalidateMessageCache(req.user._id);
         
-        if (messages.length > 0) {
-            // Get unique listing IDs from messages
-            const listingIds = [...new Set(
-                messages
-                    .filter(m => m.listingId)
-                    .map(m => m.listingId._id.toString())
-            )];
-            
-            // Get unique offer IDs from messages
-            const offerIds = [...new Set(
-                messages
-                    .filter(m => m.offerId)
-                    .map(m => m.offerId._id.toString())
-            )];
-            
-            // Fetch related listings
-            if (listingIds.length > 0) {
-                relatedListings = await Listing.find({ _id: { $in: listingIds } });
-            }
-            
-            // Fetch related offers
-            if (offerIds.length > 0) {
-                relatedOffers = await Offer.find({ _id: { $in: offerIds } })
-                    .populate("listing", "address image");
-            }
-        }
+        // Invalidate the conversations cache for this user
+        invalidateConversationsCache(req.user._id);
         
-        // Render the conversation view
-        res.render("messages/conversation", {
+        // Prepare data for the view
+        const viewData = {
             user: req.user,
             otherUser,
-            messages,
-            relatedListings,
-            relatedOffers
+            messages: populatedMessages,
+            relatedListings: listings,
+            relatedOffers: offers
+        };
+        
+        // Cache the conversation data
+        conversationCache.set(cacheKey, {
+            data: viewData,
+            timestamp: now
         });
+        
+        // Render the conversation view
+        res.render("messages/conversation", viewData);
     } catch (error) {
         console.error("❌ Error loading conversation:", error);
-        req.flash("error", "Failed to load conversation");
+        req.flash("error", "Failed to load conversation: " + error.message);
         res.redirect("/messages/inbox");
+    }
+};
+
+// Function to invalidate conversation cache
+const invalidateConversationCache = (userId1, userId2) => {
+    if (userId1 && userId2) {
+        conversationCache.delete(`${userId1.toString()}-${userId2.toString()}`);
+        conversationCache.delete(`${userId2.toString()}-${userId1.toString()}`);
     }
 };
 
@@ -330,6 +467,16 @@ exports.sendMessage = async (req, res) => {
             link: `/messages/conversation/${req.user._id}`
         });
         
+        // Invalidate the message cache for the receiver
+        invalidateMessageCache(receiverId);
+        
+        // Invalidate the conversations cache for both sender and receiver
+        invalidateConversationsCache(req.user._id);
+        invalidateConversationsCache(receiverId);
+        
+        // Invalidate the conversation cache for this specific conversation
+        invalidateConversationCache(req.user._id, receiverId);
+        
         // Redirect to the conversation
         req.flash("success", "Message sent");
         res.redirect(`/messages/conversation/${receiverId}`);
@@ -389,6 +536,9 @@ exports.markAsRead = async (req, res) => {
         message.readAt = new Date();
         await message.save();
         
+        // Invalidate the message cache for this user
+        invalidateMessageCache(req.user._id);
+        
         return res.json({ success: true, message: "Message marked as read" });
     } catch (error) {
         console.error("❌ Error marking message as read:", error);
@@ -406,6 +556,9 @@ exports.markConversationAsRead = async (req, res) => {
             { sender: userId, receiver: req.user._id, isRead: false },
             { $set: { isRead: true, readAt: new Date() } }
         );
+        
+        // Invalidate the message cache for this user
+        invalidateMessageCache(req.user._id);
         
         return res.json({ success: true, message: "All messages marked as read" });
     } catch (error) {

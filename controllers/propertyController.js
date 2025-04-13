@@ -5,10 +5,24 @@ const { v2: cloudinary } = require("cloudinary");
 
 exports.getListings = async (req, res) => {
     try {
-        const listings = await Listing.find();        
+        // Only select the fields needed for the listing page
+        const listings = await Listing.find()
+            .select('address city state zip lat lng price bedrooms bathrooms squareFootage image images')
+            .limit(50)  // Limit to 50 listings for better performance
+            .lean();  // Return plain JavaScript objects instead of Mongoose documents
+            
         const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
-        res.render("listings", { listings, googleMapsApiKey });
+        
+        // Convert listings to a safe JSON string for client-side use
+        const listingsJson = JSON.stringify(listings);
+        
+        res.render("listings", { 
+            listings, 
+            listingsJson,
+            googleMapsApiKey 
+        });
     } catch (err) {
+        console.error("Error fetching listings:", err);
         res.status(500).send("Error fetching listings");
     }
 };

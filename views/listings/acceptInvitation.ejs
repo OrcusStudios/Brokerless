@@ -1,0 +1,146 @@
+<%- include('../partials/layout.ejs') %>
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">
+                        <i class="bi bi-envelope-open me-2"></i>Co-Seller Invitation
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Note:</strong> You've been invited to be a co-seller for a property. Review the details below.
+                    </div>
+                    
+                    <!-- Property Details -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Property Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="d-flex">
+                                        <% if (invitation.listing.image) { %>
+                                            <img src="<%= invitation.listing.image %>" alt="Property" class="img-thumbnail me-3" style="width: 120px; height: 120px; object-fit: cover;">
+                                        <% } else { %>
+                                            <div class="bg-secondary me-3 rounded d-flex align-items-center justify-content-center" style="width: 120px; height: 120px;">
+                                                <i class="bi bi-house text-white fs-1"></i>
+                                            </div>
+                                        <% } %>
+                                        <div>
+                                            <h5><%= invitation.listing.address %></h5>
+                                            <p class="mb-1"><%= invitation.listing.city %>, <%= invitation.listing.state %> <%= invitation.listing.zip %></p>
+                                            <p class="mb-0 text-muted">Listed: $<%= invitation.listing.price.toLocaleString() %></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card h-100">
+                                        <div class="card-body bg-light">
+                                            <h6 class="card-title">Property Details</h6>
+                                            <div class="d-flex justify-content-between mb-1">
+                                                <span>Bedrooms:</span>
+                                                <span><%= invitation.listing.bedrooms %></span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-1">
+                                                <span>Bathrooms:</span>
+                                                <span><%= invitation.listing.bathrooms %></span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-1">
+                                                <span>Square Footage:</span>
+                                                <span><%= invitation.listing.squareFootage.toLocaleString() %> sq ft</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                                <span>Property Type:</span>
+                                                <span>
+                                                    <%= invitation.listing.propertyType === 'single_family' ? 'Single Family' :
+                                                        invitation.listing.propertyType === 'condominium' ? 'Condominium' :
+                                                        invitation.listing.propertyType === 'townhouse' ? 'Townhouse' :
+                                                        invitation.listing.propertyType === 'duplex' ? 'Duplex' :
+                                                        invitation.listing.propertyType === 'land' ? 'Land' :
+                                                        invitation.listing.propertyType %>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Invitation Details -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Invitation Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Invited by:</strong> <%= invitation.inviter.name %></p>
+                                    <p><strong>Invited on:</strong> <%= new Date(invitation.createdAt).toLocaleDateString() %></p>
+                                    <p><strong>Expires on:</strong> <%= new Date(invitation.expiresAt).toLocaleDateString() %></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Your Role:</strong> Co-Seller</p>
+                                    <p><strong>Relationship:</strong> <%= invitation.relationship %></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Legal Information -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Legal Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                <strong>Important:</strong> By accepting this invitation, you agree to the following:
+                            </div>
+                            <ul class="mb-0">
+                                <li>You confirm that you have the legal right to sell this property as a co-seller.</li>
+                                <li>You will be responsible for providing accurate information about the property.</li>
+                                <li>You will be required to sign all necessary documents related to the sale.</li>
+                                <li>You will receive a portion of the proceeds from the sale as agreed upon with the primary seller.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <form action="/listings/invitations/<%= invitation.token %>/reject" method="POST">
+                            <button type="submit" class="btn btn-outline-danger">
+                                <i class="bi bi-x-circle me-2"></i>Decline Invitation
+                            </button>
+                        </form>
+                        
+                        <% if (user) { %>
+                            <form action="/listings/invitations/<%= invitation.token %>/accept" method="POST">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="bi bi-check-circle me-2"></i>Accept Invitation
+                                </button>
+                            </form>
+                        <% } else { %>
+                            <div>
+                                <p class="text-muted mb-2">You need to log in to accept this invitation</p>
+                                <a href="/users/login" class="btn btn-primary">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i>Log In
+                                </a>
+                                <a href="/users/register" class="btn btn-outline-primary">
+                                    <i class="bi bi-person-plus me-2"></i>Create Account
+                                </a>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer.ejs') %>

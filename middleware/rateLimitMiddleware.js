@@ -11,8 +11,10 @@ const createLimiter = (windowMs, max, message) => {
     });
 };
 
+// For testing purposes, we're setting very high limits
 module.exports = {
-    loginLimiter: createLimiter(5 * 60 * 1000, 10, 'Too many login attempts, please try again later'),
-    apiLimiter: createLimiter(15 * 60 * 1000, 150, 'Too many requests, please try again later'),
-    createAccountLimiter: createLimiter(60 * 60 * 1000, 50, 'Too many accounts created, please try again later')
+    loginLimiter: createLimiter(5 * 60 * 1000, 1000, 'Too many login attempts, please try again later'),
+    professionalLoginLimiter: createLimiter(5 * 60 * 1000, 1000, 'Too many login attempts, please try again later'),
+    apiLimiter: createLimiter(15 * 60 * 1000, 1000, 'Too many requests, please try again later'),
+    createAccountLimiter: createLimiter(60 * 60 * 1000, 1000, 'Too many accounts created, please try again later')
 };

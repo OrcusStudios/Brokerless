@@ -19,12 +19,18 @@ exports.getOfferById = async (req, res) => {
             return res.redirect("/users/dashboard");
         }
 
+        // Only select the fields needed for the offer view page
         const offer = await Offer.findById(req.params.id)
+            // For backward compatibility
             .populate("buyer", "name email")
             .populate("seller", "name email")
+            // New multi-party support
+            .populate("buyers.user", "name email")
+            .populate("sellers.user", "name email")
             .populate("listing", "address city state zip price image")
             .populate("offerHistory.counteredBy", "name email")
-            .lean();
+            .select('buyers sellers buyer seller listing offerPrice financingType loanType earnestMoney earnestDueDate contingencies appraisalDeadlineDays loanApprovalDeadlineDays inspectionDeadlineDays closingDate titleCompany closingCosts status offerHistory signatures riders')
+            .lean(); // Return plain JavaScript objects instead of Mongoose documents
             
         if (!offer) {
             req.flash("error", "Offer not found");
@@ -32,12 +38,57 @@ exports.getOfferById = async (req, res) => {
         }
         
         // Check if user is authorized to view this offer (either buyer or seller)
-        if (!req.user._id.equals(offer.buyer._id) && !req.user._id.equals(offer.seller._id)) {
+        const isUserBuyer = offer.buyers && offer.buyers.some(buyer => 
+            buyer.user && buyer.user._id && buyer.user._id.toString() === req.user._id.toString()
+        );
+        const isUserSeller = offer.sellers && offer.sellers.some(seller => 
+            seller.user && seller.user._id && seller.user._id.toString() === req.user._id.toString()
+        );
+        
+        // For backward compatibility
+        const isLegacyBuyer = offer.buyer && offer.buyer._id && offer.buyer._id.toString() === req.user._id.toString();
+        const isLegacySeller = offer.seller && offer.seller._id && offer.seller._id.toString() === req.user._id.toString();
+        
+        if (!isUserBuyer && !isUserSeller && !isLegacyBuyer && !isLegacySeller) {
             req.flash("error", "You are not authorized to view this offer");
             return res.redirect("/users/dashboard");
         }
         
-        res.render("offers/view", { offer, user: req.user });
+        // Get user's role in this offer
+        let userRole = null;
+        if (isUserBuyer || isLegacyBuyer) {
+            if (isUserBuyer) {
+                const buyerEntry = offer.buyers.find(buyer => 
+                    buyer.user && buyer.user._id && buyer.user._id.toString() === req.user._id.toString()
+                );
+                userRole = buyerEntry ? buyerEntry.role : 'buyer';
+            } else {
+                userRole = 'buyer';
+            }
+        } else if (isUserSeller || isLegacySeller) {
+            if (isUserSeller) {
+                const sellerEntry = offer.sellers.find(seller => 
+                    seller.user && seller.user._id && seller.user._id.toString() === req.user._id.toString()
+                );
+                userRole = sellerEntry ? sellerEntry.role : 'seller';
+            } else {
+                userRole = 'seller';
+            }
+        }
+        
+        res.render("offers/view", { 
+            offer, 
+            user: req.user,
+            userRole: userRole,
+            isUserBuyer: isUserBuyer || isLegacyBuyer,
+            isUserSeller: isUserSeller || isLegacySeller,
+            isPrimaryBuyer: isUserBuyer && offer.buyers.some(buyer => 
+                buyer.user && buyer.user._id && buyer.user._id.toString() === req.user._id.toString() && buyer.role === 'primary'
+            ),
+            isPrimarySeller: isUserSeller && offer.sellers.some(seller => 
+                seller.user && seller.user._id && seller.user._id.toString() === req.user._id.toString() && seller.role === 'primary'
+            )
+        });
     } catch (error) {
         console.error("Error viewing offer:", error);
         req.flash("error", "Error loading offer");
@@ -756,7 +807,11 @@ exports.submitOffer = catchAsync(async (req, res, next) => {
         acknowledgment,
         agreeDocuments,
         includedPersonalProperty,
-        excludedPersonalProperty
+        excludedPersonalProperty,
+        // Co-buyer information
+        coBuyers = [],
+        coBuyerOwnership = [],
+        coBuyerRelationship = []
     } = req.body;
 
     // Allow cash offers without pre-approval
@@ -781,10 +836,30 @@ exports.submitOffer = catchAsync(async (req, res, next) => {
     }
 
     // Validate that listing exists
-    const listing = await Listing.findById(listingId).populate("seller");
+    const listing = await Listing.findById(listingId);
 
     if (!listing) {
         return next(new AppError("Listing not found.", 404));
+    }
+
+    // Get sellers from the listing
+    let sellers = [];
+    
+    // For backward compatibility
+    if (listing.seller) {
+        sellers.push({
+            user: listing.seller,
+            role: 'primary',
+            ownership: 100
+        });
+    } 
+    // Use sellers array if available
+    else if (listing.sellers && listing.sellers.length > 0) {
+        sellers = listing.sellers;
+    }
+    // If no sellers found, return error
+    else {
+        return next(new AppError("No sellers found for this listing.", 404));
     }
 
     // Convert checkboxes to Boolean values
@@ -799,11 +874,41 @@ exports.submitOffer = catchAsync(async (req, res, next) => {
     // Ensure contingencies are an array
     const formattedContingencies = Array.isArray(contingencies) ? contingencies : [contingencies];
 
+    // Process buyers array
+    const buyers = [];
+    
+    // Add primary buyer (current user)
+    buyers.push({
+        user: req.user._id,
+        role: 'primary',
+        ownership: 100 - (coBuyers.length > 0 ? coBuyerOwnership.reduce((sum, val) => sum + (parseInt(val) || 0), 0) : 0),
+        signatureStatus: 'pending'
+    });
+    
+    // Add co-buyers if any
+    if (Array.isArray(coBuyers) && coBuyers.length > 0) {
+        for (let i = 0; i < coBuyers.length; i++) {
+            if (coBuyers[i]) {
+                buyers.push({
+                    user: coBuyers[i],
+                    role: 'co-buyer',
+                    ownership: parseInt(coBuyerOwnership[i]) || 0,
+                    relationship: coBuyerRelationship[i] || '',
+                    signatureStatus: 'pending'
+                });
+            }
+        }
+    }
+
     // Build the basic offer object
     const offerData = {
         listing: listingId,
+        // For backward compatibility
         buyer: req.user._id,
-        seller: listing.seller._id,
+        seller: sellers[0].user,
+        // New multi-party support
+        buyers: buyers,
+        sellers: sellers,
         offerPrice,
         financingType,
         propertyType,
@@ -910,7 +1015,11 @@ exports.submitOffer = catchAsync(async (req, res, next) => {
     offerData.signatures = {
         mainContract: {
             buyerSigned: false,
-            sellerSigned: false
+            sellerSigned: false,
+            buyersSigned: false,
+            sellersSigned: false,
+            buyerSignatures: [],
+            sellerSignatures: []
         },
         riders: {}
     };
@@ -920,7 +1029,11 @@ exports.submitOffer = catchAsync(async (req, res, next) => {
         if (offerData.riders[riderKey].included) {
             offerData.signatures.riders[riderKey] = {
                 buyerSigned: false,
-                sellerSigned: false
+                sellerSigned: false,
+                buyersSigned: false,
+                sellersSigned: false,
+                buyerSignatures: [],
+                sellerSignatures: []
             };
         }
     }
@@ -929,14 +1042,29 @@ exports.submitOffer = catchAsync(async (req, res, next) => {
     const offer = new Offer(offerData);
     await offer.save();
 
-    // Send notification to seller
-    await notificationController.createNotification(
-        listing.seller._id,  // seller's user ID
-        `New offer received for ${listing.address} at $${offerPrice.toLocaleString()}.`,
-        "Offer",
-        `/offers/${offer._id}`,  // Link to view the offer
-        "OFFER"  // Notification type
-    );
+    // Send notification to all sellers
+    for (const seller of sellers) {
+        await notificationController.createNotification(
+            seller.user,  // seller's user ID
+            `New offer received for ${listing.address} at $${offerPrice.toLocaleString()}.`,
+            "Offer",
+            `/offers/${offer._id}`,  // Link to view the offer
+            "OFFER"  // Notification type
+        );
+    }
+
+    // Send notification to co-buyers
+    for (const buyer of buyers) {
+        if (buyer.role === 'co-buyer') {
+            await notificationController.createNotification(
+                buyer.user,  // co-buyer's user ID
+                `You've been added as a co-buyer on an offer for ${listing.address} at $${offerPrice.toLocaleString()}.`,
+                "Offer",
+                `/offers/${offer._id}`,  // Link to view the offer
+                "OFFER"  // Notification type
+            );
+        }
+    }
 
     req.flash("success", "Offer submitted successfully!");
     res.redirect(`/listings/${listingId}`);
@@ -1261,54 +1389,197 @@ function getStatusBadgeClass(status) {
     return statusClasses[status] || 'bg-secondary';
 }
 
+/**
+ * Distribute the offer PDF to title company and lender
+ * @param {Object} offer - The offer object with populated fields
+ * @param {String} pdfPath - Path to the generated PDF file
+ * @returns {Promise<boolean>} - Success status
+ */
 async function distributeOfferPDF(offer, pdfPath) {
     try {
-        // Get title company email
+        console.log("Starting distribution of offer PDF to title company and lender");
+        
+        // Ensure offer is fully populated
+        if (!offer.listing || !offer.buyer || !offer.seller) {
+            console.error("Offer is missing required populated fields");
+            return false;
+        }
+        
+        // Format property address for email
+        const propertyAddress = offer.listing.address + 
+            (offer.listing.city ? `, ${offer.listing.city}` : '') + 
+            (offer.listing.state ? `, ${offer.listing.state}` : '') + 
+            (offer.listing.zip ? ` ${offer.listing.zip}` : '');
+        
+        // Create detailed email content with party information
+        const emailContent = `
+        A new offer has been accepted for ${propertyAddress}.
+
+        TRANSACTION DETAILS:
+        -------------------
+        Property: ${propertyAddress}
+        Purchase Price: $${offer.offerPrice.toLocaleString()}
+        Closing Date: ${new Date(offer.closingDate).toLocaleDateString()}
+
+        BUYER INFORMATION:
+        -----------------
+        Name: ${offer.buyer.name}
+        Email: ${offer.buyer.email}
+        ${offer.buyer.phone ? `Phone: ${offer.buyer.phone}` : ''}
+
+        SELLER INFORMATION:
+        ------------------
+        Name: ${offer.seller.name}
+        Email: ${offer.seller.email}
+        ${offer.seller.phone ? `Phone: ${offer.seller.phone}` : ''}
+
+        FINANCING DETAILS:
+        -----------------
+        Type: ${offer.financingType.charAt(0).toUpperCase() + offer.financingType.slice(1)}
+        ${offer.financingType === 'bank' ? `Loan Type: ${offer.loanType || 'Not specified'}` : ''}
+        ${offer.financingType === 'bank' ? `Loan Amount: $${offer.loanAmount ? offer.loanAmount.toLocaleString() : 'Not specified'}` : ''}
+
+        EARNEST MONEY:
+        -------------
+        Amount: $${offer.earnestMoney.toLocaleString()}
+        Due Date: ${new Date(offer.earnestDueDate).toLocaleDateString()}
+
+        CONTINGENCIES:
+        -------------
+        ${offer.contingencies && offer.contingencies.length > 0 ? 
+        offer.contingencies.map(c => {
+            if (c === 'inspection') return `Inspection (${offer.inspectionDeadlineDays} days)`;
+            if (c === 'appraisal') return `Appraisal (${offer.appraisalDeadlineDays} days)`;
+            if (c === 'financing') return `Financing (${offer.loanApprovalDeadlineDays} days)`;
+            return c;
+        }).join(', ') 
+        : 'None'}
+
+        Please find the purchase agreement attached. This document contains all the terms and conditions of the accepted offer.
+
+        If you have any questions or need additional information, please contact the appropriate party directly.
+
+        Thank you,
+        Real Estate Platform
+        `;  
+
+        // Get title company email and details
         let titleCompanyEmail = null;
+        let titleCompanyName = null;
+        
+        // First check if title company details are in the offer
         if (offer.titleCompanyDetails && offer.titleCompanyDetails.email) {
             titleCompanyEmail = offer.titleCompanyDetails.email;
+            titleCompanyName = offer.titleCompanyDetails.company ? 
+                (typeof offer.titleCompanyDetails.company === 'object' ? 
+                    offer.titleCompanyDetails.company.companyName : 
+                    offer.titleCompanyDetails.company) : 
+                offer.titleCompany;
         } else {
             // Look up title company email if not in offer
             const titleCompany = await Professional.findOne({
-                companyName: offer.titleCompany,
+                $or: [
+                    { companyName: offer.titleCompany },
+                    { name: offer.titleCompany }
+                ],
                 professionalType: "title"
             });
+            
             if (titleCompany) {
                 titleCompanyEmail = titleCompany.email;
+                titleCompanyName = titleCompany.companyName || titleCompany.name;
             }
         }
         
         // Send email to title company
         if (titleCompanyEmail) {
-            await emailService.sendAttachment(
-                titleCompanyEmail,
-                `New Accepted Offer - ${offer.listing.address}`,
-                `A new offer has been accepted for ${offer.listing.address}. Please find the purchase agreement attached.`,
-                pdfPath
-            );
-        }
-        
-        // If bank financing, send to lender if available
-        if (offer.financingType === 'bank') {
-            // Get lender email if available
-            let lenderEmail = null;
+            console.log(`Sending email to title company: ${titleCompanyEmail}`);
             
-            // Look up lender email from pre-approval
-            const buyer = await User.findById(offer.buyer);
-            if (buyer && buyer.preApprovalLender) {
-                const lender = await Professional.findById(buyer.preApprovalLender);
-                if (lender) {
-                    lenderEmail = lender.email;
-                }
-            }
-            
-            if (lenderEmail) {
-                await emailService.sendAttachment(
-                    lenderEmail,
-                    `New Accepted Offer - ${offer.listing.address}`,
-                    `A new offer has been accepted for ${offer.listing.address}. Please find the purchase agreement attached.`,
+            try {
+                await sendEmail(
+                    titleCompanyEmail,
+                    `New Accepted Offer - ${propertyAddress}`,
+                    emailContent,
                     pdfPath
                 );
+                console.log(`Email sent successfully to title company: ${titleCompanyName}`);
+            } catch (emailError) {
+                console.error(`Error sending email to title company: ${emailError.message}`);
+            }
+        } else {
+            console.warn(`No email found for title company: ${offer.titleCompany}`);
+        }
+        
+            // If bank financing, send to lender if available
+            if (offer.financingType === 'bank') {
+                // Get lender email if available
+                let lenderEmail = null;
+                let lenderName = null;
+                
+                // First check if lender info is directly in the offer (new field)
+                if (offer.lenderInfo && offer.lenderInfo.email) {
+                    lenderEmail = offer.lenderInfo.email;
+                    lenderName = offer.lenderInfo.name;
+                    console.log(`Using lender info from offer: ${lenderName} (${lenderEmail})`);
+                } else {
+                    // Look up lender email from pre-approval
+                    const buyer = await User.findById(offer.buyer._id);
+                    
+                    // Check both the old and new user model structures for pre-approval lender
+                    if (buyer) {
+                        let lenderId = null;
+                        
+                        // Check new structure first (buyer.buyer.preApprovalLender)
+                        if (buyer.buyer && buyer.buyer.preApprovalLender) {
+                            lenderId = buyer.buyer.preApprovalLender;
+                        } 
+                        // Fall back to old structure (buyer.preApprovalLender)
+                        else if (buyer.preApprovalLender) {
+                            lenderId = buyer.preApprovalLender;
+                        }
+                        
+                        if (lenderId) {
+                            const lender = await Professional.findById(lenderId);
+                            if (lender) {
+                                lenderEmail = lender.email;
+                                lenderName = lender.companyName || lender.name;
+                            }
+                        }
+                    }
+                    
+                    // If no lender found from pre-approval, try to find by lender name in the offer
+                    if (!lenderEmail && offer.lenderName) {
+                        const lender = await Professional.findOne({
+                            $or: [
+                                { companyName: offer.lenderName },
+                                { name: offer.lenderName }
+                            ],
+                            professionalType: "lender"
+                        });
+                        
+                        if (lender) {
+                            lenderEmail = lender.email;
+                            lenderName = lender.companyName || lender.name;
+                        }
+                    }
+                }
+            
+            if (lenderEmail) {
+                console.log(`Sending email to lender: ${lenderEmail}`);
+                
+                try {
+                    await sendEmail(
+                        lenderEmail,
+                        `New Accepted Offer - ${propertyAddress}`,
+                        emailContent,
+                        pdfPath
+                    );
+                    console.log(`Email sent successfully to lender: ${lenderName}`);
+                } catch (emailError) {
+                    console.error(`Error sending email to lender: ${emailError.message}`);
+                }
+            } else {
+                console.warn("No lender email found for bank financing offer");
             }
         }
         

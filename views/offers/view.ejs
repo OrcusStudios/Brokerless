@@ -2,6 +2,9 @@
 <%- include('../partials/layout.ejs') %>
 
 <div class="container py-4">
+    <div class="mb-3">
+        <a href="/users/dashboard" class="btn btn-outline-secondary btn-sm">← Back to Dashboard</a>
+    </div>
     <div class="row">
         <div class="col-lg-8">
             <!-- Main Offer Card -->
@@ -16,9 +19,7 @@
                         <% } else if (user._id.equals(offer.seller._id)) { %>
                             <span class="badge bg-success me-2">Seller</span>
                         <% } %>
-                        <a href="<%= user._id.equals(offer.buyer._id) ? '/offers/buyer' : '/offers/seller' %>" class="btn btn-light btn-sm">
-                            <i class="bi bi-arrow-left me-1"></i>Back
-                        </a>
+                        <!-- Back buttons removed -->
                     </div>
                 </div>
                 <div class="card-body">
@@ -63,7 +64,7 @@
                             <% } %>
                         </div>
                     </div>
-
+                    
                     <!-- Property Information -->
                     <div class="row mb-4">
                         <div class="col-md-6">
@@ -111,8 +112,44 @@
                     <div class="row">
                         <div class="col-md-6">
                             <h5 class="border-bottom pb-2 mb-3">Buyer Information</h5>
-                            <p><strong>Name:</strong> <%= offer.buyer.name %></p>
-                            <p><strong>Email:</strong> <%= offer.buyer.email %></p>
+                            <% if (offer.buyers && offer.buyers.length > 0) { %>
+                                <% offer.buyers.forEach((buyer, index) => { %>
+                                    <div class="mb-3 <%= buyer.role === 'primary' ? 'border-start border-primary ps-2' : '' %>">
+                                        <p class="mb-1">
+                                            <strong><%= buyer.role === 'primary' ? 'Primary Buyer' : 'Co-Buyer' %>:</strong> 
+                                            <%= buyer.user.name %>
+                                            <% if (buyer.ownership && buyer.ownership < 100) { %>
+                                                <span class="badge bg-info"><%= buyer.ownership %>% ownership</span>
+                                            <% } %>
+                                        </p>
+                                        <p class="mb-1"><strong>Email:</strong> <%= buyer.user.email %></p>
+                                        <% if (buyer.relationship) { %>
+                                            <p class="mb-1"><strong>Relationship:</strong> <%= buyer.relationship %></p>
+                                        <% } %>
+                                        <p class="mb-0">
+                                            <strong>Signature Status:</strong>
+                                            <% if (buyer.signatureStatus === 'signed') { %>
+                                                <span class="badge bg-success">Signed</span>
+                                                <% if (buyer.signedAt) { %>
+                                                    <small class="text-muted">(<%= new Date(buyer.signedAt).toLocaleDateString() %>)</small>
+                                                <% } %>
+                                            <% } else if (buyer.signatureStatus === 'pending') { %>
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                            <% } else if (buyer.signatureStatus === 'invited') { %>
+                                                <span class="badge bg-info">Invited</span>
+                                            <% } else if (buyer.signatureStatus === 'viewed') { %>
+                                                <span class="badge bg-primary">Viewed</span>
+                                            <% } else if (buyer.signatureStatus === 'rejected') { %>
+                                                <span class="badge bg-danger">Rejected</span>
+                                            <% } %>
+                                        </p>
+                                    </div>
+                                <% }); %>
+                            <% } else { %>
+                                <!-- For backward compatibility -->
+                                <p><strong>Name:</strong> <%= offer.buyer.name %></p>
+                                <p><strong>Email:</strong> <%= offer.buyer.email %></p>
+                            <% } %>
                             
                             <h5 class="border-bottom pb-2 mb-3 mt-4">Earnest Money</h5>
                             <p><strong>Amount:</strong> $<%= offer.earnestMoney.toLocaleString() %></p>
@@ -145,8 +182,44 @@
                         
                         <div class="col-md-6">
                             <h5 class="border-bottom pb-2 mb-3">Seller Information</h5>
-                            <p><strong>Name:</strong> <%= offer.seller.name %></p>
-                            <p><strong>Email:</strong> <%= offer.seller.email %></p>
+                            <% if (offer.sellers && offer.sellers.length > 0) { %>
+                                <% offer.sellers.forEach((seller, index) => { %>
+                                    <div class="mb-3 <%= seller.role === 'primary' ? 'border-start border-success ps-2' : '' %>">
+                                        <p class="mb-1">
+                                            <strong><%= seller.role === 'primary' ? 'Primary Seller' : 'Co-Seller' %>:</strong> 
+                                            <%= seller.user.name %>
+                                            <% if (seller.ownership && seller.ownership < 100) { %>
+                                                <span class="badge bg-info"><%= seller.ownership %>% ownership</span>
+                                            <% } %>
+                                        </p>
+                                        <p class="mb-1"><strong>Email:</strong> <%= seller.user.email %></p>
+                                        <% if (seller.relationship) { %>
+                                            <p class="mb-1"><strong>Relationship:</strong> <%= seller.relationship %></p>
+                                        <% } %>
+                                        <p class="mb-0">
+                                            <strong>Signature Status:</strong>
+                                            <% if (seller.signatureStatus === 'signed') { %>
+                                                <span class="badge bg-success">Signed</span>
+                                                <% if (seller.signedAt) { %>
+                                                    <small class="text-muted">(<%= new Date(seller.signedAt).toLocaleDateString() %>)</small>
+                                                <% } %>
+                                            <% } else if (seller.signatureStatus === 'pending') { %>
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                            <% } else if (seller.signatureStatus === 'invited') { %>
+                                                <span class="badge bg-info">Invited</span>
+                                            <% } else if (seller.signatureStatus === 'viewed') { %>
+                                                <span class="badge bg-primary">Viewed</span>
+                                            <% } else if (seller.signatureStatus === 'rejected') { %>
+                                                <span class="badge bg-danger">Rejected</span>
+                                            <% } %>
+                                        </p>
+                                    </div>
+                                <% }); %>
+                            <% } else { %>
+                                <!-- For backward compatibility -->
+                                <p><strong>Name:</strong> <%= offer.seller.name %></p>
+                                <p><strong>Email:</strong> <%= offer.seller.email %></p>
+                            <% } %>
                             
                             <h5 class="border-bottom pb-2 mb-3 mt-4">Closing Details</h5>
                             <p><strong>Closing Date:</strong> <%= new Date(offer.closingDate).toLocaleDateString() %></p>
@@ -191,9 +264,11 @@
                             <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectOfferModal">
                                 <i class="bi bi-x-circle me-1"></i> Reject
                             </button>                            
-                            <button type="button" class="btn btn-outline-danger withdraw-offer-button" data-offer-id="<%= offer._id %>">
-                                <i class="bi bi-x-circle me-1"></i> Withdraw Offer
-                            </button>
+                            <% if (user._id.equals(offer.buyer._id)) { %>
+                                <button type="button" class="btn btn-outline-danger withdraw-offer-button" data-offer-id="<%= offer._id %>">
+                                    <i class="bi bi-x-circle me-1"></i> Withdraw Offer
+                                </button>
+                            <% } %>
                         </div>
                         <% } else {  %>
                             <div>

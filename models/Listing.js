@@ -17,7 +17,22 @@ const ListingSchema = new mongoose.Schema({
     squareFootage: { type: Number, required: true },
     description: { type: String, required: true },
     acres: { type: Number, required: true },
-    seller: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    // Multiple sellers support
+    sellers: [{
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true
+        },
+        role: {
+            type: String,
+            enum: ['primary', 'co-seller'],
+            default: 'primary'
+        },
+        relationship: String // e.g., "Spouse", "Partner", "Family member"
+    }],
+    // For backward compatibility
+    seller: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     lat: {type: Number, required: true},
     lng: {type: Number, required: true},
     image: { type: String, default: "" }, // Single main image
@@ -180,5 +195,119 @@ ListingSchema.methods.isDisclosureComplete = function() {
         totalSections: 4
     };
   };
+
+// Helper method to check if a user is a seller of this listing
+ListingSchema.methods.isUserSeller = function(userId) {
+  // For backward compatibility
+  if (this.seller && this.seller.equals(userId)) {
+    return true;
+  }
+  
+  // Check in sellers array
+  return this.sellers && this.sellers.some(seller => 
+    seller.user && seller.user.equals(userId)
+  );
+};
+
+// Helper method to get a user's role in this listing
+ListingSchema.methods.getUserRole = function(userId) {
+  // Check if user is a seller
+  if (this.isUserSeller(userId)) {
+    // Check if user is the primary seller
+    const sellerEntry = this.sellers && this.sellers.find(seller => 
+      seller.user && seller.user.equals(userId)
+    );
+    
+    if (sellerEntry) {
+      return sellerEntry.role; // 'primary' or 'co-seller'
+    }
+    
+    return 'seller'; // For backward compatibility
+  }
+  
+  return null; // User is not involved in this listing
+};
+
+// Helper method to get all sellers' user IDs
+ListingSchema.methods.getSellerIds = function() {
+  const sellerIds = [];
+  
+  // For backward compatibility
+  if (this.seller) {
+    sellerIds.push(this.seller);
+  }
+  
+  // Add from sellers array
+  if (this.sellers && this.sellers.length > 0) {
+    this.sellers.forEach(seller => {
+      if (seller.user && !sellerIds.includes(seller.user)) {
+        sellerIds.push(seller.user);
+      }
+    });
+  }
+  
+  return sellerIds;
+};
+
+// Helper method to get the primary seller
+ListingSchema.methods.getPrimarySeller = function() {
+  // For backward compatibility
+  if (!this.sellers || this.sellers.length === 0) {
+    return this.seller;
+  }
+  
+  // Find primary seller in sellers array
+  const primarySeller = this.sellers.find(seller => seller.role === 'primary');
+  return primarySeller ? primarySeller.user : null;
+};
+
+// Helper method to add a co-seller to the listing
+ListingSchema.methods.addCoSeller = function(userId, relationship) {
+  if (!this.sellers) {
+    this.sellers = [];
+  }
+  
+  // Check if user is already a seller
+  const existingSeller = this.sellers.find(seller => 
+    seller.user && seller.user.equals(userId)
+  );
+  
+  if (existingSeller) {
+    return false; // User is already a seller
+  }
+  
+  // Add new co-seller
+  this.sellers.push({
+    user: userId,
+    role: 'co-seller',
+    relationship: relationship || ''
+  });
+  
+  return true;
+};
+
+// Helper method to remove a co-seller from the listing
+ListingSchema.methods.removeCoSeller = function(userId) {
+  if (!this.sellers || this.sellers.length === 0) {
+    return false;
+  }
+  
+  // Cannot remove primary seller
+  const sellerToRemove = this.sellers.find(seller => 
+    seller.user && seller.user.equals(userId) && seller.role === 'co-seller'
+  );
+  
+  if (!sellerToRemove) {
+    return false; // User is not a co-seller
+  }
+  
+  // Remove co-seller
+  this.sellers = this.sellers.filter(seller => 
+    !seller.user.equals(userId)
+  );
+  
+  return true;
+};
+
 
 module.exports = mongoose.model("Listing", ListingSchema);

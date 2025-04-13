@@ -42,7 +42,7 @@ exports.registerProfessional = async (req, res) => {
           state,
           counties: county ? [county] : [], 
           licenseNumber,
-          paymentTier: professionalType === "Lender" ? (paymentTier || "Basic") : undefined,
+          paymentTier: professionalType === "lender" ? (paymentTier || "Basic") : undefined,
           preApprovals: []
       });
 
@@ -67,7 +67,7 @@ exports.getCountiesForState = (req, res) => {
 exports.updateLenderStatus = async (lenderId) => {
     try {
         const lender = await Professional.findById(lenderId);
-        if (lender && lender.professionalType === "Lender") {
+        if (lender && lender.professionalType === "lender") {
             lender.closedDeals += 1;
 
             // ✅ Promotion Logic
@@ -127,12 +127,69 @@ exports.dashboard = async (req, res) => {
       // Organize by status
       const pendingApplicants = preApprovals.filter(app => app.status === 'pending');
       const approvedApplicants = preApprovals.filter(app => app.status === 'approved');
-      const deniedApplicants = preApprovals.filter(app => app.status === 'rejected');
+      const deniedApplicants = preApprovals.filter(app => app.status === 'rejected' || app.status === 'denied');
+      
+      console.log('DEBUG - Professional Dashboard:');
+      console.log('Total preApprovals:', preApprovals.length);
+      console.log('Pending applicants:', pendingApplicants.length);
+      console.log('Approved applicants:', approvedApplicants.length);
+      console.log('Denied applicants:', deniedApplicants.length);
+      console.log('PreApprovals statuses:', preApprovals.map(app => app.status));
+      
+      // Fetch active loans (offers with bank financing where this lender is involved)
+      const Offer = require('../models/Offer');
+      let activeLoans = [];
+      
+      try {
+        // Find offers where:
+        // 1. Financing type is bank
+        // 2. Status is accepted
+        // 3. Either:
+        //    a. This lender is explicitly set as the lender in lenderInfo
+        //    b. A buyer has this lender as their preApprovalLender
+        activeLoans = await Offer.find({
+          financingType: 'bank',
+          status: 'accepted',
+          $or: [
+            { 'lenderInfo.email': professional.email },
+            { 'lenderInfo.name': professional.name },
+            { 'lenderInfo.company': professional.companyName }
+          ]
+        })
+        .populate('buyer', 'name email')
+        .populate('listing', 'address city state zip')
+        .sort({ closingDate: 1 });
+        
+        // If no direct matches, try to find through buyer's preApprovalLender
+        if (activeLoans.length === 0) {
+          const approvedBuyerIds = approvedApplicants
+            .filter(app => app.buyer && app.buyer._id)
+            .map(app => app.buyer._id);
+            
+          if (approvedBuyerIds.length > 0) {
+            const buyerLoans = await Offer.find({
+              financingType: 'bank',
+              status: 'accepted',
+              buyer: { $in: approvedBuyerIds }
+            })
+            .populate('buyer', 'name email')
+            .populate('listing', 'address city state zip')
+            .sort({ closingDate: 1 });
+            
+            activeLoans = [...activeLoans, ...buyerLoans];
+          }
+        }
+        
+      } catch (error) {
+        console.error("Error fetching active loans:", error);
+        // Continue with empty activeLoans array
+      }
       
       Object.assign(dashboardData, {
         pendingApplicants,
         approvedApplicants,
         deniedApplicants,
+        activeLoans,
         pendingCount: pendingApplicants.length,
         approvedCount: approvedApplicants.length,
         deniedCount: deniedApplicants.length,
@@ -228,7 +285,7 @@ exports.dashboard = async (req, res) => {
 
 // Title Company Dashboard
 exports.manageClosings = (req, res) => {
-    if (req.user.professionalType !== "Title Company") {
+    if (req.user.professionalType !== "title") {
         req.flash("error", "Access denied.");
         return res.redirect("/professionals/dashboard");
     }
@@ -237,7 +294,7 @@ exports.manageClosings = (req, res) => {
 
 // Lender Dashboard
 exports.manageLoans = (req, res) => {
-    if (req.user.professionalType !== "Lender") {
+    if (req.user.professionalType !== "lender") {
         req.flash("error", "Access denied.");
         return res.redirect("/professionals/dashboard");
     }
@@ -246,7 +303,7 @@ exports.manageLoans = (req, res) => {
 
 // Inspector Dashboard
 exports.manageInspections = (req, res) => {
-    if (req.user.professionalType !== "Inspector") {
+    if (req.user.professionalType !== "inspector") {
         req.flash("error", "Access denied.");
         return res.redirect("/professionals/dashboard");
     }
@@ -255,7 +312,7 @@ exports.manageInspections = (req, res) => {
 
 // Contractor Dashboard
 exports.manageRepairs = (req, res) => {
-    if (req.user.professionalType !== "Contractor") {
+    if (req.user.professionalType !== "contractor") {
         req.flash("error", "Access denied.");
         return res.redirect("/professionals/dashboard");
     }
@@ -269,7 +326,7 @@ exports.applyForPreApproval = async (req, res) => {
 
         // ✅ Ensure lender exists
         const lender = await Professional.findById(lenderId);
-        if (!lender || lender.professionalType !== "Lender") {
+        if (!lender || lender.professionalType !== "lender") {
             req.flash("error", "Invalid lender selection.");
             return res.redirect("/directory");
         }
@@ -359,7 +416,8 @@ exports.approvePreApproval = async (req, res) => {
       }
       
       // Update the lender's record
-      lender.preApprovals[applicationIndex].status = "rejected";
+      lender.preApprovals[applicationIndex].status = "denied";
+      lender.preApprovals[applicationIndex].deniedAt = new Date();
       await lender.save();
       
       // Update the buyer's record

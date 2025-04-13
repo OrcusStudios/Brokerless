@@ -1,0 +1,67 @@
+<%- include('../partials/layout', {title: 'Approve Pre-Approval Application'}) %>
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow">
+        <div class="card-header bg-success text-white">
+          <h4 class="mb-0"><i class="bi bi-check-circle me-2"></i>Approve Pre-Approval Application</h4>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-info" style="opacity: 1 !important;">
+            <i class="bi bi-info-circle me-2"></i>You are approving a pre-approval application for <strong><%= buyer.name %></strong>.
+          </div>
+          
+          <form action="/lender/approve" method="GET">
+            <input type="hidden" name="id" value="<%= applicantId %>">
+            
+            <div class="mb-3">
+              <label for="amount" class="form-label">Approval Amount ($)</label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input type="number" class="form-control" id="amount" name="amount" min="0" step="1" required>
+              </div>
+              <div class="form-text">Enter the maximum amount the buyer is approved for.</div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="term" class="form-label">Loan Term (Years)</label>
+              <select class="form-select" id="term" name="term">
+                <option value="15">15 Years</option>
+                <option value="20">20 Years</option>
+                <option value="30" selected>30 Years</option>
+              </select>
+            </div>
+            
+            <div class="mb-3">
+              <label for="interestRate" class="form-label">Interest Rate (%)</label>
+              <div class="input-group">
+                <input type="number" class="form-control" id="interestRate" name="interestRate" min="0" max="20" step="0.125" placeholder="5.25">
+                <span class="input-group-text">%</span>
+              </div>
+              <div class="form-text">Optional: Enter the interest rate offered.</div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="expirationDate" class="form-label">Expiration Date</label>
+              <input type="date" class="form-control" id="expirationDate" name="expirationDate">
+              <div class="form-text">Optional: When will this pre-approval expire?</div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="notes" class="form-label">Additional Notes</label>
+              <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Any additional information about this pre-approval..."></textarea>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <a href="/professionals/dashboard" class="btn btn-secondary me-md-2">Cancel</a>
+              <button type="submit" class="btn btn-success">Approve Application</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

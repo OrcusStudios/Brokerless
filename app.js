@@ -17,7 +17,7 @@ const cors = require('cors');
 const { body, validationResult } = require('express-validator');
 const messagingService = require('./utils/messagingService');
 const sanitizeInput = require('./middleware/sanitizationMiddleware');
-const { loginLimiter, apiLimiter, createAccountLimiter } = require('./middleware/rateLimitMiddleware');
+const { loginLimiter, professionalLoginLimiter, apiLimiter, createAccountLimiter } = require('./middleware/rateLimitMiddleware');
 const { unreadMessageCount } = require('./middleware/messageMiddleware');
 const app = express();
 
@@ -112,6 +112,7 @@ app.use(cookieParser());
 app.use(sanitizeInput);
 // Apply rate limiting to specific routes
 app.use('/users/login', loginLimiter);
+app.use('/professionals/login', professionalLoginLimiter);
 app.use('/users/register', createAccountLimiter);
 app.use('/professionals/register', createAccountLimiter);
 app.use('/api', apiLimiter);
