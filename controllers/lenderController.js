@@ -263,7 +263,7 @@ exports.approveApplicant = async (req, res) => {
     console.log('Request user:', req.user ? req.user._id : 'No user');
     
     try {
-        const { applicantId, amount, term, interestRate, expirationDate, notes } = req.body;
+        const { applicantId, amount, term, interestRate, expirationDate, loanType} = req.body;
         
         if (!applicantId) {
             console.log('ERROR: No applicant ID provided');
@@ -310,7 +310,7 @@ exports.approveApplicant = async (req, res) => {
             preApproval.interestRate = interestRate;
             preApproval.term = term;
             preApproval.expirationDate = expirationDate;
-            preApproval.notes = notes;
+            preApproval.loanType = loanType;
             preApproval.approvalDate = new Date();
         } else {
             // Create new pre-approval record if it doesn't exist
@@ -322,7 +322,7 @@ exports.approveApplicant = async (req, res) => {
                 interestRate: interestRate,
                 term: term,
                 expirationDate: expirationDate,
-                notes: notes,
+                loanType: loanType,
                 approvalDate: new Date()
             });
         }
@@ -340,9 +340,34 @@ exports.approveApplicant = async (req, res) => {
                 req.user.lender.applicants[applicantIndex].amount = amount;
                 req.user.lender.applicants[applicantIndex].term = term;
                 req.user.lender.applicants[applicantIndex].interestRate = interestRate;
-                req.user.lender.applicants[applicantIndex].notes = notes;
+                req.user.lender.applicants[applicantIndex].loanType = loanType;
                 await req.user.save();
             }
+        }
+        
+        // Update the lender's preApprovals array in the Professional model
+        try {
+            const lender = await Lender.findById(req.user._id);
+            if (lender) {
+                console.log('Updating lender preApprovals array in Professional model');
+                // Find the application in the preApprovals array
+                const applicationIndex = lender.preApprovals.findIndex(
+                    app => app.buyer && app.buyer.toString() === buyer._id.toString()
+                );
+                
+                if (applicationIndex !== -1) {
+                    // Update the status to approved
+                    lender.preApprovals[applicationIndex].status = 'approved';
+                    await lender.save();
+                    console.log('Lender preApprovals status updated to approved');
+                } else {
+                    console.log('Application not found in lender preApprovals array');
+                }
+            } else {
+                console.log('Lender not found');
+            }
+        } catch (error) {
+            console.error('Error updating lender preApprovals:', error);
         }
         
         // Notify the buyer
@@ -398,6 +423,20 @@ exports.approveApplicantGet = async (req, res) => {
             });
         }
         
+        // Get additional parameters from the form
+        const term = req.query.term;
+        const interestRate = req.query.interestRate;
+        const expirationDate = req.query.expirationDate;
+        const loanType = req.query.loanType;
+        
+        console.log('Form data:', {
+            amount,
+            term,
+            interestRate,
+            expirationDate,
+            loanType
+        });
+        
         // Update buyer's pre-approval status
         console.log('Updating buyer pre-approval status to approved');
         console.log('Buyer before update:', {
@@ -408,7 +447,7 @@ exports.approveApplicantGet = async (req, res) => {
         });
         
         // Use the updatePreApprovalStatus method which should handle the nested structure
-        await buyer.updatePreApprovalStatus('approved', req.user._id, amount);
+        await buyer.updatePreApprovalStatus('approved', req.user._id, amount, expirationDate);
         
         console.log('Buyer after update:', {
             id: buyer._id,
@@ -423,6 +462,10 @@ exports.approveApplicantGet = async (req, res) => {
         if (preApproval) {
             preApproval.status = 'approved';
             preApproval.approvalAmount = amount;
+            preApproval.term = term;
+            preApproval.interestRate = interestRate;
+            preApproval.expirationDate = expirationDate;
+            preApproval.loanType = loanType;
             preApproval.approvalDate = new Date();
             await preApproval.save();
         } else {
@@ -432,6 +475,10 @@ exports.approveApplicantGet = async (req, res) => {
                 lender: req.user._id,
                 status: 'approved',
                 approvalAmount: amount,
+                term: term,
+                interestRate: interestRate,
+                expirationDate: expirationDate,
+                loanType: loanType,
                 approvalDate: new Date()
             });
             await preApproval.save();
@@ -448,6 +495,31 @@ exports.approveApplicantGet = async (req, res) => {
                 req.user.lender.applicants[applicantIndex].amount = amount;
                 await req.user.save();
             }
+        }
+        
+        // Update the lender's preApprovals array in the Professional model
+        try {
+            const lender = await Lender.findById(req.user._id);
+            if (lender) {
+                console.log('Updating lender preApprovals array in Professional model');
+                // Find the application in the preApprovals array
+                const applicationIndex = lender.preApprovals.findIndex(
+                    app => app.buyer && app.buyer.toString() === buyer._id.toString()
+                );
+                
+                if (applicationIndex !== -1) {
+                    // Update the status to approved
+                    lender.preApprovals[applicationIndex].status = 'approved';
+                    await lender.save();
+                    console.log('Lender preApprovals status updated to approved');
+                } else {
+                    console.log('Application not found in lender preApprovals array');
+                }
+            } else {
+                console.log('Lender not found');
+            }
+        } catch (error) {
+            console.error('Error updating lender preApprovals:', error);
         }
         
         // Notify the buyer
@@ -808,6 +880,273 @@ exports.getDashboard = async (req, res) => {
         console.error('Error loading lender dashboard:', error);
         req.flash('error', 'Error loading dashboard');
         return res.redirect('/');
+    }
+};
+
+// Loan Progress Tracking Methods
+exports.updateLoanProgress = async (req, res) => {
+    try {
+        const { preApprovalId, stage, completed, notes } = req.body;
+        
+        if (!preApprovalId || !stage) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Pre-approval ID and stage are required' 
+            });
+        }
+        
+        // Find the pre-approval record
+        const preApproval = await PreApproval.findById(preApprovalId);
+        
+        if (!preApproval) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Pre-approval record not found' 
+            });
+        }
+        
+        // Ensure loanProgress object exists
+        if (!preApproval.loanProgress) {
+            preApproval.loanProgress = {
+                currentStage: 'application',
+                completedSteps: {
+                    application: true,
+                    processing: false,
+                    appraisal: false,
+                    underwriting: false,
+                    conditions: false,
+                    closing: false,
+                    funded: false,
+                    completed: false
+                },
+                notes: '',
+                lastUpdated: new Date(),
+                history: []
+            };
+        }
+        
+        // Update the completed status for the specified stage
+        preApproval.loanProgress.completedSteps[stage] = completed;
+        
+        // If marking as completed, add to history
+        if (completed) {
+            // Add to history
+            preApproval.loanProgress.history.push({
+                stage,
+                completedAt: new Date(),
+                notes: notes || ''
+            });
+            
+            // Determine the next stage
+            const stages = [
+                'application', 
+                'processing', 
+                'appraisal', 
+                'underwriting', 
+                'conditions', 
+                'closing', 
+                'funded', 
+                'completed'
+            ];
+            
+            const currentIndex = stages.indexOf(stage);
+            
+            // If not the last stage and completed, advance to next stage
+            if (currentIndex < stages.length - 1 && completed) {
+                preApproval.loanProgress.currentStage = stages[currentIndex + 1];
+            }
+            
+            // If the completed stage is "completed", mark the loan as fully completed
+            if (stage === 'completed') {
+                // You might want to add additional logic here for fully completed loans
+            }
+        }
+        
+        // Update notes if provided
+        if (notes) {
+            preApproval.loanProgress.notes = notes;
+        }
+        
+        // Update last updated timestamp
+        preApproval.loanProgress.lastUpdated = new Date();
+        
+        await preApproval.save();
+        
+        // Notify the buyer
+        await Notification.create({
+            user: preApproval.buyer,
+            message: `Your loan has reached the ${stage} stage${completed ? ' and has been completed' : ''}`,
+            type: 'info',
+            link: '/dashboard'
+        });
+        
+        return res.status(200).json({ 
+            success: true, 
+            message: 'Loan progress updated successfully',
+            preApproval
+        });
+    } catch (error) {
+        console.error('Error updating loan progress:', error);
+        return res.status(500).json({ 
+            success: false, 
+            message: 'Server error while updating loan progress'
+        });
+    }
+};
+
+exports.getLoanProgress = async (req, res) => {
+    try {
+        const { preApprovalId } = req.params;
+        
+        if (!preApprovalId) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Pre-approval ID is required' 
+            });
+        }
+        
+        // Find the pre-approval record
+        const preApproval = await PreApproval.findById(preApprovalId)
+            .populate('buyer', 'name email')
+            .populate('lender', 'name companyName');
+        
+        if (!preApproval) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Pre-approval record not found' 
+            });
+        }
+        
+        return res.status(200).json({ 
+            success: true, 
+            loanProgress: preApproval.loanProgress || {
+                currentStage: 'application',
+                completedSteps: {
+                    application: true,
+                    processing: false,
+                    appraisal: false,
+                    underwriting: false,
+                    conditions: false,
+                    closing: false,
+                    funded: false,
+                    completed: false
+                },
+                notes: '',
+                lastUpdated: new Date(),
+                history: []
+            },
+            preApproval
+        });
+    } catch (error) {
+        console.error('Error getting loan progress:', error);
+        return res.status(500).json({ 
+            success: false, 
+            message: 'Server error while getting loan progress'
+        });
+    }
+};
+
+exports.updateLoanProgressGet = async (req, res) => {
+    try {
+        const { id, stage, completed, notes } = req.query;
+        
+        if (!id || !stage) {
+            req.flash('error', 'Pre-approval ID and stage are required');
+            return res.redirect('/professionals/dashboard');
+        }
+        
+        // Find the pre-approval record
+        const preApproval = await PreApproval.findById(id);
+        
+        if (!preApproval) {
+            req.flash('error', 'Pre-approval record not found');
+            return res.redirect('/professionals/dashboard');
+        }
+        
+        // Ensure loanProgress object exists
+        if (!preApproval.loanProgress) {
+            preApproval.loanProgress = {
+                currentStage: 'application',
+                completedSteps: {
+                    application: true,
+                    processing: false,
+                    appraisal: false,
+                    underwriting: false,
+                    conditions: false,
+                    closing: false,
+                    funded: false,
+                    completed: false
+                },
+                notes: '',
+                lastUpdated: new Date(),
+                history: []
+            };
+        }
+        
+        // Convert completed string to boolean
+        const isCompleted = completed === 'true';
+        
+        // Update the completed status for the specified stage
+        preApproval.loanProgress.completedSteps[stage] = isCompleted;
+        
+        // If marking as completed, add to history
+        if (isCompleted) {
+            // Add to history
+            preApproval.loanProgress.history.push({
+                stage,
+                completedAt: new Date(),
+                notes: notes || ''
+            });
+            
+            // Determine the next stage
+            const stages = [
+                'application', 
+                'processing', 
+                'appraisal', 
+                'underwriting', 
+                'conditions', 
+                'closing', 
+                'funded', 
+                'completed'
+            ];
+            
+            const currentIndex = stages.indexOf(stage);
+            
+            // If not the last stage and completed, advance to next stage
+            if (currentIndex < stages.length - 1 && isCompleted) {
+                preApproval.loanProgress.currentStage = stages[currentIndex + 1];
+            }
+            
+            // If the completed stage is "completed", mark the loan as fully completed
+            if (stage === 'completed') {
+                // You might want to add additional logic here for fully completed loans
+            }
+        }
+        
+        // Update notes if provided
+        if (notes) {
+            preApproval.loanProgress.notes = notes;
+        }
+        
+        // Update last updated timestamp
+        preApproval.loanProgress.lastUpdated = new Date();
+        
+        await preApproval.save();
+        
+        // Notify the buyer
+        await Notification.create({
+            user: preApproval.buyer,
+            message: `Your loan has reached the ${stage} stage${isCompleted ? ' and has been completed' : ''}`,
+            type: 'info',
+            link: '/dashboard'
+        });
+        
+        req.flash('success', 'Loan progress updated successfully');
+        return res.redirect('/professionals/dashboard');
+    } catch (error) {
+        console.error('Error updating loan progress:', error);
+        req.flash('error', 'Server error while updating loan progress');
+        return res.redirect('/professionals/dashboard');
     }
 };
 

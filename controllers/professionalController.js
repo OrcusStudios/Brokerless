@@ -124,10 +124,51 @@ exports.dashboard = async (req, res) => {
       // Make sure preApprovals exists
       const preApprovals = professional.preApprovals || [];
       
-      // Organize by status
-      const pendingApplicants = preApprovals.filter(app => app.status === 'pending');
-      const approvedApplicants = preApprovals.filter(app => app.status === 'approved');
-      const deniedApplicants = preApprovals.filter(app => app.status === 'rejected' || app.status === 'denied');
+      // Get all buyer IDs from preApprovals
+      const buyerIds = preApprovals.map(app => app.buyer && app.buyer._id).filter(Boolean);
+      
+      // Fetch PreApproval records for these buyers
+      const PreApproval = require('../models/PreApproval');
+      const preApprovalRecords = await PreApproval.find({
+        buyer: { $in: buyerIds },
+        lender: req.user._id
+      });
+      
+      // Create a map of buyer ID to PreApproval record for quick lookup
+      const preApprovalMap = {};
+      preApprovalRecords.forEach(record => {
+        preApprovalMap[record.buyer.toString()] = record;
+      });
+      
+      // Enhance preApprovals with PreApproval records
+      const enhancedPreApprovals = preApprovals.map(app => {
+        if (app.buyer && app.buyer._id) {
+          const buyerId = app.buyer._id.toString();
+          const preApproval = preApprovalMap[buyerId];
+          return {
+            ...app.toObject(),
+            preApproval: preApproval || null
+          };
+        }
+        return app;
+      });
+      
+      // Organize by status from the PreApproval records
+      const pendingApplicants = enhancedPreApprovals.filter(app => {
+        const preApproval = app.preApproval;
+        return preApproval ? preApproval.status === 'pending' : app.status === 'pending';
+      });
+      
+      const approvedApplicants = enhancedPreApprovals.filter(app => {
+        const preApproval = app.preApproval;
+        return preApproval ? preApproval.status === 'approved' : app.status === 'approved';
+      });
+      
+      const deniedApplicants = enhancedPreApprovals.filter(app => {
+        const preApproval = app.preApproval;
+        return preApproval ? (preApproval.status === 'rejected' || preApproval.status === 'denied') : 
+                            (app.status === 'rejected' || app.status === 'denied');
+      });
       
       console.log('DEBUG - Professional Dashboard:');
       console.log('Total preApprovals:', preApprovals.length);

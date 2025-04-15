@@ -16,6 +16,11 @@ router.post("/request", ensureAuthenticated, ensureLender, lenderController.requ
 // Update application link
 router.post("/update-application-link", ensureAuthenticated, ensureLender, lenderController.updateApplicationLink);
 
+// Loan Progress Tracking Routes
+router.post("/loan-progress", ensureAuthenticated, ensureLender, lenderController.updateLoanProgress);
+router.get("/loan-progress/:preApprovalId", ensureAuthenticated, lenderController.getLoanProgress);
+router.get("/update-loan-progress", ensureAuthenticated, ensureLender, lenderController.updateLoanProgressGet);
+
 // Any other lender routes...
 router.get("/applicants", ensureAuthenticated, ensureLender, lenderController.getApplicants);
 router.get("/analytics", ensureAuthenticated, ensureLender, lenderController.getAnalytics);

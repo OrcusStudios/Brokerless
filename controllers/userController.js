@@ -141,10 +141,12 @@ exports.getDashboard = async (req, res) => {
             // Pre-approval info from User model
             buyerData.preApprovalStatus = req.user.buyer.preApprovalStatus;
             
-            // Get full PreApproval document
+            // Get full PreApproval document with populated lender
             const preApproval = await PreApproval.findOne({ 
                 buyer: req.user._id 
-            }).sort({ createdAt: -1 });
+            })
+            .populate('lender', 'name companyName')
+            .sort({ createdAt: -1 });
             
             if (preApproval) {
                 buyerData.preApproval = preApproval;

@@ -1,0 +1,110 @@
+/* Progress Bar Styles for Dashboard */
+
+/* General progress bar container */
+.progress {
+    height: 20px;
+    margin-bottom: 1rem;
+    border-radius: 0.25rem;
+    background-color: #e9ecef;
+}
+
+.progress-bar {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    background-color: #007bff;
+    transition: width 0.6s ease;
+}
+
+.progress-bar.bg-success {
+    background-color: #28a745 !important;
+}
+
+.progress-bar.bg-info {
+    background-color: #17a2b8 !important;
+}
+
+/* Loan Progress Steps */
+.loan-progress-steps {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.loan-progress-steps::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #e9ecef;
+    z-index: 1;
+}
+
+.loan-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    width: 12%;
+    text-align: center;
+    z-index: 2;
+}
+
+.loan-step .step-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #f8f9fa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 5px;
+    z-index: 2;
+}
+
+.loan-step .step-label {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.loan-step.completed .step-icon {
+    background-color: #28a745;
+    color: white;
+}
+
+.loan-step.completed .step-label {
+    color: #28a745;
+    font-weight: 500;
+}
+
+.loan-step.current .step-icon {
+    background-color: #007bff;
+    color: white;
+    border: 2px solid #007bff;
+}
+
+.loan-step.current .step-label {
+    color: #007bff;
+    font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .loan-progress-steps {
+        flex-wrap: wrap;
+    }
+    
+    .loan-step {
+        width: 25%;
+        margin-bottom: 15px;
+    }
+}

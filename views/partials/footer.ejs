@@ -32,34 +32,8 @@
     </div>
 </footer>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var dropdownToggle = document.querySelector('#navbarDropdown');
-        if (dropdownToggle) {
-            dropdownToggle.addEventListener('click', function(e) {
-                var dropdown = this.nextElementSibling;
-                if (dropdown) {
-                    dropdown.classList.toggle('show');
-                    this.setAttribute('aria-expanded', 
-                        this.getAttribute('aria-expanded') === 'true' ? 'false' : 'true'
-                    );
-                }
-            });
-        }
-    });
-</script>
-    
-    <!-- Socket.io client library -->
-    <script src="/socket.io/socket.io.js"></script>
-    
-    <!-- Bootstrap JavaScript Bundle (including Popper.js) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        
     <!-- Messaging JS -->
     <script src="/js/messaging.js"></script>
-
-    <!-- notificationUpdater JS -->
-    <script src="/js/notificationUpdater.js"></script>
     
     <!-- Form Guidance JS -->
     <script src="/js/form-guidance.js"></script>
@@ -125,54 +99,6 @@
         });
     </script>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-      
-      // Log all dropdown toggles found
-      var dropdownElementList = document.querySelectorAll('.dropdown-toggle');
-      
-      // Try to initialize each dropdown and log any errors
-      dropdownElementList.forEach(function(dropdownToggle, index) {
-        try {
-          var dropdown = new bootstrap.Dropdown(dropdownToggle);
-        } catch (e) {
-          console.error('Error initializing dropdown:', e);
-        }
-      });
-  
-      // Direct click handler for the user dropdown specifically
-      var userDropdown = document.getElementById('navbarDropdown');
-      if (userDropdown) {        
-        userDropdown.addEventListener('click', function(e) {
-          e.preventDefault();
-          e.stopPropagation();          
-          try {
-            var dropdown = bootstrap.Dropdown.getInstance(userDropdown);
-            if (dropdown) {
-              dropdown.toggle();
-            } else {
-              new bootstrap.Dropdown(userDropdown).toggle();
-            }
-          } catch (e) {
-            
-            // Manual fallback
-            var menu = document.querySelector('[aria-labelledby="navbarDropdown"]');
-            if (menu) {
-              if (menu.classList.contains('show')) {
-                menu.classList.remove('show');
-              } else {
-                menu.classList.add('show');
-              }
-            } else {
-              console.error('Menu not found');
-            }
-          }
-        });
-      } else {
-        console.error('User dropdown not found by ID "navbarDropdown"');
-      }
-    });
-  </script>
 
 </body>
 </html>

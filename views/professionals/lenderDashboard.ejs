@@ -100,6 +100,221 @@
     </div>
   </div>
 
+  <!-- Loan Progress Tracking -->
+  <div class="col-md-12 mb-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Loan Progress Tracking</h5>
+        <span class="badge bg-info"><%= approvedApplicants ? approvedApplicants.length : 0 %></span>
+      </div>
+      
+      <!-- Section Help Box -->
+      <div class="section-help m-3">
+        <div class="section-help-title"><i class="bi bi-info-circle"></i>Loan Progress Management</div>
+        <p class="section-help-content">
+          Track the progress of each loan through the mortgage process. Regular updates help:
+          <ul>
+            <li>Keep buyers informed about their loan status</li>
+            <li>Provide transparency throughout the loan process</li>
+            <li>Identify potential issues early</li>
+            <li>Ensure a smooth closing process</li>
+          </ul>
+          Update each loan's progress as it moves through the stages.
+        </p>
+      </div>
+      
+      <div class="card-body">
+        <% if (!approvedApplicants || approvedApplicants.length === 0) { %>
+          <div class="alert alert-info mb-0" style="opacity: 1 !important;">
+            <i class="bi bi-info-circle me-2"></i>No approved applications to track.
+          </div>
+        <% } else { %>
+          <div class="accordion" id="loanProgressAccordion">
+            <% approvedApplicants.forEach((applicant, index) => { %>
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="heading<%= index %>">
+                  <button class="accordion-button <%= index > 0 ? 'collapsed' : '' %>" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<%= index %>" aria-expanded="<%= index === 0 ? 'true' : 'false' %>" aria-controls="collapse<%= index %>">
+                    <div class="d-flex justify-content-between align-items-center w-100 me-3">
+                      <div>
+                        <strong><%= applicant.buyer && applicant.buyer.name ? applicant.buyer.name : 'Unknown Applicant' %></strong>
+                        <span class="text-muted ms-2">$<%= applicant.amount ? applicant.amount.toLocaleString() : 'Not Specified' %></span>
+                      </div>
+                      
+                      <% 
+                        // Calculate progress percentage
+                        let progressPercentage = 0;
+                        let currentStage = 'application';
+                        let completedSteps = {
+                          application: true,
+                          processing: false,
+                          appraisal: false,
+                          underwriting: false,
+                          conditions: false,
+                          closing: false,
+                          funded: false,
+                          completed: false
+                        };
+                        
+                        if (applicant.preApproval && applicant.preApproval.loanProgress) {
+                          currentStage = applicant.preApproval.loanProgress.currentStage;
+                          completedSteps = applicant.preApproval.loanProgress.completedSteps;
+                          
+                          // Count completed steps
+                          let completedCount = 0;
+                          let totalSteps = 8; // Total number of steps
+                          
+                          if (completedSteps.application) completedCount++;
+                          if (completedSteps.processing) completedCount++;
+                          if (completedSteps.appraisal) completedCount++;
+                          if (completedSteps.underwriting) completedCount++;
+                          if (completedSteps.conditions) completedCount++;
+                          if (completedSteps.closing) completedCount++;
+                          if (completedSteps.funded) completedCount++;
+                          if (completedSteps.completed) completedCount++;
+                          
+                          progressPercentage = Math.round((completedCount / totalSteps) * 100);
+                        }
+                      %>
+                      
+                      <div class="progress" style="width: 200px; height: 10px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: <%= progressPercentage %>%;" aria-valuenow="<%= progressPercentage %>" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+                      
+                      <span class="badge bg-info"><%= progressPercentage %>%</span>
+                    </div>
+                  </button>
+                </h2>
+                <div id="collapse<%= index %>" class="accordion-collapse collapse <%= index === 0 ? 'show' : '' %>" aria-labelledby="heading<%= index %>" data-bs-parent="#loanProgressAccordion">
+                  <div class="accordion-body">
+                    <div class="row">
+                      <div class="col-md-12 mb-3">
+                        <div class="progress" style="height: 20px;">
+                          <div class="progress-bar bg-success" role="progressbar" style="width: <%= progressPercentage %>%;" aria-valuenow="<%= progressPercentage %>" aria-valuemin="0" aria-valuemax="100"><%= progressPercentage %>%</div>
+                        </div>
+                      </div>
+                      
+                      <div class="col-md-12 mb-3">
+                        <div class="d-flex justify-content-between loan-progress-steps">
+                          <div class="loan-step <%= completedSteps.application ? 'completed' : (currentStage === 'application' ? 'current' : '') %>">
+                            <div class="step-icon"><i class="bi <%= completedSteps.application ? 'bi-check-circle-fill' : 'bi-circle' %>"></i></div>
+                            <div class="step-label">Application</div>
+                          </div>
+                          <div class="loan-step <%= completedSteps.processing ? 'completed' : (currentStage === 'processing' ? 'current' : '') %>">
+                            <div class="step-icon"><i class="bi <%= completedSteps.processing ? 'bi-check-circle-fill' : 'bi-circle' %>"></i></div>
+                            <div class="step-label">Processing</div>
+                          </div>
+                          <div class="loan-step <%= completedSteps.appraisal ? 'completed' : (currentStage === 'appraisal' ? 'current' : '') %>">
+                            <div class="step-icon"><i class="bi <%= completedSteps.appraisal ? 'bi-check-circle-fill' : 'bi-circle' %>"></i></div>
+                            <div class="step-label">Appraisal</div>
+                          </div>
+                          <div class="loan-step <%= completedSteps.underwriting ? 'completed' : (currentStage === 'underwriting' ? 'current' : '') %>">
+                            <div class="step-icon"><i class="bi <%= completedSteps.underwriting ? 'bi-check-circle-fill' : 'bi-circle' %>"></i></div>
+                            <div class="step-label">Underwriting</div>
+                          </div>
+                          <div class="loan-step <%= completedSteps.conditions ? 'completed' : (currentStage === 'conditions' ? 'current' : '') %>">
+                            <div class="step-icon"><i class="bi <%= completedSteps.conditions ? 'bi-check-circle-fill' : 'bi-circle' %>"></i></div>
+                            <div class="step-label">Conditions</div>
+                          </div>
+                          <div class="loan-step <%= completedSteps.closing ? 'completed' : (currentStage === 'closing' ? 'current' : '') %>">
+                            <div class="step-icon"><i class="bi <%= completedSteps.closing ? 'bi-check-circle-fill' : 'bi-circle' %>"></i></div>
+                            <div class="step-label">Closing</div>
+                          </div>
+                          <div class="loan-step <%= completedSteps.funded ? 'completed' : (currentStage === 'funded' ? 'current' : '') %>">
+                            <div class="step-icon"><i class="bi <%= completedSteps.funded ? 'bi-check-circle-fill' : 'bi-circle' %>"></i></div>
+                            <div class="step-label">Funded</div>
+                          </div>
+                          <div class="loan-step <%= completedSteps.completed ? 'completed' : (currentStage === 'completed' ? 'current' : '') %>">
+                            <div class="step-icon"><i class="bi <%= completedSteps.completed ? 'bi-check-circle-fill' : 'bi-circle' %>"></i></div>
+                            <div class="step-label">Completed</div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div class="col-md-12">
+                        <div class="card">
+                          <div class="card-header bg-light">
+                            <h6 class="mb-0">Update Progress</h6>
+                          </div>
+                          <div class="card-body">
+                            <form action="/lender/update-loan-progress" method="GET" class="row g-3">
+                              <input type="hidden" name="id" value="<%= applicant.preApproval ? applicant.preApproval._id : '' %>">
+                              
+                              <div class="col-md-6">
+                                <label for="stage<%= index %>" class="form-label">Stage</label>
+                                <select id="stage<%= index %>" name="stage" class="form-select" required>
+                                  <option value="application" <%= currentStage === 'application' ? 'selected' : '' %>>Application</option>
+                                  <option value="processing" <%= currentStage === 'processing' ? 'selected' : '' %>>Processing</option>
+                                  <option value="appraisal" <%= currentStage === 'appraisal' ? 'selected' : '' %>>Appraisal</option>
+                                  <option value="underwriting" <%= currentStage === 'underwriting' ? 'selected' : '' %>>Underwriting</option>
+                                  <option value="conditions" <%= currentStage === 'conditions' ? 'selected' : '' %>>Conditions</option>
+                                  <option value="closing" <%= currentStage === 'closing' ? 'selected' : '' %>>Closing</option>
+                                  <option value="funded" <%= currentStage === 'funded' ? 'selected' : '' %>>Funded</option>
+                                  <option value="completed" <%= currentStage === 'completed' ? 'selected' : '' %>>Completed</option>
+                                </select>
+                              </div>
+                              
+                              <div class="col-md-6">
+                                <label class="form-label">Status</label>
+                                <div class="d-flex">
+                                  <div class="form-check me-3">
+                                    <input class="form-check-input" type="radio" name="completed" id="inProgress<%= index %>" value="false" <%= !completedSteps[currentStage] ? 'checked' : '' %>>
+                                    <label class="form-check-label" for="inProgress<%= index %>">
+                                      In Progress
+                                    </label>
+                                  </div>
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="completed" id="completed<%= index %>" value="true" <%= completedSteps[currentStage] ? 'checked' : '' %>>
+                                    <label class="form-check-label" for="completed<%= index %>">
+                                      Completed
+                                    </label>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              <div class="col-md-12">
+                                <label for="notes<%= index %>" class="form-label">Notes</label>
+                                <textarea id="notes<%= index %>" name="notes" class="form-control" rows="2" placeholder="Add any notes about this stage..."></textarea>
+                              </div>
+                              
+                              <div class="col-12">
+                                <button type="submit" class="btn btn-primary">Update Progress</button>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <% if (applicant.preApproval && applicant.preApproval.loanProgress && applicant.preApproval.loanProgress.history && applicant.preApproval.loanProgress.history.length > 0) { %>
+                        <div class="col-md-12 mt-3">
+                          <h6>Progress History</h6>
+                          <ul class="list-group">
+                            <% applicant.preApproval.loanProgress.history.forEach(historyItem => { %>
+                              <li class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                  <div>
+                                    <strong><%= historyItem.stage.charAt(0).toUpperCase() + historyItem.stage.slice(1) %></strong>
+                                    <% if (historyItem.notes) { %>
+                                      <p class="mb-0 text-muted"><%= historyItem.notes %></p>
+                                    <% } %>
+                                  </div>
+                                  <small class="text-muted"><%= new Date(historyItem.completedAt).toLocaleString() %></small>
+                                </div>
+                              </li>
+                            <% }); %>
+                          </ul>
+                        </div>
+                      <% } %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+  
   <!-- Approved Applications -->
   <div class="col-md-6 mb-4">
     <div class="card shadow-sm h-100">

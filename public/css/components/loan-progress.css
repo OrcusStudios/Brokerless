@@ -1,0 +1,118 @@
+/* Loan Progress Tracking Styles */
+.loan-progress-steps {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.loan-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    width: 12%;
+    text-align: center;
+}
+
+.loan-step .step-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #f8f9fa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 5px;
+    z-index: 2;
+}
+
+.loan-step .step-label {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.loan-step.completed .step-icon {
+    background-color: #28a745;
+    color: white;
+}
+
+.loan-step.completed .step-label {
+    color: #28a745;
+    font-weight: 500;
+}
+
+.loan-step.current .step-icon {
+    background-color: #007bff;
+    color: white;
+    border: 2px solid #007bff;
+}
+
+.loan-step.current .step-label {
+    color: #007bff;
+    font-weight: 500;
+}
+
+/* Progress bar connecting steps */
+.loan-progress-steps::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #e9ecef;
+    z-index: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .loan-progress-steps {
+        flex-wrap: wrap;
+    }
+    
+    .loan-step {
+        width: 25%;
+        margin-bottom: 15px;
+    }
+}
+
+/* Accordion customization for loan progress */
+#loanProgressAccordion .accordion-button:not(.collapsed) {
+    background-color: rgba(0, 123, 255, 0.1);
+    color: #0056b3;
+}
+
+#loanProgressAccordion .progress {
+    border-radius: 0.25rem;
+    height: 10px;
+}
+
+/* History list styling */
+.progress-history-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.progress-history-item {
+    border-left: 3px solid #dee2e6;
+    padding-left: 15px;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.progress-history-item::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #007bff;
+}
+
+.progress-history-item.completed::before {
+    background-color: #28a745;
+}
