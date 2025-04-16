@@ -78,6 +78,14 @@
                             </li>
                         <% } %>
                         
+                        <% if (user.isAdmin) { %>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/admin/dashboard">
+                                    <i class="bi bi-shield-lock me-1"></i>Admin Panel
+                                </a>
+                            </li>
+                        <% } %>
+                        
                         <li class="nav-item">
                             <a class="nav-link position-relative" href="/messages/inbox">
                                 <i class="bi bi-chat-dots me-1"></i>Messages
@@ -199,6 +207,12 @@
                                 <li><a class="dropdown-item" href="<%= isProfessional ? '/professionals/profile' : '/users/profile' %>">
                                     <i class="bi bi-person me-2"></i>My Profile
                                 </a></li>
+                                
+                                <% if (user.isAdmin) { %>
+                                    <li><a class="dropdown-item" href="/admin/dashboard">
+                                        <i class="bi bi-shield-lock me-2"></i>Admin Panel
+                                    </a></li>
+                                <% } %>
                                 
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item text-danger" href="/users/logout">

@@ -29,6 +29,28 @@ const UserSchema = new mongoose.Schema({
     active: { type: Boolean, default: true },
     activatedAt: { type: Date, default: Date.now }
   }],
+  
+  // Admin information
+  isAdmin: { type: Boolean, default: false },
+  adminRole: { 
+    type: String, 
+    enum: ["SUPER_ADMIN", "USER_ADMIN", "CONTENT_ADMIN", "TRANSACTION_ADMIN"],
+    default: null
+  },
+  adminPermissions: [{
+    type: String,
+    enum: [
+      "MANAGE_USERS", 
+      "MANAGE_ADMINS", 
+      "MANAGE_LISTINGS", 
+      "MANAGE_TRANSACTIONS", 
+      "MANAGE_CONTENT", 
+      "VIEW_ANALYTICS", 
+      "SYSTEM_SETTINGS"
+    ]
+  }],
+  adminCreatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  adminCreatedAt: { type: Date },
 
   // Buyer-specific information
   buyer: {
@@ -270,9 +292,56 @@ UserSchema.virtual('fullName').get(function() {
   return this.name;
 });
 
+// Admin management methods
+UserSchema.methods.makeAdmin = function(adminRole, permissions, createdBy) {
+  this.isAdmin = true;
+  this.adminRole = adminRole;
+  this.adminPermissions = permissions || [];
+  this.adminCreatedBy = createdBy;
+  this.adminCreatedAt = new Date();
+  
+  return this.save();
+};
+
+UserSchema.methods.removeAdmin = function() {
+  this.isAdmin = false;
+  this.adminRole = null;
+  this.adminPermissions = [];
+  
+  return this.save();
+};
+
+UserSchema.methods.hasAdminPermission = function(permission) {
+  if (!this.isAdmin) return false;
+  
+  // Super admins have all permissions
+  if (this.adminRole === 'SUPER_ADMIN') return true;
+  
+  return this.adminPermissions.includes(permission);
+};
+
+UserSchema.methods.addAdminPermission = function(permission) {
+  if (!this.isAdmin) return Promise.resolve(this);
+  
+  if (!this.adminPermissions.includes(permission)) {
+    this.adminPermissions.push(permission);
+    return this.save();
+  }
+  
+  return Promise.resolve(this);
+};
+
+UserSchema.methods.removeAdminPermission = function(permission) {
+  if (!this.isAdmin) return Promise.resolve(this);
+  
+  this.adminPermissions = this.adminPermissions.filter(p => p !== permission);
+  return this.save();
+};
+
 // Indexes for better query performance
 UserSchema.index({ 'roles.type': 1, 'roles.active': 1 });
 UserSchema.index({ 'buyer.preApprovalStatus': 1 });
 UserSchema.index({ 'seller.verificationStatus': 1 });
+UserSchema.index({ 'isAdmin': 1, 'adminRole': 1 });
 
 module.exports = mongoose.model("User", UserSchema);

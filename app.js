@@ -210,6 +210,7 @@ app.use("/messages", require("./routes/messageRoutes"));
 app.use("/closing", require("./routes/closingRoutes"));
 app.use("/pricing", require("./routes/pricingRoutes"));
 app.use("/disclosures", require("./routes/disclosureRoutes"));
+app.use("/admin", require("./routes/adminRoutes"));
 
 // Home Route
 app.get('/', (req, res) => {

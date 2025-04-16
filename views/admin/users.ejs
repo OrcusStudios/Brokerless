@@ -1,0 +1,233 @@
+
+<div class="row mb-4">
+  <div class="col-md-12">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3>User Management</h3>
+      <a href="/admin/users/new" class="btn btn-primary">
+        <i class="bi bi-person-plus me-2"></i>Add New User
+      </a>
+    </div>
+    
+    <!-- Search Form -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-light">
+        <h5 class="mb-0">Search Users</h5>
+      </div>
+      <div class="card-body">
+        <form action="/admin/users" method="GET" id="searchForm">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="input-group">
+                <input type="text" class="form-control" name="search" placeholder="Search by name or email" value="<%= query.search || '' %>">
+                <button class="btn btn-primary" type="submit">
+                  <i class="bi bi-search"></i>
+                </button>
+              </div>
+            </div>
+            
+            <div class="col-md-3">
+              <select class="form-select" name="role">
+                <option value="" <%= !query.role ? 'selected' : '' %>>All Roles</option>
+                <option value="buyer" <%= query.role === 'buyer' ? 'selected' : '' %>>Buyers</option>
+                <option value="seller" <%= query.role === 'seller' ? 'selected' : '' %>>Sellers</option>
+                <option value="lender" <%= query.role === 'lender' ? 'selected' : '' %>>Lenders</option>
+                <option value="inspector" <%= query.role === 'inspector' ? 'selected' : '' %>>Inspectors</option>
+                <option value="title" <%= query.role === 'title' ? 'selected' : '' %>>Title Agents</option>
+              </select>
+            </div>
+            
+            <div class="col-md-3">
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="isActive" id="activeUsers" value="true" <%= query.isActive === 'true' ? 'checked' : '' %>>
+                <label class="form-check-label" for="activeUsers">Active</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="isActive" id="inactiveUsers" value="false" <%= query.isActive === 'false' ? 'checked' : '' %>>
+                <label class="form-check-label" for="inactiveUsers">Inactive</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="isActive" id="allUsers" value="" <%= !query.isActive ? 'checked' : '' %>>
+                <label class="form-check-label" for="allUsers">All</label>
+              </div>
+            </div>
+            
+            <div class="col-md-2 text-end">
+              <button type="submit" class="btn btn-primary me-2">
+                <i class="bi bi-search me-1"></i>Search
+              </button>
+              <a href="/admin/users" class="btn btn-outline-secondary">
+                <i class="bi bi-x-circle me-1"></i>Reset
+              </a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Active Filters -->
+    <% if (query.search || query.role || query.isActive) { %>
+      <div class="mb-3">
+        <div class="d-flex align-items-center">
+          <span class="me-2">Active Filters:</span>
+          <div class="d-flex flex-wrap gap-2">
+            <% if (query.search) { %>
+              <div class="filter-tag badge bg-primary">
+                Search: <%= query.search %>
+                <a href="#" class="text-white ms-1 close" data-param="search">×</a>
+              </div>
+            <% } %>
+            
+            <% if (query.role) { %>
+              <div class="filter-tag badge bg-primary">
+                Role: <%= query.role.charAt(0).toUpperCase() + query.role.slice(1) %>
+                <a href="#" class="text-white ms-1 close" data-param="role">×</a>
+              </div>
+            <% } %>
+            
+            <% if (query.isActive === 'true') { %>
+              <div class="filter-tag badge bg-primary">
+                Status: Active
+                <a href="#" class="text-white ms-1 close" data-param="isActive">×</a>
+              </div>
+            <% } else if (query.isActive === 'false') { %>
+              <div class="filter-tag badge bg-primary">
+                Status: Inactive
+                <a href="#" class="text-white ms-1 close" data-param="isActive">×</a>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    <% } %>
+    
+    <!-- Results Table -->
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <% if (users && users.length > 0) { %>
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Roles</th>
+                  <th>Status</th>
+                  <th>Joined</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% users.forEach(user => { %>
+                  <tr>
+                    <td><%= user.name %></td>
+                    <td><%= user.email %></td>
+                    <td>
+                      <% if (user.roles && user.roles.length > 0) { %>
+                        <% user.roles.filter(role => role.active).forEach(role => { %>
+                          <span class="badge bg-secondary me-1"><%= role.type %></span>
+                        <% }); %>
+                      <% } else { %>
+                        <span class="text-muted">None</span>
+                      <% } %>
+                    </td>
+                    <td>
+                      <% if (user.isActive) { %>
+                        <span class="badge bg-success">Active</span>
+                      <% } else { %>
+                        <span class="badge bg-danger">Inactive</span>
+                      <% } %>
+                    </td>
+                    <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
+                    <td>
+                      <div class="btn-group btn-group-sm">
+                        <a href="/admin/users/<%= user._id %>" class="btn btn-outline-primary">
+                          <i class="bi bi-eye"></i>
+                        </a>
+                        <a href="/admin/users/<%= user._id %>/edit" class="btn btn-outline-secondary">
+                          <i class="bi bi-pencil"></i>
+                        </a>
+                        <% if (user.isActive) { %>
+                          <a href="/admin/users/<%= user._id %>/deactivate" class="btn btn-outline-danger" data-confirm="Are you sure you want to deactivate this user?">
+                            <i class="bi bi-person-x"></i>
+                          </a>
+                        <% } else { %>
+                          <a href="/admin/users/<%= user._id %>/activate" class="btn btn-outline-success" data-confirm="Are you sure you want to activate this user?">
+                            <i class="bi bi-person-check"></i>
+                          </a>
+                        <% } %>
+                      </div>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- Pagination -->
+          <% if (totalPages > 1) { %>
+            <nav aria-label="User pagination" class="mt-4">
+              <ul class="pagination justify-content-center">
+                <li class="page-item <%= hasPrevPage ? '' : 'disabled' %>">
+                  <a class="page-link" href="<%= hasPrevPage ? `/admin/users?page=${currentPage - 1}&search=${query.search || ''}&role=${query.role || ''}&isActive=${query.isActive || ''}` : '#' %>" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                  </a>
+                </li>
+                
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                  <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                    <a class="page-link" href="/admin/users?page=<%= i %>&search=<%= query.search || '' %>&role=<%= query.role || '' %>&isActive=<%= query.isActive || '' %>">
+                      <%= i %>
+                    </a>
+                  </li>
+                <% } %>
+                
+                <li class="page-item <%= hasNextPage ? '' : 'disabled' %>">
+                  <a class="page-link" href="<%= hasNextPage ? `/admin/users?page=${currentPage + 1}&search=${query.search || ''}&role=${query.role || ''}&isActive=${query.isActive || ''}` : '#' %>" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          <% } %>
+          
+          <div class="text-center text-muted mt-3">
+            Showing <%= users.length %> of <%= total %> users
+          </div>
+        <% } else { %>
+          <div class="alert alert-info mb-0">
+            <i class="bi bi-info-circle me-2"></i>No users found matching your criteria.
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-light">
+        <h5 class="mb-0">Export Options</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <h6>Export Current Results</h6>
+            <p class="text-muted">Export the current search results with all applied filters.</p>
+            <a href="/admin/users/export?<%= Object.entries(query).map(([key, value]) => `${key}=${value}`).join('&') %>" class="btn btn-outline-primary">
+              <i class="bi bi-file-earmark-excel me-2"></i>Export to CSV
+            </a>
+          </div>
+          
+          <div class="col-md-6">
+            <h6>Export All Users</h6>
+            <p class="text-muted">Export all users in the system regardless of filters.</p>
+            <a href="/admin/users/export" class="btn btn-outline-primary">
+              <i class="bi bi-file-earmark-excel me-2"></i>Export All to CSV
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

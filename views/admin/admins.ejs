@@ -1,0 +1,135 @@
+
+<div class="row mb-4">
+  <div class="col-md-12">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3>Admin Users</h3>
+      <a href="/admin/admins/new" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-2"></i>Create New Admin
+      </a>
+    </div>
+    
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <% if (admins && admins.length > 0) { %>
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Created By</th>
+                  <th>Created At</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% admins.forEach(admin => { %>
+                  <tr>
+                    <td><%= admin.name %></td>
+                    <td><%= admin.email %></td>
+                    <td>
+                      <% if (admin.adminRole === 'SUPER_ADMIN') { %>
+                        <span class="badge role-badge role-badge-super">Super Admin</span>
+                      <% } else if (admin.adminRole === 'USER_ADMIN') { %>
+                        <span class="badge role-badge role-badge-user">User Admin</span>
+                      <% } else if (admin.adminRole === 'CONTENT_ADMIN') { %>
+                        <span class="badge role-badge role-badge-content">Content Admin</span>
+                      <% } else if (admin.adminRole === 'TRANSACTION_ADMIN') { %>
+                        <span class="badge role-badge role-badge-transaction">Transaction Admin</span>
+                      <% } else { %>
+                        <span class="badge bg-secondary"><%= admin.adminRole %></span>
+                      <% } %>
+                    </td>
+                    <td>
+                      <%= admin.adminCreatedBy ? admin.adminCreatedBy.name : 'System' %>
+                    </td>
+                    <td>
+                      <%= new Date(admin.adminCreatedAt).toLocaleString() %>
+                    </td>
+                    <td>
+                      <div class="btn-group">
+                        <a href="/admin/admins/<%= admin._id %>" class="btn btn-sm btn-outline-primary">
+                          <i class="bi bi-eye"></i>
+                        </a>
+                        
+                        <% if (admin._id.toString() !== user._id.toString()) { %>
+                          <form action="/admin/admins/<%= admin._id %>/remove" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" data-confirm="Are you sure you want to remove admin privileges from <%= admin.name %>?">
+                              <i class="bi bi-trash"></i>
+                            </button>
+                          </form>
+                        <% } %>
+                      </div>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <div class="alert alert-info mb-0">
+            <i class="bi bi-info-circle me-2"></i>No admin users found.
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-light">
+        <h5 class="mb-0">About Admin Roles</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <h6 class="fw-bold">Super Admin</h6>
+            <p>Super Admins have full access to all admin functions, including managing other admins. They can:</p>
+            <ul>
+              <li>Create and manage other admin users</li>
+              <li>Access all system settings</li>
+              <li>View all analytics and logs</li>
+              <li>Manage all users, listings, and transactions</li>
+            </ul>
+          </div>
+          
+          <div class="col-md-6">
+            <h6 class="fw-bold">User Admin</h6>
+            <p>User Admins can manage user accounts and verify professionals. They can:</p>
+            <ul>
+              <li>View and edit user profiles</li>
+              <li>Activate or deactivate user accounts</li>
+              <li>Verify professional credentials</li>
+              <li>Manage user roles</li>
+            </ul>
+          </div>
+          
+          <div class="col-md-6">
+            <h6 class="fw-bold">Content Admin</h6>
+            <p>Content Admins can manage website content. They can:</p>
+            <ul>
+              <li>Edit static pages</li>
+              <li>Manage FAQs and help content</li>
+              <li>Update terms and policies</li>
+              <li>Manage system announcements</li>
+            </ul>
+          </div>
+          
+          <div class="col-md-6">
+            <h6 class="fw-bold">Transaction Admin</h6>
+            <p>Transaction Admins can manage listings and transactions. They can:</p>
+            <ul>
+              <li>Review and approve/reject listings</li>
+              <li>Monitor active transactions</li>
+              <li>Resolve transaction disputes</li>
+              <li>Generate transaction reports</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

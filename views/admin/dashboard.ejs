@@ -1,0 +1,348 @@
+
+<div class="row mb-4">
+  <!-- User Stats -->
+  <div class="col-md-3 mb-4">
+    <div class="card bg-primary text-white h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-uppercase fw-bold mb-1">Users</h6>
+            <h3 class="display-6 mb-0"><%= userCount %></h3>
+          </div>
+          <i class="bi bi-people-fill fs-1"></i>
+        </div>
+        <p class="mt-2 mb-0">Total registered users</p>
+      </div>
+      <div class="card-footer d-flex align-items-center justify-content-between">
+        <a href="/admin/users" class="text-white text-decoration-none small">View Details</a>
+        <i class="bi bi-chevron-right text-white"></i>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Listing Stats -->
+  <div class="col-md-3 mb-4">
+    <div class="card bg-success text-white h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-uppercase fw-bold mb-1">Listings</h6>
+            <h3 class="display-6 mb-0"><%= listingCount %></h3>
+          </div>
+          <i class="bi bi-house-fill fs-1"></i>
+        </div>
+        <p class="mt-2 mb-0">Active property listings</p>
+      </div>
+      <div class="card-footer d-flex align-items-center justify-content-between">
+        <a href="/admin/listings" class="text-white text-decoration-none small">View Details</a>
+        <i class="bi bi-chevron-right text-white"></i>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Offer Stats -->
+  <div class="col-md-3 mb-4">
+    <div class="card bg-info text-white h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-uppercase fw-bold mb-1">Offers</h6>
+            <h3 class="display-6 mb-0"><%= offerCount %></h3>
+          </div>
+          <i class="bi bi-file-earmark-text fs-1"></i>
+        </div>
+        <p class="mt-2 mb-0">Total offers submitted</p>
+      </div>
+      <div class="card-footer d-flex align-items-center justify-content-between">
+        <a href="/admin/transactions" class="text-white text-decoration-none small">View Details</a>
+        <i class="bi bi-chevron-right text-white"></i>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Professional Stats -->
+  <div class="col-md-3 mb-4">
+    <div class="card bg-warning text-dark h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-uppercase fw-bold mb-1">Professionals</h6>
+            <h3 class="display-6 mb-0"><%= professionalCount %></h3>
+          </div>
+          <i class="bi bi-briefcase-fill fs-1"></i>
+        </div>
+        <p class="mt-2 mb-0">Registered professionals</p>
+      </div>
+      <div class="card-footer d-flex align-items-center justify-content-between">
+        <a href="/admin/professionals" class="text-dark text-decoration-none small">View Details</a>
+        <i class="bi bi-chevron-right text-dark"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <!-- User Search -->
+  <div class="col-md-6 mb-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">User Search</h5>
+        <a href="/admin/users" class="btn btn-sm btn-outline-primary">View All Users</a>
+      </div>
+      <div class="card-body">
+        <form action="/admin/users" method="GET" id="userSearchForm">
+          <div class="row g-3">
+            <div class="col-md-8">
+              <div class="input-group">
+                <input type="text" class="form-control" name="search" placeholder="Search by name or email" aria-label="Search users">
+                <button class="btn btn-primary" type="submit">
+                  <i class="bi bi-search"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <select class="form-select" name="role" aria-label="Filter by role">
+                <option value="">All Roles</option>
+                <option value="buyer">Buyers</option>
+                <option value="seller">Sellers</option>
+                <option value="lender">Lenders</option>
+                <option value="inspector">Inspectors</option>
+                <option value="title">Title Agents</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="row mt-3">
+            <div class="col-md-6">
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="isActive" id="activeUsers" value="true">
+                <label class="form-check-label" for="activeUsers">Active Users</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="isActive" id="inactiveUsers" value="false">
+                <label class="form-check-label" for="inactiveUsers">Inactive Users</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="isActive" id="allUsers" value="" checked>
+                <label class="form-check-label" for="allUsers">All Users</label>
+              </div>
+            </div>
+            <div class="col-md-6 text-end">
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search me-1"></i>Search
+              </button>
+              <button type="reset" class="btn btn-outline-secondary">
+                <i class="bi bi-x-circle me-1"></i>Reset
+              </button>
+            </div>
+          </div>
+        </form>
+        
+        <hr>
+        
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <h6 class="mb-0">Quick Actions</h6>
+        </div>
+        
+        <div class="row mt-3">
+          <div class="col-md-6">
+            <a href="/admin/users/new" class="btn btn-outline-primary w-100 mb-2">
+              <i class="bi bi-person-plus me-2"></i>Add New User
+            </a>
+          </div>
+          <div class="col-md-6">
+            <a href="/admin/users/export" class="btn btn-outline-success w-100 mb-2">
+              <i class="bi bi-file-earmark-excel me-2"></i>Export Users
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Recent Listings -->
+  <div class="col-md-6 mb-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Recent Listings</h5>
+        <a href="/admin/listings" class="btn btn-sm btn-outline-primary">View All</a>
+      </div>
+      <div class="card-body">
+        <% if (recentListings && recentListings.length > 0) { %>
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Address</th>
+                  <th>Price</th>
+                  <th>Listed</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% recentListings.forEach(listing => { %>
+                  <tr>
+                    <td><%= listing.address %></td>
+                    <td>$<%= listing.price ? listing.price.toLocaleString() : 'N/A' %></td>
+                    <td><%= new Date(listing.createdAt).toLocaleDateString() %></td>
+                    <td>
+                      <a href="/admin/listings/<%= listing._id %>" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-eye"></i>
+                      </a>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <div class="alert alert-info mb-0">No listings found.</div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <!-- Recent Offers -->
+  <div class="col-md-6 mb-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Recent Offers</h5>
+        <a href="/admin/transactions" class="btn btn-sm btn-outline-primary">View All</a>
+      </div>
+      <div class="card-body">
+        <% if (recentOffers && recentOffers.length > 0) { %>
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Buyer</th>
+                  <th>Property</th>
+                  <th>Price</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% recentOffers.forEach(offer => { %>
+                  <tr>
+                    <td><%= offer.buyer ? offer.buyer.name : 'Unknown' %></td>
+                    <td><%= offer.listing ? offer.listing.address : 'Unknown' %></td>
+                    <td>$<%= offer.price ? offer.price.toLocaleString() : 'N/A' %></td>
+                    <td>
+                      <% if (offer.status === 'pending') { %>
+                        <span class="badge bg-warning">Pending</span>
+                      <% } else if (offer.status === 'accepted') { %>
+                        <span class="badge bg-success">Accepted</span>
+                      <% } else if (offer.status === 'rejected') { %>
+                        <span class="badge bg-danger">Rejected</span>
+                      <% } else if (offer.status === 'countered') { %>
+                        <span class="badge bg-info">Countered</span>
+                      <% } else if (offer.status === 'withdrawn') { %>
+                        <span class="badge bg-secondary">Withdrawn</span>
+                      <% } else { %>
+                        <span class="badge bg-secondary"><%= offer.status %></span>
+                      <% } %>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <div class="alert alert-info mb-0">No offers found.</div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Pending Professional Verifications -->
+  <div class="col-md-6 mb-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Pending Verifications</h5>
+        <a href="/admin/professionals/pending" class="btn btn-sm btn-outline-primary">View All</a>
+      </div>
+      <div class="card-body">
+        <% if (pendingProfessionals && pendingProfessionals.length > 0) { %>
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Registered</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% pendingProfessionals.forEach(professional => { %>
+                  <tr>
+                    <td><%= professional.name %></td>
+                    <td><%= professional.professionalType %></td>
+                    <td><%= new Date(professional.createdAt).toLocaleDateString() %></td>
+                    <td>
+                      <div class="btn-group btn-group-sm">
+                        <a href="/admin/professionals/<%= professional._id %>" class="btn btn-outline-primary">
+                          <i class="bi bi-eye"></i>
+                        </a>
+                        <a href="/admin/professionals/<%= professional._id %>/verify" class="btn btn-outline-success">
+                          <i class="bi bi-check"></i>
+                        </a>
+                        <a href="/admin/professionals/<%= professional._id %>/deny" class="btn btn-outline-danger">
+                          <i class="bi bi-x"></i>
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <div class="alert alert-info mb-0">No pending verifications.</div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <!-- Recent Admin Activity -->
+  <div class="col-md-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Recent Admin Activity</h5>
+        <% if (user.adminRole === 'SUPER_ADMIN') { %>
+          <a href="/admin/logs" class="btn btn-sm btn-outline-primary">View All Logs</a>
+        <% } %>
+      </div>
+      <div class="card-body">
+        <% if (recentActivity && recentActivity.length > 0) { %>
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Admin</th>
+                  <th>Activity</th>
+                  <th>Timestamp</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% recentActivity.forEach(activity => { %>
+                  <tr>
+                    <td><%= activity.admin ? activity.admin.name : 'Unknown' %></td>
+                    <td><%= activity.activityType.replace(/_/g, ' ') %></td>
+                    <td><%= new Date(activity.createdAt).toLocaleString() %></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <div class="alert alert-info mb-0">No recent activity.</div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>

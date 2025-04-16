@@ -1,0 +1,307 @@
+
+<div class="row mb-4">
+  <div class="col-md-12">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <a href="/admin/transactions" class="btn btn-outline-secondary btn-sm mb-2">
+          <i class="bi bi-arrow-left me-1"></i>Back to Transactions
+        </a>
+        <h3>Transaction Details</h3>
+      </div>
+      <div>
+        <% if (transaction.status === 'pending') { %>
+          <span class="badge bg-warning fs-6">Pending</span>
+        <% } else if (transaction.status === 'accepted') { %>
+          <span class="badge bg-success fs-6">Accepted</span>
+        <% } else if (transaction.status === 'rejected') { %>
+          <span class="badge bg-danger fs-6">Rejected</span>
+        <% } else if (transaction.status === 'countered') { %>
+          <span class="badge bg-info fs-6">Countered</span>
+        <% } else if (transaction.status === 'withdrawn') { %>
+          <span class="badge bg-secondary fs-6">Withdrawn</span>
+        <% } else if (transaction.status === 'closed') { %>
+          <span class="badge bg-primary fs-6">Closed</span>
+        <% } else { %>
+          <span class="badge bg-secondary fs-6"><%= transaction.status %></span>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <!-- Transaction Overview -->
+  <div class="col-md-8">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-light">
+        <h5 class="mb-0">Transaction Overview</h5>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <p class="mb-1 text-muted">Transaction ID</p>
+            <p class="fw-bold"><%= transaction._id %></p>
+          </div>
+          <div class="col-md-6">
+            <p class="mb-1 text-muted">Created Date</p>
+            <p class="fw-bold"><%= new Date(transaction.createdAt).toLocaleString() %></p>
+          </div>
+        </div>
+        
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <p class="mb-1 text-muted">Offer Price</p>
+            <p class="fw-bold fs-4">$<%= transaction.price ? transaction.price.toLocaleString() : 'N/A' %></p>
+          </div>
+          <div class="col-md-6">
+            <p class="mb-1 text-muted">Last Updated</p>
+            <p class="fw-bold"><%= transaction.updatedAt ? new Date(transaction.updatedAt).toLocaleString() : 'N/A' %></p>
+          </div>
+        </div>
+        
+        <hr>
+        
+        <div class="row mb-3">
+          <div class="col-md-12">
+            <p class="mb-1 text-muted">Property</p>
+            <% if (transaction.listing) { %>
+              <div class="d-flex align-items-center">
+                <% if (transaction.listing.images && transaction.listing.images.length > 0) { %>
+                  <img src="<%= transaction.listing.images[0] %>" alt="Property" class="img-thumbnail me-3" style="width: 100px; height: 75px; object-fit: cover;">
+                <% } else { %>
+                  <div class="bg-light me-3 d-flex align-items-center justify-content-center" style="width: 100px; height: 75px;">
+                    <i class="bi bi-house text-muted fs-1"></i>
+                  </div>
+                <% } %>
+                <div>
+                  <p class="fw-bold mb-0"><%= transaction.listing.address %></p>
+                  <p class="text-muted mb-0">Listing Price: $<%= transaction.listing.price ? transaction.listing.price.toLocaleString() : 'N/A' %></p>
+                </div>
+              </div>
+            <% } else { %>
+              <p class="fw-bold">Property information not available</p>
+            <% } %>
+          </div>
+        </div>
+        
+        <hr>
+        
+        <div class="row">
+          <div class="col-md-6">
+            <p class="mb-1 text-muted">Buyer</p>
+            <% if (transaction.buyer) { %>
+              <p class="fw-bold mb-1"><%= transaction.buyer.name %></p>
+              <p class="mb-1"><%= transaction.buyer.email %></p>
+              <p class="mb-0"><%= transaction.buyer.phoneNumber || 'No phone number' %></p>
+            <% } else { %>
+              <p class="fw-bold">Buyer information not available</p>
+            <% } %>
+          </div>
+          <div class="col-md-6">
+            <p class="mb-1 text-muted">Seller</p>
+            <% if (transaction.seller) { %>
+              <p class="fw-bold mb-1"><%= transaction.seller.name %></p>
+              <p class="mb-1"><%= transaction.seller.email %></p>
+              <p class="mb-0"><%= transaction.seller.phoneNumber || 'No phone number' %></p>
+            <% } else { %>
+              <p class="fw-bold">Seller information not available</p>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Pre-Approval Information -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-light">
+        <h5 class="mb-0">Pre-Approval Information</h5>
+      </div>
+      <div class="card-body">
+        <% if (transaction.preApproval) { %>
+          <div class="row">
+            <div class="col-md-6">
+              <p class="mb-1 text-muted">Lender</p>
+              <p class="fw-bold"><%= transaction.preApproval.lender %></p>
+            </div>
+            <div class="col-md-6">
+              <p class="mb-1 text-muted">Amount</p>
+              <p class="fw-bold">$<%= transaction.preApproval.amount ? transaction.preApproval.amount.toLocaleString() : 'N/A' %></p>
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-md-6">
+              <p class="mb-1 text-muted">Expiration Date</p>
+              <p class="fw-bold"><%= transaction.preApproval.expirationDate ? new Date(transaction.preApproval.expirationDate).toLocaleDateString() : 'N/A' %></p>
+            </div>
+            <div class="col-md-6">
+              <p class="mb-1 text-muted">Status</p>
+              <% 
+                const today = new Date();
+                const expDate = transaction.preApproval.expirationDate ? new Date(transaction.preApproval.expirationDate) : null;
+                const isExpired = expDate && today > expDate;
+              %>
+              <% if (isExpired) { %>
+                <span class="badge bg-danger">Expired</span>
+              <% } else { %>
+                <span class="badge bg-success">Valid</span>
+              <% } %>
+            </div>
+          </div>
+        <% } else { %>
+          <div class="alert alert-info mb-0">
+            <i class="bi bi-info-circle me-2"></i>No pre-approval information available for this transaction.
+          </div>
+        <% } %>
+      </div>
+    </div>
+    
+    <!-- Documents -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-light">
+        <h5 class="mb-0">Transaction Documents</h5>
+      </div>
+      <div class="card-body">
+        <% if (transaction.documents && transaction.documents.length > 0) { %>
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Document Name</th>
+                  <th>Type</th>
+                  <th>Uploaded</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% transaction.documents.forEach(doc => { %>
+                  <tr>
+                    <td><%= doc.name %></td>
+                    <td><%= doc.type %></td>
+                    <td><%= new Date(doc.uploadedAt).toLocaleDateString() %></td>
+                    <td>
+                      <a href="<%= doc.url %>" target="_blank" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-eye me-1"></i>View
+                      </a>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <div class="alert alert-info mb-0">
+            <i class="bi bi-info-circle me-2"></i>No documents available for this transaction.
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Admin Actions -->
+  <div class="col-md-4">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-light">
+        <h5 class="mb-0">Admin Actions</h5>
+      </div>
+      <div class="card-body">
+        <form action="/admin/transactions/<%= transaction._id %>" method="POST">
+          <div class="mb-3">
+            <label for="status" class="form-label">Update Status</label>
+            <select class="form-select" id="status" name="status">
+              <option value="pending" <%= transaction.status === 'pending' ? 'selected' : '' %>>Pending</option>
+              <option value="accepted" <%= transaction.status === 'accepted' ? 'selected' : '' %>>Accepted</option>
+              <option value="rejected" <%= transaction.status === 'rejected' ? 'selected' : '' %>>Rejected</option>
+              <option value="countered" <%= transaction.status === 'countered' ? 'selected' : '' %>>Countered</option>
+              <option value="withdrawn" <%= transaction.status === 'withdrawn' ? 'selected' : '' %>>Withdrawn</option>
+              <option value="closed" <%= transaction.status === 'closed' ? 'selected' : '' %>>Closed</option>
+            </select>
+          </div>
+          
+          <div class="mb-3">
+            <label for="notes" class="form-label">Admin Notes</label>
+            <textarea class="form-control" id="notes" name="notes" rows="4"><%= transaction.adminNotes || '' %></textarea>
+            <div class="form-text">These notes are only visible to administrators.</div>
+          </div>
+          
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-save me-2"></i>Save Changes
+          </button>
+        </form>
+        
+        <hr>
+        
+        <div class="d-grid gap-2">
+          <a href="/admin/transactions/<%= transaction._id %>/contract" class="btn btn-outline-primary">
+            <i class="bi bi-file-earmark-text me-2"></i>View Contract
+          </a>
+          
+          <a href="/admin/transactions/<%= transaction._id %>/timeline" class="btn btn-outline-secondary">
+            <i class="bi bi-clock-history me-2"></i>View Timeline
+          </a>
+          
+          <a href="/admin/transactions/<%= transaction._id %>/message" class="btn btn-outline-info">
+            <i class="bi bi-envelope me-2"></i>Send Message to Parties
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Activity History -->
+    <div class="card shadow-sm">
+      <div class="card-header bg-light">
+        <h5 class="mb-0">Activity History</h5>
+      </div>
+      <div class="card-body">
+        <% if (history && history.length > 0) { %>
+          <div class="timeline">
+            <% history.forEach(log => { %>
+              <div class="timeline-item mb-3">
+                <div class="d-flex">
+                  <div class="timeline-icon me-3">
+                    <% if (log.activityType.includes('UPDATE')) { %>
+                      <i class="bi bi-pencil-square text-primary"></i>
+                    <% } else if (log.activityType.includes('CREATE')) { %>
+                      <i class="bi bi-plus-circle text-success"></i>
+                    <% } else if (log.activityType.includes('DELETE') || log.activityType.includes('REMOVE')) { %>
+                      <i class="bi bi-trash text-danger"></i>
+                    <% } else { %>
+                      <i class="bi bi-info-circle text-info"></i>
+                    <% } %>
+                  </div>
+                  <div class="timeline-content">
+                    <p class="mb-1 fw-bold"><%= log.activityType.replace(/_/g, ' ') %></p>
+                    <p class="mb-1 small">
+                      <% if (log.admin) { %>
+                        By <%= log.admin.name %>
+                      <% } else { %>
+                        By System
+                      <% } %>
+                    </p>
+                    <p class="mb-0 text-muted small"><%= new Date(log.createdAt).toLocaleString() %></p>
+                  </div>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <div class="alert alert-info mb-0">
+            <i class="bi bi-info-circle me-2"></i>No activity history available.
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .timeline-icon {
+    width: 30px;
+    height: 30px;
+    background-color: #f8f9fa;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+</style>

@@ -30,7 +30,9 @@ exports.loginUser = (req, res, next) => {
             req.flash("success", "Login successful!");
             
             // Redirect based on user type
-            if (user.professionalType) {
+            if (user.isAdmin) {
+                return res.redirect("/admin/dashboard");
+            } else if (user.professionalType) {
                 return res.redirect("/professionals/dashboard");
             } else {
                 return res.redirect("/users/dashboard");

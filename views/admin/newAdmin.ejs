@@ -1,0 +1,356 @@
+
+<div class="row mb-4">
+  <div class="col-md-12">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3>Create New Admin</h3>
+      <a href="/admin/admins" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Back to Admin List
+      </a>
+    </div>
+    
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="mb-4">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="createNew" name="createNew">
+            <label class="form-check-label" for="createNew">Create a new user account</label>
+          </div>
+          <div class="form-text">
+            Toggle this switch to create a new user account with admin privileges. Otherwise, you can grant admin privileges to an existing user.
+          </div>
+        </div>
+        
+        <!-- Existing User Section -->
+        <div id="existingUserSection">
+          <form action="/admin/admins/new" method="POST">
+            <input type="hidden" name="createNew" value="false">
+            
+            <div class="mb-3">
+              <label for="userId" class="form-label">Select User</label>
+              <select id="userId" name="userId" class="form-select" required>
+                <option value="">-- Select a user --</option>
+                <% users.forEach(user => { %>
+                  <option value="<%= user._id %>"><%= user.name %> (<%= user.email %>)</option>
+                <% }); %>
+              </select>
+              <div class="form-text">
+                Select an existing user to grant admin privileges.
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="adminRole" class="form-label">Admin Role</label>
+              <select id="adminRole" name="adminRole" class="form-select" required>
+                <option value="">-- Select a role --</option>
+                <option value="SUPER_ADMIN">Super Admin</option>
+                <option value="USER_ADMIN">User Admin</option>
+                <option value="CONTENT_ADMIN">Content Admin</option>
+                <option value="TRANSACTION_ADMIN">Transaction Admin</option>
+              </select>
+              <div class="form-text">
+                Select the role for this admin user. Each role has different permissions.
+              </div>
+            </div>
+            
+            <div class="mb-4 permissions-container">
+              <label class="form-label">Permissions</label>
+              
+              <div class="permission-group">
+                <div class="permission-group-title">
+                  <div class="form-check">
+                    <input class="form-check-input permission-group-all" type="checkbox" id="userPermissionsAll" data-group="user">
+                    <label class="form-check-label" for="userPermissionsAll">
+                      <strong>User Management</strong>
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="ms-4">
+                  <div class="form-check permission-item" data-group="user">
+                    <input class="form-check-input" type="checkbox" id="manageUsers" name="permissions[]" value="MANAGE_USERS">
+                    <label class="form-check-label" for="manageUsers">
+                      Manage Users
+                    </label>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="permission-group">
+                <div class="permission-group-title">
+                  <div class="form-check">
+                    <input class="form-check-input permission-group-all" type="checkbox" id="listingPermissionsAll" data-group="listing">
+                    <label class="form-check-label" for="listingPermissionsAll">
+                      <strong>Listing Management</strong>
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="ms-4">
+                  <div class="form-check permission-item" data-group="listing">
+                    <input class="form-check-input" type="checkbox" id="manageListings" name="permissions[]" value="MANAGE_LISTINGS">
+                    <label class="form-check-label" for="manageListings">
+                      Manage Listings
+                    </label>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="permission-group">
+                <div class="permission-group-title">
+                  <div class="form-check">
+                    <input class="form-check-input permission-group-all" type="checkbox" id="transactionPermissionsAll" data-group="transaction">
+                    <label class="form-check-label" for="transactionPermissionsAll">
+                      <strong>Transaction Management</strong>
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="ms-4">
+                  <div class="form-check permission-item" data-group="transaction">
+                    <input class="form-check-input" type="checkbox" id="manageTransactions" name="permissions[]" value="MANAGE_TRANSACTIONS">
+                    <label class="form-check-label" for="manageTransactions">
+                      Manage Transactions
+                    </label>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="permission-group">
+                <div class="permission-group-title">
+                  <div class="form-check">
+                    <input class="form-check-input permission-group-all" type="checkbox" id="contentPermissionsAll" data-group="content">
+                    <label class="form-check-label" for="contentPermissionsAll">
+                      <strong>Content Management</strong>
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="ms-4">
+                  <div class="form-check permission-item" data-group="content">
+                    <input class="form-check-input" type="checkbox" id="manageContent" name="permissions[]" value="MANAGE_CONTENT">
+                    <label class="form-check-label" for="manageContent">
+                      Manage Content
+                    </label>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="permission-group">
+                <div class="permission-group-title">
+                  <div class="form-check">
+                    <input class="form-check-input permission-group-all" type="checkbox" id="analyticsPermissionsAll" data-group="analytics">
+                    <label class="form-check-label" for="analyticsPermissionsAll">
+                      <strong>Analytics</strong>
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="ms-4">
+                  <div class="form-check permission-item" data-group="analytics">
+                    <input class="form-check-input" type="checkbox" id="viewAnalytics" name="permissions[]" value="VIEW_ANALYTICS">
+                    <label class="form-check-label" for="viewAnalytics">
+                      View Analytics
+                    </label>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="permission-group">
+                <div class="permission-group-title">
+                  <div class="form-check">
+                    <input class="form-check-input permission-group-all" type="checkbox" id="settingsPermissionsAll" data-group="settings">
+                    <label class="form-check-label" for="settingsPermissionsAll">
+                      <strong>System Settings</strong>
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="ms-4">
+                  <div class="form-check permission-item" data-group="settings">
+                    <input class="form-check-input" type="checkbox" id="systemSettings" name="permissions[]" value="SYSTEM_SETTINGS">
+                    <label class="form-check-label" for="systemSettings">
+                      Manage System Settings
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <a href="/admin/admins" class="btn btn-outline-secondary me-md-2">Cancel</a>
+              <button type="submit" class="btn btn-primary">Create Admin</button>
+            </div>
+          </form>
+        </div>
+        
+        <!-- New User Section -->
+        <div id="newUserSection" style="display: none;">
+          <form action="/admin/admins/new" method="POST">
+            <input type="hidden" name="createNew" value="true">
+            
+            <div class="mb-3">
+              <label for="name" class="form-label">Name</label>
+              <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <input type="password" class="form-control" id="password" name="password" required>
+              <div class="form-text">
+                Password must be at least 8 characters long and include a mix of letters, numbers, and special characters.
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="adminRole" class="form-label">Admin Role</label>
+              <select id="adminRoleNew" name="adminRole" class="form-select" required>
+                <option value="">-- Select a role --</option>
+                <option value="SUPER_ADMIN">Super Admin</option>
+                <option value="USER_ADMIN">User Admin</option>
+                <option value="CONTENT_ADMIN">Content Admin</option>
+                <option value="TRANSACTION_ADMIN">Transaction Admin</option>
+              </select>
+              <div class="form-text">
+                Select the role for this admin user. Each role has different permissions.
+              </div>
+            </div>
+            
+            <div class="mb-4 permissions-container">
+              <label class="form-label">Permissions</label>
+              
+              <div class="permission-group">
+                <div class="permission-group-title">
+                  <div class="form-check">
+                    <input class="form-check-input permission-group-all" type="checkbox" id="userPermissionsAllNew" data-group="user-new">
+                    <label class="form-check-label" for="userPermissionsAllNew">
+                      <strong>User Management</strong>
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="ms-4">
+                  <div class="form-check permission-item" data-group="user-new">
+                    <input class="form-check-input" type="checkbox" id="manageUsersNew" name="permissions[]" value="MANAGE_USERS">
+                    <label class="form-check-label" for="manageUsersNew">
+                      Manage Users
+                    </label>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="permission-group">
+                <div class="permission-group-title">
+                  <div class="form-check">
+                    <input class="form-check-input permission-group-all" type="checkbox" id="listingPermissionsAllNew" data-group="listing-new">
+                    <label class="form-check-label" for="listingPermissionsAllNew">
+                      <strong>Listing Management</strong>
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="ms-4">
+                  <div class="form-check permission-item" data-group="listing-new">
+                    <input class="form-check-input" type="checkbox" id="manageListingsNew" name="permissions[]" value="MANAGE_LISTINGS">
+                    <label class="form-check-label" for="manageListingsNew">
+                      Manage Listings
+                    </label>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="permission-group">
+                <div class="permission-group-title">
+                  <div class="form-check">
+                    <input class="form-check-input permission-group-all" type="checkbox" id="transactionPermissionsAllNew" data-group="transaction-new">
+                    <label class="form-check-label" for="transactionPermissionsAllNew">
+                      <strong>Transaction Management</strong>
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="ms-4">
+                  <div class="form-check permission-item" data-group="transaction-new">
+                    <input class="form-check-input" type="checkbox" id="manageTransactionsNew" name="permissions[]" value="MANAGE_TRANSACTIONS">
+                    <label class="form-check-label" for="manageTransactionsNew">
+                      Manage Transactions
+                    </label>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="permission-group">
+                <div class="permission-group-title">
+                  <div class="form-check">
+                    <input class="form-check-input permission-group-all" type="checkbox" id="contentPermissionsAllNew" data-group="content-new">
+                    <label class="form-check-label" for="contentPermissionsAllNew">
+                      <strong>Content Management</strong>
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="ms-4">
+                  <div class="form-check permission-item" data-group="content-new">
+                    <input class="form-check-input" type="checkbox" id="manageContentNew" name="permissions[]" value="MANAGE_CONTENT">
+                    <label class="form-check-label" for="manageContentNew">
+                      Manage Content
+                    </label>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="permission-group">
+                <div class="permission-group-title">
+                  <div class="form-check">
+                    <input class="form-check-input permission-group-all" type="checkbox" id="analyticsPermissionsAllNew" data-group="analytics-new">
+                    <label class="form-check-label" for="analyticsPermissionsAllNew">
+                      <strong>Analytics</strong>
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="ms-4">
+                  <div class="form-check permission-item" data-group="analytics-new">
+                    <input class="form-check-input" type="checkbox" id="viewAnalyticsNew" name="permissions[]" value="VIEW_ANALYTICS">
+                    <label class="form-check-label" for="viewAnalyticsNew">
+                      View Analytics
+                    </label>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="permission-group">
+                <div class="permission-group-title">
+                  <div class="form-check">
+                    <input class="form-check-input permission-group-all" type="checkbox" id="settingsPermissionsAllNew" data-group="settings-new">
+                    <label class="form-check-label" for="settingsPermissionsAllNew">
+                      <strong>System Settings</strong>
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="ms-4">
+                  <div class="form-check permission-item" data-group="settings-new">
+                    <input class="form-check-input" type="checkbox" id="systemSettingsNew" name="permissions[]" value="SYSTEM_SETTINGS">
+                    <label class="form-check-label" for="systemSettingsNew">
+                      Manage System Settings
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <a href="/admin/admins" class="btn btn-outline-secondary me-md-2">Cancel</a>
+              <button type="submit" class="btn btn-primary">Create Admin</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
