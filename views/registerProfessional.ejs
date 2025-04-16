@@ -63,6 +63,7 @@
                                     <option value="title">Title Company</option>
                                     <option value="inspector">Inspector</option>
                                     <option value="contractor">Contractor</option>
+                                    <option value="photographer">Photographer</option>
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
@@ -92,6 +93,51 @@
                                         <option value="Preferred">Preferred</option>
                                         <option value="Ultra-Preferred">Ultra-Preferred</option>
                                     </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Photographer-specific fields -->
+                        <div id="photographerSection" style="display:none;">
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label for="specialties" class="form-label">Photography Specialties</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="real-estate" id="specialty-real-estate" name="specialties">
+                                        <label class="form-check-label" for="specialty-real-estate">Real Estate Photography</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="aerial" id="specialty-aerial" name="specialties">
+                                        <label class="form-check-label" for="specialty-aerial">Aerial/Drone Photography</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="virtual-tour" id="specialty-virtual-tour" name="specialties">
+                                        <label class="form-check-label" for="specialty-virtual-tour">Virtual Tours</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="video" id="specialty-video" name="specialties">
+                                        <label class="form-check-label" for="specialty-video">Video Production</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label for="equipmentDetails" class="form-label">Equipment Details</label>
+                                    <textarea class="form-control" id="equipmentDetails" name="equipmentDetails" rows="3" placeholder="Describe your photography equipment (cameras, lenses, drones, etc.)"></textarea>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="pricingTiers.basic" class="form-label">Basic Package Price ($)</label>
+                                    <input type="number" class="form-control" id="pricingTiers.basic" name="pricingTiers.basic" placeholder="e.g., 150">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="pricingTiers.standard" class="form-label">Standard Package Price ($)</label>
+                                    <input type="number" class="form-control" id="pricingTiers.standard" name="pricingTiers.standard" placeholder="e.g., 250">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="pricingTiers.premium" class="form-label">Premium Package Price ($)</label>
+                                    <input type="number" class="form-control" id="pricingTiers.premium" name="pricingTiers.premium" placeholder="e.g., 350">
                                 </div>
                             </div>
                         </div>

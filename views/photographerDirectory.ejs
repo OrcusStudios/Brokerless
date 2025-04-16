@@ -1,0 +1,189 @@
+<%- include('./partials/layout.ejs') %>
+
+<div class="container py-4">
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <h2 class="mb-3">Find a Photographer</h2>
+      <p class="lead">Connect with professional photographers to showcase your property with high-quality images.</p>
+    </div>
+  </div>
+
+  <!-- Search and Filter Section -->
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <form id="photographerSearchForm">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label for="county" class="form-label">County</label>
+                <select class="form-select" id="county" name="county">
+                  <option value="">All Counties</option>
+                  <% counties.forEach(county => { %>
+                    <option value="<%= county %>"><%= county %></option>
+                  <% }); %>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label for="specialty" class="form-label">Specialty</label>
+                <select class="form-select" id="specialty" name="specialty">
+                  <option value="">All Specialties</option>
+                  <option value="real-estate">Real Estate Photography</option>
+                  <option value="aerial">Aerial/Drone Photography</option>
+                  <option value="virtual-tour">Virtual Tours</option>
+                  <option value="video">Video Production</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label for="priceRange" class="form-label">Price Range</label>
+                <select class="form-select" id="priceRange" name="priceRange">
+                  <option value="">Any Price</option>
+                  <option value="0-200">Under $200</option>
+                  <option value="200-300">$200 - $300</option>
+                  <option value="300-400">$300 - $400</option>
+                  <option value="400+">$400+</option>
+                </select>
+              </div>
+              <div class="col-md-12 text-end">
+                <button type="submit" class="btn btn-primary">
+                  <i class="bi bi-search me-2"></i>Search
+                </button>
+                <button type="reset" class="btn btn-outline-secondary">
+                  <i class="bi bi-x-circle me-2"></i>Clear
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Photographers List -->
+  <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+    <% if (photographers && photographers.length > 0) { %>
+      <% photographers.forEach(photographer => { %>
+        <div class="col">
+          <div class="card h-100 shadow-sm">
+            <% if (photographer.portfolio && photographer.portfolio.length > 0) { %>
+              <img src="<%= photographer.portfolio[0] %>" class="card-img-top" alt="<%= photographer.name %>'s work" style="height: 200px; object-fit: cover;">
+            <% } else { %>
+              <div class="bg-light text-center py-5">
+                <i class="bi bi-camera text-muted" style="font-size: 3rem;"></i>
+                <p class="text-muted mt-2">No portfolio images</p>
+              </div>
+            <% } %>
+            <div class="card-body">
+              <h5 class="card-title"><%= photographer.name %></h5>
+              <p class="card-text text-muted mb-1"><%= photographer.companyName %></p>
+              
+              <% if (photographer.specialties && photographer.specialties.length > 0) { %>
+                <div class="mb-2">
+                  <% photographer.specialties.forEach(specialty => { %>
+                    <span class="badge bg-info text-dark me-1"><%= specialty.replace(/-/g, ' ') %></span>
+                  <% }); %>
+                </div>
+              <% } %>
+              
+              <p class="card-text small">
+                <i class="bi bi-geo-alt me-1"></i>
+                Serves: 
+                <% if (photographer.counties && photographer.counties.length > 0) { %>
+                  <%= photographer.counties.slice(0, 3).join(', ') %>
+                  <% if (photographer.counties.length > 3) { %>
+                    and <%= photographer.counties.length - 3 %> more
+                  <% } %>
+                <% } else { %>
+                  Area not specified
+                <% } %>
+              </p>
+              
+              <% if (photographer.pricingTiers && photographer.pricingTiers.basic) { %>
+                <p class="card-text">
+                  <strong>Starting at: $<%= photographer.pricingTiers.basic %></strong>
+                </p>
+              <% } %>
+              
+              <% if (photographer.rating) { %>
+                <div class="mb-2">
+                  <% for (let i = 1; i <= 5; i++) { %>
+                    <i class="bi <%= i <= photographer.rating ? 'bi-star-fill text-warning' : 'bi-star' %>"></i>
+                  <% } %>
+                  <span class="ms-1">(<%= photographer.reviews ? photographer.reviews.length : 0 %>)</span>
+                </div>
+              <% } %>
+            </div>
+            <div class="card-footer bg-white border-top-0">
+              <div class="d-grid gap-2">
+                <a href="/photographers/<%= photographer._id %>" class="btn btn-outline-primary">
+                  <i class="bi bi-info-circle me-2"></i>View Profile
+                </a>
+                <a href="/photographers/<%= photographer._id %>/book" class="btn btn-primary">
+                  <i class="bi bi-calendar-plus me-2"></i>Book Now
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    <% } else { %>
+      <div class="col-12">
+        <div class="alert alert-info">
+          <i class="bi bi-info-circle me-2"></i>No photographers found matching your criteria. Try adjusting your filters.
+        </div>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- Pagination -->
+  <% if (photographers && photographers.length > 0 && totalPages > 1) { %>
+    <div class="row">
+      <div class="col-md-12">
+        <nav aria-label="Photographer directory pagination">
+          <ul class="pagination justify-content-center">
+            <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+              <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            
+            <% for (let i = 1; i <= totalPages; i++) { %>
+              <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+              </li>
+            <% } %>
+            
+            <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+              <a class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  <% } %>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('photographerSearchForm');
+    
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const county = document.getElementById('county').value;
+      const specialty = document.getElementById('specialty').value;
+      const priceRange = document.getElementById('priceRange').value;
+      
+      let url = '/photographers?';
+      if (county) url += `county=${county}&`;
+      if (specialty) url += `specialty=${specialty}&`;
+      if (priceRange) url += `priceRange=${priceRange}&`;
+      
+      window.location.href = url;
+    });
+  });
+</script>
+
+<%- include('./partials/footer.ejs') %>

@@ -15,7 +15,7 @@ const ProfessionalSchema = new mongoose.Schema({
     },
     professionalType: {
         type: String,
-        enum: ["title", "lender", "inspector", "contractor"],
+        enum: ["title", "lender", "inspector", "contractor", "photographer"],
         required: true
     },
     loanTypes: { type: [String], default: [] }, 
@@ -40,6 +40,32 @@ const ProfessionalSchema = new mongoose.Schema({
     closedDeals: { type: Number, default: 0 }, 
     preApprovalLink: { type: String, default: "" }, // 🔹 New field for lender application links
     profileImage: { type: String, default: "/images/lenderimage.jpg" },
+
+    // Photographer-specific fields
+    portfolio: {
+        type: [String],
+        default: []
+    },
+    specialties: {
+        type: [String],
+        default: []
+    },
+    equipmentDetails: { type: String },
+    availability: {
+        type: Map,
+        of: Boolean,
+        default: {}
+    },
+    pricingTiers: {
+        basic: { type: Number },
+        standard: { type: Number },
+        premium: { type: Number }
+    },
+    packageDescriptions: {
+        basic: { type: String, default: '' },
+        standard: { type: String, default: '' },
+        premium: { type: String, default: '' }
+    },
 
     // Ratings and Reviews
     rating: { type: Number, default: 0 },

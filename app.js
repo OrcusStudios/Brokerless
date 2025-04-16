@@ -211,6 +211,7 @@ app.use("/closing", require("./routes/closingRoutes"));
 app.use("/pricing", require("./routes/pricingRoutes"));
 app.use("/disclosures", require("./routes/disclosureRoutes"));
 app.use("/admin", require("./routes/adminRoutes"));
+app.use("/photographers", require("./routes/photographerRoutes"));
 
 // Home Route
 app.get('/', (req, res) => {

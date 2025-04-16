@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const loginController = require("../controllers/loginController");
 const professionalController = require("../controllers/professionalController");
-const { ensureAuthenticated, ensureRole, ensureProfessional, ensureLender } = require("../middleware/authMiddleware");
+const { ensureAuthenticated, ensureRole, ensureProfessional, ensureLender, ensureTitleCompany, ensureInspector, ensurePhotographer, ensureContractor } = require("../middleware/authMiddleware");
 
 //Apply for Pre-Approval
 router.post("/preapproval/apply", ensureAuthenticated, ensureRole("buyer"), professionalController.applyForPreApproval);
@@ -27,9 +27,12 @@ router.get("/dashboard", ensureProfessional, professionalController.dashboard);
 router.get("/counties", professionalController.getCountiesForState);
 
 // ✅ Role-Specific Dashboards
-// router.get("/manage-closings", ensureProfessional, professionalController.manageClosings);
-// router.get("/manage-loans", ensureProfessional, professionalController.manageLoans);
-// router.get("/manage-inspections", ensureProfessional, professionalController.manageInspections);
-// router.get("/manage-repairs", ensureProfessional, professionalController.manageRepairs);
+router.get("/manage-closings", ensureTitleCompany, professionalController.manageClosings);
+router.get("/manage-loans", ensureLender, professionalController.manageLoans);
+router.get("/manage-inspections", ensureInspector, professionalController.manageInspections);
+router.get("/manage-repairs", ensureContractor, professionalController.manageRepairs);
+router.get("/manage-portfolio", ensurePhotographer, professionalController.managePortfolio);
+router.post("/update-pricing", ensurePhotographer, professionalController.updatePricing);
+router.post("/update-service-area", ensurePhotographer, professionalController.updateServiceArea);
 
 module.exports = router;

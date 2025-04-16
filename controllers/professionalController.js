@@ -21,7 +21,12 @@ exports.registerProfessional = async (req, res) => {
           professionalType, 
           licenseNumber, 
           paymentTier,
-          county 
+          county,
+          specialties,
+          equipmentDetails,
+          'pricingTiers.basic': basicPrice,
+          'pricingTiers.standard': standardPrice,
+          'pricingTiers.premium': premiumPrice
       } = req.body;
 
       let professional = await Professional.findOne({ email });
@@ -31,6 +36,8 @@ exports.registerProfessional = async (req, res) => {
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
+      
+      // Create base professional object
       professional = new Professional({
           name,
           email,
@@ -42,9 +49,30 @@ exports.registerProfessional = async (req, res) => {
           state,
           counties: county ? [county] : [], 
           licenseNumber,
-          paymentTier: professionalType === "lender" ? (paymentTier || "Basic") : undefined,
           preApprovals: []
       });
+      
+      // Add professional type specific fields
+      if (professionalType === "lender") {
+          professional.paymentTier = paymentTier || "Basic";
+      } else if (professionalType === "photographer") {
+          // Handle specialties (convert to array if needed)
+          if (specialties) {
+              professional.specialties = Array.isArray(specialties) ? specialties : [specialties];
+          }
+          
+          // Add equipment details
+          if (equipmentDetails) {
+              professional.equipmentDetails = equipmentDetails;
+          }
+          
+          // Add pricing tiers
+          professional.pricingTiers = {
+              basic: basicPrice ? Number(basicPrice) : undefined,
+              standard: standardPrice ? Number(standardPrice) : undefined,
+              premium: premiumPrice ? Number(premiumPrice) : undefined
+          };
+      }
 
       await professional.save();
       req.flash("success", "Registration successful! Please log in.");
@@ -313,6 +341,48 @@ exports.dashboard = async (req, res) => {
         formatTaskStatus
       });
     }
+    else if (professionalType === "photographer") {
+      // Get all listings where this photographer might be needed
+      const User = require('../models/User');
+      const Listing = require('../models/Listing');
+      
+      // Find sellers in the photographer's service counties
+      const sellersInServiceArea = await User.find({
+        'roles.type': 'seller',
+        'roles.active': true,
+        'seller.listings': { $exists: true, $ne: [] }
+      })
+      .select('name email seller.listings');
+      
+      // Get the listings for these sellers
+      const sellerListingIds = sellersInServiceArea.flatMap(seller => 
+        seller.seller.listings || []
+      );
+      
+      // Get active listings in the photographer's service counties
+      const activeListings = await Listing.find({
+        _id: { $in: sellerListingIds },
+        county: { $in: req.user.counties }
+      })
+      .populate('sellers.user', 'name email')
+      .sort({ createdAt: -1 });
+      
+      // Get upcoming appointments (this would be implemented with a Schedule model)
+      const upcomingAppointments = []; // Placeholder for future implementation
+      
+      // Get completed shoots (this would be implemented with a tracking system)
+      const completedShoots = []; // Placeholder for future implementation
+      
+      Object.assign(dashboardData, {
+        activeListings,
+        upcomingAppointments,
+        completedShoots,
+        serviceCounties: req.user.counties,
+        portfolio: req.user.portfolio || [],
+        specialties: req.user.specialties || [],
+        pricingTiers: req.user.pricingTiers || {}
+      });
+    }
     // Add cases for other professional types as needed
     // else if (professionalType === "inspector") { ... }
     
@@ -358,6 +428,62 @@ exports.manageRepairs = (req, res) => {
         return res.redirect("/professionals/dashboard");
     }
     res.render("professionals/manageRepairs", { user: req.user });
+};
+
+// Photographer Dashboard
+exports.managePortfolio = async (req, res) => {
+    try {
+        if (req.user.professionalType !== "photographer") {
+            req.flash("error", "Access denied.");
+            return res.redirect("/professionals/dashboard");
+        }
+        
+        // Get all listings where this photographer might be needed
+        const User = require('../models/User');
+        const Listing = require('../models/Listing');
+        
+        // Find sellers in the photographer's service counties
+        const sellersInServiceArea = await User.find({
+            'roles.type': 'seller',
+            'roles.active': true,
+            'seller.listings': { $exists: true, $ne: [] }
+        })
+        .select('name email seller.listings');
+        
+        // Get the listings for these sellers
+        const sellerListingIds = sellersInServiceArea.flatMap(seller => 
+            seller.seller.listings || []
+        );
+        
+        // Get active listings in the photographer's service counties
+        const activeListings = await Listing.find({
+            _id: { $in: sellerListingIds },
+            county: { $in: req.user.counties || [] }
+        })
+        .populate('sellers.user', 'name email')
+        .sort({ createdAt: -1 });
+        
+        // Get upcoming appointments (this would be implemented with a Schedule model)
+        const upcomingAppointments = []; // Placeholder for future implementation
+        
+        // Get completed shoots (this would be implemented with a tracking system)
+        const completedShoots = []; // Placeholder for future implementation
+        
+        res.render("professionals/photographerDashboard", {
+            user: req.user,
+            activeListings,
+            upcomingAppointments,
+            completedShoots,
+            serviceCounties: req.user.counties || [],
+            portfolio: req.user.portfolio || [],
+            specialties: req.user.specialties || [],
+            pricingTiers: req.user.pricingTiers || {}
+        });
+    } catch (error) {
+        console.error("Error loading photographer dashboard:", error);
+        req.flash("error", "Error loading dashboard data: " + error.message);
+        res.redirect("/professionals/dashboard");
+    }
 };
 
 // ✅ Apply for Pre-Approval (Prevent Multiple Applications)
@@ -482,3 +608,87 @@ exports.approvePreApproval = async (req, res) => {
       res.redirect("/professionals/dashboard");
     }
   };
+
+// Update photographer pricing tiers
+exports.updatePricing = async (req, res) => {
+  try {
+    // Ensure user is a photographer
+    if (req.user.professionalType !== "photographer") {
+      req.flash("error", "Access denied. You need to be a photographer.");
+      return res.redirect("/professionals/dashboard");
+    }
+
+    // Get pricing data from form
+    const { 
+      'pricingTiers.basic': basicPrice, 
+      'pricingTiers.standard': standardPrice, 
+      'pricingTiers.premium': premiumPrice,
+      basicDescription,
+      standardDescription,
+      premiumDescription
+    } = req.body;
+
+    // Update photographer pricing tiers
+    const photographer = await Professional.findById(req.user._id);
+    
+    // Initialize pricingTiers if it doesn't exist
+    if (!photographer.pricingTiers) {
+      photographer.pricingTiers = {};
+    }
+    
+    // Update pricing tiers
+    photographer.pricingTiers.basic = basicPrice ? Number(basicPrice) : 0;
+    photographer.pricingTiers.standard = standardPrice ? Number(standardPrice) : 0;
+    photographer.pricingTiers.premium = premiumPrice ? Number(premiumPrice) : 0;
+    
+    // Update package descriptions
+    if (!photographer.packageDescriptions) {
+      photographer.packageDescriptions = {};
+    }
+    
+    photographer.packageDescriptions.basic = basicDescription || '';
+    photographer.packageDescriptions.standard = standardDescription || '';
+    photographer.packageDescriptions.premium = premiumDescription || '';
+    
+    await photographer.save();
+    
+    req.flash("success", "Pricing packages updated successfully.");
+    res.redirect("/professionals/dashboard");
+  } catch (error) {
+    console.error("Error updating pricing:", error);
+    req.flash("error", "Error updating pricing packages.");
+    res.redirect("/professionals/dashboard");
+  }
+};
+
+// Update photographer service area
+exports.updateServiceArea = async (req, res) => {
+  try {
+    // Ensure user is a photographer
+    if (req.user.professionalType !== "photographer") {
+      req.flash("error", "Access denied. You need to be a photographer.");
+      return res.redirect("/professionals/dashboard");
+    }
+
+    // Get service area data from form
+    const { state, counties } = req.body;
+    
+    // Update photographer service area
+    const photographer = await Professional.findById(req.user._id);
+    
+    // Update state
+    photographer.state = state;
+    
+    // Update counties (ensure it's an array)
+    photographer.counties = Array.isArray(counties) ? counties : [counties];
+    
+    await photographer.save();
+    
+    req.flash("success", "Service area updated successfully.");
+    res.redirect("/professionals/dashboard");
+  } catch (error) {
+    console.error("Error updating service area:", error);
+    req.flash("error", "Error updating service area.");
+    res.redirect("/professionals/dashboard");
+  }
+};

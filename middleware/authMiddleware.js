@@ -120,5 +120,31 @@ const ensureInspector = (req, res, next) => {
     req.flash("error", "Access denied. You need to be an inspector.");
     res.redirect("/professionals/dashboard");
 };
+
+const ensurePhotographer = (req, res, next) => {
+    if (req.user && req.user.professionalType === "photographer") {
+        return next();
+    }
+    req.flash("error", "Access denied. You need to be a photographer.");
+    res.redirect("/professionals/dashboard");
+};
+
+const ensureContractor = (req, res, next) => {
+    if (req.user && req.user.professionalType === "contractor") {
+        return next();
+    }
+    req.flash("error", "Access denied. You need to be a contractor.");
+    res.redirect("/professionals/dashboard");
+};
   
-module.exports = { ensureAuthenticated, ensureRole, ensureProfessional, ensureLender, ensureTitleCompany, ensureInspector, ensureAnyRole };
+module.exports = { 
+    ensureAuthenticated, 
+    ensureRole, 
+    ensureProfessional, 
+    ensureLender, 
+    ensureTitleCompany, 
+    ensureInspector, 
+    ensurePhotographer, 
+    ensureContractor,
+    ensureAnyRole 
+};

@@ -1,0 +1,223 @@
+<%- include('./partials/layout.ejs') %>
+
+<div class="container py-4">
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <a href="/photographers/<%= photographer._id %>" class="btn btn-outline-secondary mb-3">
+        <i class="bi bi-arrow-left me-2"></i>Back to Photographer Profile
+      </a>
+      <h2 class="mb-3">Book a Photography Session</h2>
+      <p class="lead">Schedule a photography session with <%= photographer.name %> for your property</p>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Booking Form -->
+    <div class="col-md-8 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Booking Details</h5>
+        </div>
+        <div class="card-body">
+          <form action="/photographers/<%= photographer._id %>/book" method="POST">
+            <!-- Property Selection -->
+            <div class="mb-4">
+              <label for="listingId" class="form-label">Select Property</label>
+              <% if (listings && listings.length > 0) { %>
+                <select class="form-select" id="listingId" name="listingId" required>
+                  <option value="">-- Select a property --</option>
+                  <% listings.forEach(listing => { %>
+                    <option value="<%= listing._id %>"><%= listing.address %>, <%= listing.city %>, <%= listing.state %></option>
+                  <% }); %>
+                </select>
+                <div class="form-text">Select the property you want photographed</div>
+              <% } else { %>
+                <div class="alert alert-warning">
+                  <i class="bi bi-exclamation-triangle me-2"></i>You don't have any active listings. Please create a listing first.
+                </div>
+                <a href="/listings/new" class="btn btn-primary">Create a Listing</a>
+              <% } %>
+            </div>
+
+            <!-- Date and Time Selection -->
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <label for="date" class="form-label">Preferred Date</label>
+                <input type="date" class="form-control" id="date" name="date" required min="<%= new Date().toISOString().split('T')[0] %>">
+              </div>
+              <div class="col-md-6">
+                <label for="time" class="form-label">Preferred Time</label>
+                <select class="form-select" id="time" name="time" required>
+                  <option value="">-- Select a time --</option>
+                  <option value="morning">Morning (8am - 12pm)</option>
+                  <option value="afternoon">Afternoon (12pm - 4pm)</option>
+                  <option value="evening">Evening (4pm - 8pm)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Package Selection -->
+            <div class="mb-4">
+              <label class="form-label">Select Package</label>
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <div class="card h-100">
+                    <div class="card-body">
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="package" id="packageBasic" value="basic" <%= (package === 'basic') ? 'checked' : '' %> required>
+                        <label class="form-check-label" for="packageBasic">
+                          <h5>Basic</h5>
+                          <p class="mb-1">$<%= photographer.pricingTiers && photographer.pricingTiers.basic ? photographer.pricingTiers.basic : 'N/A' %></p>
+                          <small class="text-muted">10-15 standard photos</small>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <div class="card h-100 border-primary">
+                    <div class="card-body">
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="package" id="packageStandard" value="standard" <%= (package === 'standard') ? 'checked' : '' %> required>
+                        <label class="form-check-label" for="packageStandard">
+                          <h5>Standard</h5>
+                          <p class="mb-1">$<%= photographer.pricingTiers && photographer.pricingTiers.standard ? photographer.pricingTiers.standard : 'N/A' %></p>
+                          <small class="text-muted">20-25 HD photos with twilight shots</small>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <div class="card h-100">
+                    <div class="card-body">
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="package" id="packagePremium" value="premium" <%= (package === 'premium') ? 'checked' : '' %> required>
+                        <label class="form-check-label" for="packagePremium">
+                          <h5>Premium</h5>
+                          <p class="mb-1">$<%= photographer.pricingTiers && photographer.pricingTiers.premium ? photographer.pricingTiers.premium : 'N/A' %></p>
+                          <small class="text-muted">30+ HD photos with drone and virtual tour</small>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Special Instructions -->
+            <div class="mb-4">
+              <label for="notes" class="form-label">Special Instructions (Optional)</label>
+              <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Any specific areas to focus on, access instructions, or other details..."></textarea>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="d-grid">
+              <% if (listings && listings.length > 0) { %>
+                <button type="submit" class="btn btn-primary btn-lg">
+                  <i class="bi bi-calendar-check me-2"></i>Request Booking
+                </button>
+              <% } else { %>
+                <button type="button" class="btn btn-primary btn-lg" disabled>
+                  <i class="bi bi-calendar-check me-2"></i>Request Booking
+                </button>
+              <% } %>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Photographer Info -->
+    <div class="col-md-4 mb-4">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Photographer Details</h5>
+        </div>
+        <div class="card-body">
+          <div class="text-center mb-3">
+            <% if (photographer.profileImage) { %>
+              <img src="<%= photographer.profileImage %>" alt="<%= photographer.name %>" class="rounded-circle img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
+            <% } else { %>
+              <div class="bg-light rounded-circle mx-auto d-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                <i class="bi bi-person text-muted" style="font-size: 2.5rem;"></i>
+              </div>
+            <% } %>
+            <h5 class="mt-2"><%= photographer.name %></h5>
+            <p class="text-muted mb-0"><%= photographer.companyName %></p>
+            
+            <% if (photographer.rating) { %>
+              <div class="mb-2">
+                <% for (let i = 1; i <= 5; i++) { %>
+                  <i class="bi <%= i <= photographer.rating ? 'bi-star-fill text-warning' : 'bi-star' %> small"></i>
+                <% } %>
+                <span class="ms-1 small">(<%= photographer.reviews ? photographer.reviews.length : 0 %>)</span>
+              </div>
+            <% } %>
+          </div>
+          
+          <hr>
+          
+          <h6 class="mb-2">Contact Information</h6>
+          <p class="small mb-1"><i class="bi bi-envelope me-2"></i><%= photographer.email %></p>
+          <p class="small mb-1"><i class="bi bi-telephone me-2"></i><%= photographer.phone %></p>
+          
+          <hr>
+          
+          <h6 class="mb-2">Specialties</h6>
+          <% if (photographer.specialties && photographer.specialties.length > 0) { %>
+            <div class="d-flex flex-wrap gap-1 mb-3">
+              <% photographer.specialties.forEach(specialty => { %>
+                <span class="badge bg-info text-dark"><%= specialty.replace(/-/g, ' ') %></span>
+              <% }); %>
+            </div>
+          <% } else { %>
+            <p class="small text-muted">No specialties specified</p>
+          <% } %>
+        </div>
+      </div>
+      
+      <div class="card shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Booking Information</h5>
+        </div>
+        <div class="card-body">
+          <h6 class="mb-2">What to Expect</h6>
+          <ul class="small">
+            <li>Confirmation within 24 hours</li>
+            <li>Photographer will contact you to confirm details</li>
+            <li>Payment is handled directly with the photographer</li>
+            <li>Photos delivered via email or download link</li>
+          </ul>
+          
+          <h6 class="mb-2">Preparation Tips</h6>
+          <ul class="small">
+            <li>Clean and declutter the property</li>
+            <li>Turn on all lights before the shoot</li>
+            <li>Open blinds/curtains for natural light</li>
+            <li>Remove personal items if desired</li>
+            <li>Ensure the photographer has access instructions</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const packageParam = urlParams.get('package');
+    
+    // Set the selected package if provided in URL
+    if (packageParam) {
+      const packageRadio = document.getElementById('package' + packageParam.charAt(0).toUpperCase() + packageParam.slice(1));
+      if (packageRadio) {
+        packageRadio.checked = true;
+      }
+    }
+  });
+</script>
+
+<%- include('./partials/footer.ejs') %>

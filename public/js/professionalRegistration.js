@@ -58,6 +58,7 @@
     const countySelect = document.getElementById('county');
     const countySection = document.getElementById('countySection');
     const lenderSection = document.getElementById('lenderSection');
+    const photographerSection = document.getElementById('photographerSection');
 
     // Function to update county options
     function updateCountyOptions() {
@@ -85,7 +86,7 @@
         const selectedType = this.value;
         
         // Show/hide county section for title, inspector, contractor
-        if (['title', 'inspector', 'contractor'].includes(selectedType)) {
+        if (['title', 'inspector', 'contractor', 'photographer'].includes(selectedType)) {
             countySection.style.display = 'block';
         } else {
             countySection.style.display = 'none';
@@ -96,6 +97,13 @@
             lenderSection.style.display = 'block';
         } else {
             lenderSection.style.display = 'none';
+        }
+        
+        // Show/hide photographer section
+        if (selectedType === 'photographer') {
+            photographerSection.style.display = 'block';
+        } else {
+            photographerSection.style.display = 'none';
         }
     });
 })();
