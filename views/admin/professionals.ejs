@@ -1,0 +1,331 @@
+<div class="row mb-4">
+  <div class="col-md-12">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+    </div>
+    
+    <!-- Search Form -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-light">
+        <h5 class="mb-0">Search Professionals</h5>
+      </div>
+      <div class="card-body">
+        <form action="/admin/professionals" method="GET" id="searchForm">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="input-group">
+                <input type="text" class="form-control" name="search" placeholder="Search by name, email, or license" value="<%= query.search || '' %>">
+                <button class="btn btn-primary" type="submit">
+                  <i class="bi bi-search"></i>
+                </button>
+              </div>
+            </div>
+            
+            <div class="col-md-3">
+              <select class="form-select" name="type">
+                <option value="" <%= !query.type ? 'selected' : '' %>>All Types</option>
+                <option value="lender" <%= query.type === 'lender' ? 'selected' : '' %>>Lender</option>
+                <option value="title" <%= query.type === 'title' ? 'selected' : '' %>>Title</option>
+                <option value="inspector" <%= query.type === 'inspector' ? 'selected' : '' %>>Inspector</option>
+                <option value="photographer" <%= query.type === 'photographer' ? 'selected' : '' %>>Photographer</option>
+                <option value="contractor" <%= query.type === 'contractor' ? 'selected' : '' %>>Contractor</option>
+              </select>
+            </div>
+            
+            <div class="col-md-3">
+              <select class="form-select" name="verified">
+                <option value="" <%= !query.verified ? 'selected' : '' %>>All Status</option>
+                <option value="true" <%= query.verified === 'true' ? 'selected' : '' %>>Verified</option>
+                <option value="false" <%= query.verified === 'false' ? 'selected' : '' %>>Pending</option>
+              </select>
+            </div>
+            
+            <div class="col-md-2 text-end">
+              <button type="submit" class="btn btn-primary me-2">
+                <i class="bi bi-search me-1"></i>Search
+              </button>
+              <a href="/admin/professionals" class="btn btn-outline-secondary">
+                <i class="bi bi-x-circle me-1"></i>Reset
+              </a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Active Filters -->
+    <% if (query.search || query.type || query.verified) { %>
+      <div class="mb-3">
+        <div class="d-flex align-items-center">
+          <span class="me-2">Active Filters:</span>
+          <div class="d-flex flex-wrap gap-2">
+            <% if (query.search) { %>
+              <div class="filter-tag badge bg-primary">
+                Search: <%= query.search %>
+                <a href="#" class="text-white ms-1 close" data-param="search">×</a>
+              </div>
+            <% } %>
+            
+            <% if (query.type) { %>
+              <div class="filter-tag badge bg-primary">
+                Type: <%= query.type.charAt(0).toUpperCase() + query.type.slice(1) %>
+                <a href="#" class="text-white ms-1 close" data-param="type">×</a>
+              </div>
+            <% } %>
+            
+            <% if (query.verified) { %>
+              <div class="filter-tag badge bg-primary">
+                Status: <%= query.verified === 'true' ? 'Verified' : 'Pending' %>
+                <a href="#" class="text-white ms-1 close" data-param="verified">×</a>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    <% } %>
+    
+    <!-- Results Table -->
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <% if (professionals && professionals.length > 0) { %>
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Type</th>
+                  <th>License/ID</th>
+                  <th>Status</th>
+                  <th>Registered</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% professionals.forEach(professional => { %>
+                  <tr>
+                    <td><%= professional.name %></td>
+                    <td><%= professional.email %></td>
+                    <td>
+                      <% if (professional.professionalType === 'lender') { %>
+                        <span class="badge bg-info">Lender</span>
+                      <% } else if (professional.professionalType === 'title') { %>
+                        <span class="badge bg-primary">Title</span>
+                      <% } else if (professional.professionalType === 'inspector') { %>
+                        <span class="badge bg-success">Inspector</span>
+                      <% } else if (professional.professionalType === 'photographer') { %>
+                        <span class="badge bg-warning">Photographer</span>
+                      <% } else if (professional.professionalType === 'contractor') { %>
+                        <span class="badge bg-secondary">Contractor</span>
+                      <% } else { %>
+                        <span class="badge bg-secondary"><%= professional.professionalType %></span>
+                      <% } %>
+                    </td>
+                    <td>
+                      <% if (professional.professionalType === 'lender' && professional.nmls) { %>
+                        NMLS: <%= professional.nmls %>
+                      <% } else if (professional.professionalType === 'inspector' && professional.licenseNumber) { %>
+                        License: <%= professional.licenseNumber %>
+                      <% } else if (professional.professionalType === 'title' && professional.companyId) { %>
+                        Company ID: <%= professional.companyId %>
+                      <% } else { %>
+                        <span class="text-muted">N/A</span>
+                      <% } %>
+                    </td>
+                    <td>
+                      <% if (professional.verified) { %>
+                        <span class="badge bg-success">Verified</span>
+                      <% } else { %>
+                        <span class="badge bg-warning">Pending</span>
+                      <% } %>
+                    </td>
+                    <td><%= new Date(professional.createdAt).toLocaleDateString() %></td>
+                    <td>
+                      <div class="btn-group btn-group-sm">
+                        <a href="/admin/professionals/<%= professional._id %>" class="btn btn-outline-primary">
+                          <i class="bi bi-eye"></i>
+                        </a>
+                        <% if (!professional.verified) { %>
+                          <form action="/admin/professionals/<%= professional._id %>/verify" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-outline-success" title="Verify Professional">
+                              <i class="bi bi-check-circle"></i>
+                            </button>
+                          </form>
+                          <form action="/admin/professionals/<%= professional._id %>/deny" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-outline-danger" title="Deny Professional">
+                              <i class="bi bi-x-circle"></i>
+                            </button>
+                          </form>
+                        <% } else { %>
+                          <form action="/admin/professionals/<%= professional._id %>/unverify" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-outline-warning" title="Revoke Verification">
+                              <i class="bi bi-shield-x"></i>
+                            </button>
+                          </form>
+                        <% } %>
+                      </div>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- Pagination -->
+          <% if (totalPages > 1) { %>
+            <nav aria-label="Professional pagination" class="mt-4">
+              <ul class="pagination justify-content-center">
+                <li class="page-item <%= hasPrevPage ? '' : 'disabled' %>">
+                  <a class="page-link" href="<%= hasPrevPage ? `/admin/professionals?page=${currentPage - 1}&search=${query.search || ''}&type=${query.type || ''}&verified=${query.verified || ''}` : '#' %>" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                  </a>
+                </li>
+                
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                  <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                    <a class="page-link" href="/admin/professionals?page=<%= i %>&search=<%= query.search || '' %>&type=<%= query.type || '' %>&verified=<%= query.verified || '' %>">
+                      <%= i %>
+                    </a>
+                  </li>
+                <% } %>
+                
+                <li class="page-item <%= hasNextPage ? '' : 'disabled' %>">
+                  <a class="page-link" href="<%= hasNextPage ? `/admin/professionals?page=${currentPage + 1}&search=${query.search || ''}&type=${query.type || ''}&verified=${query.verified || ''}` : '#' %>" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          <% } %>
+          
+          <div class="text-center text-muted mt-3">
+            Showing <%= professionals.length %> of <%= total %> professionals
+          </div>
+        <% } else { %>
+          <div class="alert alert-info mb-0">
+            <i class="bi bi-info-circle me-2"></i>No professionals found matching your criteria.
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-light">
+        <h5 class="mb-0">Professional Statistics</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <div class="card bg-light">
+              <div class="card-body">
+                <h6 class="card-title">Pending Verifications</h6>
+                <h3 class="card-text text-warning"><%= pendingCount || 0 %></h3>
+                <a href="/admin/professionals?verified=false" class="btn btn-sm btn-outline-warning mt-2">View Pending</a>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-4 mb-3">
+            <div class="card bg-light">
+              <div class="card-body">
+                <h6 class="card-title">Verified Professionals</h6>
+                <h3 class="card-text text-success"><%= verifiedCount || 0 %></h3>
+                <a href="/admin/professionals?verified=true" class="btn btn-sm btn-outline-success mt-2">View Verified</a>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-4 mb-3">
+            <div class="card bg-light">
+              <div class="card-body">
+                <h6 class="card-title">Total Professionals</h6>
+                <h3 class="card-text text-primary"><%= total || 0 %></h3>
+                <a href="/admin/professionals" class="btn btn-sm btn-outline-primary mt-2">View All</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row mt-4">
+          <div class="col-md-12">
+            <h6 class="mb-3">Professional Types</h6>
+            <div class="row">
+              <div class="col-md-2 mb-3">
+                <div class="card bg-light text-center">
+                  <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Lenders</h6>
+                    <h3 class="card-title text-info"><%= typeCounts?.lender || 0 %></h3>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-2 mb-3">
+                <div class="card bg-light text-center">
+                  <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Title</h6>
+                    <h3 class="card-title text-primary"><%= typeCounts?.title || 0 %></h3>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-2 mb-3">
+                <div class="card bg-light text-center">
+                  <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Inspectors</h6>
+                    <h3 class="card-title text-success"><%= typeCounts?.inspector || 0 %></h3>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-2 mb-3">
+                <div class="card bg-light text-center">
+                  <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Photographers</h6>
+                    <h3 class="card-title text-warning"><%= typeCounts?.photographer || 0 %></h3>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-2 mb-3">
+                <div class="card bg-light text-center">
+                  <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Contractors</h6>
+                    <h3 class="card-title text-secondary"><%= typeCounts?.contractor || 0 %></h3>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-2 mb-3">
+                <div class="card bg-light text-center">
+                  <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Other</h6>
+                    <h3 class="card-title text-dark"><%= typeCounts?.other || 0 %></h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Filter tag removal
+  document.addEventListener('DOMContentLoaded', function() {
+    const closeButtons = document.querySelectorAll('.filter-tag .close');
+    closeButtons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.preventDefault();
+        const param = this.getAttribute('data-param');
+        const url = new URL(window.location.href);
+        url.searchParams.delete(param);
+        window.location.href = url.toString();
+      });
+    });
+  });
+</script>

@@ -7,6 +7,7 @@ const Professional = require("../models/Professional");
 const User = require("../models/User");
 const { AppError, catchAsync } = require('../middleware/errorMiddleware');
 const notificationController = require('../controllers/notificationController');
+const offerTaskController = require('../controllers/offerTaskController');
 const { sendEmail } = require("../utils/emailService");
 const { generatePdfFromTemplate } = require('../utils/pdfGenerator');
 
@@ -1092,6 +1093,14 @@ exports.acceptOffer = async (req, res) => {
         offer.status = "accepted";
         offer.finalized = true;
         await offer.save();
+        
+        // Create default tasks for the accepted offer
+        try {
+            await offerTaskController.createDefaultTasks(offer._id);
+        } catch (taskError) {
+            console.error("Error creating default tasks:", taskError);
+            // Continue with acceptance even if task creation fails
+        }
 
         try {
             // Import the functions directly

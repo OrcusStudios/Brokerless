@@ -146,6 +146,12 @@ router.get("/professionals/pending",
   adminController.getPendingProfessionals
 );
 
+router.get("/professionals/:id", 
+  hasPermission("MANAGE_USERS"), 
+  logAdminActivity("VIEW_PROFESSIONAL"), 
+  adminController.getProfessionalDetails
+);
+
 router.post("/professionals/:id/verify", 
   hasPermission("MANAGE_USERS"), 
   logAdminActivity("VERIFY_PROFESSIONAL"), 
@@ -156,6 +162,12 @@ router.post("/professionals/:id/deny",
   hasPermission("MANAGE_USERS"), 
   logAdminActivity("DENY_PROFESSIONAL"), 
   adminController.denyProfessional
+);
+
+router.post("/professionals/:id/unverify", 
+  hasPermission("MANAGE_USERS"), 
+  logAdminActivity("UNVERIFY_PROFESSIONAL"), 
+  adminController.unverifyProfessional
 );
 
 // Analytics Routes

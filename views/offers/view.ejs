@@ -287,6 +287,79 @@
                 </div>
             </div>
             
+            <!-- Next Steps Checklist (only shown for accepted offers) -->
+            <% if (offer.status === 'accepted') { %>
+                <div id="offer-tasks-container" class="offer-tasks-container mb-4" data-offer-id="<%= offer._id %>">
+                    <div class="offer-tasks-header">
+                        <h4 class="offer-tasks-title">
+                            <i class="bi bi-check2-square me-2"></i>Next Steps Checklist
+                        </h4>
+                        <span class="badge bg-primary">
+                            <%= user._id.equals(offer.buyer._id) ? 'Buyer' : 'Seller' %> Tasks
+                        </span>
+                    </div>
+                    
+                    <!-- Progress Bar -->
+                    <div class="tasks-progress">
+                        <div class="progress">
+                            <div id="tasks-progress-bar" class="progress-bar tasks-progress-bar bg-success" 
+                                role="progressbar" style="width: 0%;" 
+                                aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <p id="tasks-progress-text" class="tasks-progress-text">
+                            Loading tasks...
+                        </p>
+                    </div>
+                    
+                    <!-- Error Message -->
+                    <div id="tasks-error" class="alert alert-danger d-none"></div>
+                    
+                    <!-- Tasks List -->
+                    <div id="tasks-list">
+                        <div class="text-center py-3">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Loading your tasks...</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Add Custom Task Form -->
+                    <div class="add-task-form">
+                        <h5 class="mb-3">Add Custom Task</h5>
+                        <form id="add-task-form">
+                            <div class="mb-3">
+                                <label for="new-task-title" class="form-label">Task Title</label>
+                                <input type="text" class="form-control" id="new-task-title" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="new-task-description" class="form-label">Description (Optional)</label>
+                                <textarea class="form-control" id="new-task-description" rows="2"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="new-task-category" class="form-label">Category</label>
+                                <select class="form-select" id="new-task-category">
+                                    <option value="inspection">Home Inspection</option>
+                                    <option value="financing">Financing & Appraisal</option>
+                                    <option value="closing">Closing Preparation</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-1"></i>Add Task
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Inspector Directory Link (for buyers) -->
+                    <% if (user._id.equals(offer.buyer._id)) { %>
+                        <a href="/inspectors" class="inspector-directory-link mt-3">
+                            <i class="bi bi-search"></i>Find a Home Inspector
+                        </a>
+                    <% } %>
+                </div>
+            <% } %>
+            
             <!-- Riders Component -->
             <%- include('../partials/riderComponents', { 
                 offer: offer, 

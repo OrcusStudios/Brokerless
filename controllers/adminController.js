@@ -677,21 +677,117 @@ exports.removeAdmin = async (req, res) => {
 // These will be implemented in future updates
 
 exports.getListings = async (req, res) => {
-  // Create a listings.ejs file with the include approach
-  res.render('admin/layout', {
-    title: 'Listing Management',
-    active: 'listings',
-    content: '<div class="alert alert-info">Listing management functionality coming soon.</div>'
-  });
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+    
+    // Build filter based on query parameters
+    const filter = {};
+    
+    if (req.query.search) {
+      filter.$or = [
+        { address: { $regex: req.query.search, $options: 'i' } },
+        { city: { $regex: req.query.search, $options: 'i' } },
+        { zipCode: { $regex: req.query.search, $options: 'i' } }
+      ];
+    }
+    
+    if (req.query.status) {
+      filter.status = req.query.status;
+    }
+    
+    // Get total count for pagination
+    const total = await Listing.countDocuments(filter);
+    
+    // Determine sort order
+    let sort = { createdAt: -1 }; // Default sort by date
+    if (req.query.sortBy === 'price') {
+      sort = { price: 1 };
+    } else if (req.query.sortBy === 'views') {
+      sort = { views: -1 };
+    }
+    
+    // Get listings with pagination
+    const listings = await Listing.find(filter)
+      .sort(sort)
+      .skip(skip)
+      .limit(limit)
+      .populate('seller', 'name email')
+      .select('address price status images createdAt views featured');
+    
+    // Calculate pagination values
+    const totalPages = Math.ceil(total / limit);
+    const hasNextPage = page < totalPages;
+    const hasPrevPage = page > 1;
+    
+    // Render the listings page with the layout
+    res.render('admin/layout', {
+      title: 'Listing Management',
+      active: 'listings',
+      listings,
+      currentPage: page,
+      totalPages,
+      hasNextPage,
+      hasPrevPage,
+      total,
+      query: req.query,
+      user: req.user,
+      content: await renderTemplate('admin/listings', {
+        listings,
+        currentPage: page,
+        totalPages,
+        hasNextPage,
+        hasPrevPage,
+        total,
+        query: req.query,
+        user: req.user
+      })
+    });
+  } catch (error) {
+    console.error('Error loading listings:', error);
+    req.flash('error', 'Error loading listing data');
+    res.redirect('/admin/dashboard');
+  }
 };
 
 exports.getListingDetails = async (req, res) => {
-  // Create a listingDetails.ejs file with the include approach
-  res.render('admin/layout', {
-    title: 'Listing Details',
-    active: 'listings',
-    content: '<div class="alert alert-info">Listing details functionality coming soon.</div>'
-  });
+  try {
+    const listingId = req.params.id;
+    
+    // Get the listing with seller information
+    const listing = await Listing.findById(listingId)
+      .populate('seller', 'name email phoneNumber');
+    
+    if (!listing) {
+      req.flash('error', 'Listing not found');
+      return res.redirect('/admin/listings');
+    }
+    
+    // Get offers for this listing
+    const offers = await Offer.find({ listing: listingId })
+      .populate('buyer', 'name email')
+      .sort({ createdAt: -1 })
+      .select('price status createdAt buyer');
+    
+    // Render the listing details page with the layout
+    res.render('admin/layout', {
+      title: 'Listing Details',
+      active: 'listings',
+      listing,
+      offers,
+      user: req.user,
+      content: await renderTemplate('admin/listingDetails', {
+        listing,
+        offers,
+        user: req.user
+      })
+    });
+  } catch (error) {
+    console.error('Error loading listing details:', error);
+    req.flash('error', 'Error loading listing details');
+    res.redirect('/admin/listings');
+  }
 };
 
 exports.updateListing = async (req, res) => {
@@ -883,29 +979,324 @@ exports.updateTransaction = async (req, res) => {
 };
 
 exports.getProfessionals = async (req, res) => {
-  res.render('admin/layout', {
-    title: 'Professional Management',
-    active: 'professionals',
-    content: '<div class="alert alert-info">Professional management functionality coming soon.</div>'
-  });
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+    
+    // Build filter based on query parameters
+    const filter = {};
+    
+    if (req.query.search) {
+      filter.$or = [
+        { name: { $regex: req.query.search, $options: 'i' } },
+        { email: { $regex: req.query.search, $options: 'i' } },
+        { nmls: { $regex: req.query.search, $options: 'i' } },
+        { licenseNumber: { $regex: req.query.search, $options: 'i' } },
+        { companyId: { $regex: req.query.search, $options: 'i' } }
+      ];
+    }
+    
+    if (req.query.type) {
+      filter.professionalType = req.query.type;
+    }
+    
+    if (req.query.verified === 'true') {
+      filter.verified = true;
+    } else if (req.query.verified === 'false') {
+      filter.verified = false;
+    }
+    
+    // Get total count for pagination
+    const total = await Professional.countDocuments(filter);
+    
+    // Get professionals with pagination
+    const professionals = await Professional.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .select('name email professionalType verified nmls licenseNumber companyId createdAt');
+    
+    // Calculate pagination values
+    const totalPages = Math.ceil(total / limit);
+    const hasNextPage = page < totalPages;
+    const hasPrevPage = page > 1;
+    
+    // Get counts for statistics
+    const pendingCount = await Professional.countDocuments({ verified: false });
+    const verifiedCount = await Professional.countDocuments({ verified: true });
+    
+    // Get counts by professional type
+    const typeCounts = {
+      lender: await Professional.countDocuments({ professionalType: 'lender' }),
+      title: await Professional.countDocuments({ professionalType: 'title' }),
+      inspector: await Professional.countDocuments({ professionalType: 'inspector' }),
+      photographer: await Professional.countDocuments({ professionalType: 'photographer' }),
+      contractor: await Professional.countDocuments({ professionalType: 'contractor' }),
+      other: await Professional.countDocuments({ 
+        professionalType: { 
+          $nin: ['lender', 'title', 'inspector', 'photographer', 'contractor'] 
+        } 
+      })
+    };
+    
+    // Render the professionals page with the layout
+    res.render('admin/layout', {
+      title: 'Professional Management',
+      active: 'professionals',
+      professionals,
+      currentPage: page,
+      totalPages,
+      hasNextPage,
+      hasPrevPage,
+      total,
+      pendingCount,
+      verifiedCount,
+      typeCounts,
+      query: req.query,
+      user: req.user,
+      content: await renderTemplate('admin/professionals', {
+        professionals,
+        currentPage: page,
+        totalPages,
+        hasNextPage,
+        hasPrevPage,
+        total,
+        pendingCount,
+        verifiedCount,
+        typeCounts,
+        query: req.query,
+        user: req.user
+      })
+    });
+  } catch (error) {
+    console.error('Error loading professionals:', error);
+    req.flash('error', 'Error loading professional data');
+    res.redirect('/admin/dashboard');
+  }
+};
+
+exports.getProfessionalDetails = async (req, res) => {
+  try {
+    const professionalId = req.params.id;
+    
+    // Get the professional with all details
+    const professional = await Professional.findById(professionalId);
+    
+    if (!professional) {
+      req.flash('error', 'Professional not found');
+      return res.redirect('/admin/professionals');
+    }
+    
+    // Get activity logs for this professional
+    const activityLogs = await AdminLog.find({
+      'details.professionalId': professionalId
+    })
+    .populate('admin', 'name')
+    .sort({ createdAt: -1 })
+    .limit(20);
+    
+    // Get admin who verified the professional
+    let verifiedByAdmin = null;
+    if (professional.verifiedBy) {
+      verifiedByAdmin = await User.findById(professional.verifiedBy)
+        .select('name');
+    }
+    
+    // Get admin who denied the professional
+    let deniedByAdmin = null;
+    if (professional.deniedBy) {
+      deniedByAdmin = await User.findById(professional.deniedBy)
+        .select('name');
+    }
+    
+    // Render the professional details page with the layout
+    res.render('admin/layout', {
+      title: 'Professional Details',
+      active: 'professionals',
+      professional,
+      activityLogs,
+      verifiedByAdmin,
+      deniedByAdmin,
+      user: req.user,
+      content: await renderTemplate('admin/professionalDetails', {
+        professional,
+        activityLogs,
+        verifiedByAdmin,
+        deniedByAdmin,
+        user: req.user
+      })
+    });
+  } catch (error) {
+    console.error('Error loading professional details:', error);
+    req.flash('error', 'Error loading professional details');
+    res.redirect('/admin/professionals');
+  }
 };
 
 exports.getPendingProfessionals = async (req, res) => {
-  res.render('admin/layout', {
-    title: 'Pending Professionals',
-    active: 'pending-professionals',
-    content: '<div class="alert alert-info">Pending professionals functionality coming soon.</div>'
-  });
+  try {
+    // Redirect to professionals page with verified=false filter
+    res.redirect('/admin/professionals?verified=false');
+  } catch (error) {
+    console.error('Error redirecting to pending professionals:', error);
+    req.flash('error', 'Error loading pending professionals');
+    res.redirect('/admin/dashboard');
+  }
 };
 
 exports.verifyProfessional = async (req, res) => {
-  req.flash('success', 'Professional verified successfully');
-  res.redirect('/admin/professionals/pending');
+  try {
+    const professionalId = req.params.id;
+    
+    const professional = await Professional.findById(professionalId);
+    
+    if (!professional) {
+      req.flash('error', 'Professional not found');
+      return res.redirect('/admin/professionals');
+    }
+    
+    // Update verification status
+    professional.verified = true;
+    professional.verifiedAt = new Date();
+    professional.verifiedBy = req.user._id;
+    
+    await professional.save();
+    
+    // Log the action
+    const log = new AdminLog({
+      admin: req.user._id,
+      activityType: 'VERIFY_PROFESSIONAL',
+      details: {
+        professionalId,
+        professionalType: professional.professionalType,
+        professionalName: professional.name
+      }
+    });
+    
+    await log.save();
+    
+    // Send email notification to the professional
+    await sendEmail({
+      to: professional.email,
+      subject: 'Your professional account has been verified',
+      text: `Hello ${professional.name},\n\nYour professional account on REMarketplace has been verified. You can now access all professional features.\n\nRegards,\nREMarketplace Team`,
+      html: `<p>Hello ${professional.name},</p><p>Your professional account on REMarketplace has been verified. You can now access all professional features.</p><p>Regards,<br>REMarketplace Team</p>`
+    });
+    
+    req.flash('success', 'Professional verified successfully');
+    res.redirect('/admin/professionals');
+  } catch (error) {
+    console.error('Error verifying professional:', error);
+    req.flash('error', 'Error verifying professional');
+    res.redirect('/admin/professionals');
+  }
 };
 
 exports.denyProfessional = async (req, res) => {
-  req.flash('success', 'Professional denied successfully');
-  res.redirect('/admin/professionals/pending');
+  try {
+    const professionalId = req.params.id;
+    
+    const professional = await Professional.findById(professionalId);
+    
+    if (!professional) {
+      req.flash('error', 'Professional not found');
+      return res.redirect('/admin/professionals');
+    }
+    
+    // Update verification status
+    professional.verified = false;
+    professional.deniedAt = new Date();
+    professional.deniedBy = req.user._id;
+    professional.deniedReason = req.body.reason || 'Verification requirements not met';
+    
+    await professional.save();
+    
+    // Log the action
+    const log = new AdminLog({
+      admin: req.user._id,
+      activityType: 'DENY_PROFESSIONAL',
+      details: {
+        professionalId,
+        professionalType: professional.professionalType,
+        professionalName: professional.name,
+        reason: professional.deniedReason
+      }
+    });
+    
+    await log.save();
+    
+    // Send email notification to the professional
+    await sendEmail({
+      to: professional.email,
+      subject: 'Your professional account verification was denied',
+      text: `Hello ${professional.name},\n\nUnfortunately, your professional account verification on REMarketplace has been denied for the following reason: ${professional.deniedReason}.\n\nPlease update your information and resubmit for verification.\n\nRegards,\nREMarketplace Team`,
+      html: `<p>Hello ${professional.name},</p><p>Unfortunately, your professional account verification on REMarketplace has been denied for the following reason: ${professional.deniedReason}.</p><p>Please update your information and resubmit for verification.</p><p>Regards,<br>REMarketplace Team</p>`
+    });
+    
+    req.flash('success', 'Professional verification denied');
+    res.redirect('/admin/professionals');
+  } catch (error) {
+    console.error('Error denying professional:', error);
+    req.flash('error', 'Error denying professional');
+    res.redirect('/admin/professionals');
+  }
+};
+
+/**
+ * Unverify Professional
+ * Revoke verification from a professional
+ */
+exports.unverifyProfessional = async (req, res) => {
+  try {
+    const professionalId = req.params.id;
+    
+    const professional = await Professional.findById(professionalId);
+    
+    if (!professional) {
+      req.flash('error', 'Professional not found');
+      return res.redirect('/admin/professionals');
+    }
+    
+    // Update verification status
+    professional.verified = false;
+    professional.verifiedAt = undefined;
+    professional.verifiedBy = undefined;
+    professional.unverifiedAt = new Date();
+    professional.unverifiedBy = req.user._id;
+    professional.unverifiedReason = req.body.reason || 'Verification revoked by admin';
+    
+    await professional.save();
+    
+    // Log the action
+    const log = new AdminLog({
+      admin: req.user._id,
+      activityType: 'UNVERIFY_PROFESSIONAL',
+      details: {
+        professionalId,
+        professionalType: professional.professionalType,
+        professionalName: professional.name,
+        reason: professional.unverifiedReason
+      }
+    });
+    
+    await log.save();
+    
+    // Send email notification to the professional
+    await sendEmail({
+      to: professional.email,
+      subject: 'Your professional account verification has been revoked',
+      text: `Hello ${professional.name},\n\nYour professional account verification on REMarketplace has been revoked for the following reason: ${professional.unverifiedReason}.\n\nPlease contact support if you have any questions.\n\nRegards,\nREMarketplace Team`,
+      html: `<p>Hello ${professional.name},</p><p>Your professional account verification on REMarketplace has been revoked for the following reason: ${professional.unverifiedReason}.</p><p>Please contact support if you have any questions.</p><p>Regards,<br>REMarketplace Team</p>`
+    });
+    
+    req.flash('success', 'Professional verification revoked');
+    res.redirect('/admin/professionals');
+  } catch (error) {
+    console.error('Error unverifying professional:', error);
+    req.flash('error', 'Error revoking professional verification');
+    res.redirect('/admin/professionals');
+  }
 };
 
 exports.getAnalytics = async (req, res) => {

@@ -82,7 +82,12 @@
               <button class="nav-link" id="preferences-tab" data-bs-toggle="tab" data-bs-target="#preferences" type="button" role="tab" aria-controls="preferences" aria-selected="false">
                 <i class="fas fa-cog me-2"></i> Preferences
               </button>
-            </li>      
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="signature-tab" data-bs-toggle="tab" data-bs-target="#signature" type="button" role="tab" aria-controls="signature" aria-selected="false">
+                <i class="fas fa-signature me-2"></i> E-Signature
+              </button>
+            </li>
           </ul>
         </div>
         <div class="card-body">
@@ -243,7 +248,7 @@
                   </div>
                 </div>
                 
-                                    <div class="alert alert-light border my-4">
+                <div class="alert alert-light border my-4">
                   <div class="d-flex">
                     <div class="me-3">
                       <i class="fas fa-info-circle text-primary fs-5"></i>
@@ -254,7 +259,7 @@
                     </div>
                   </div>
                 </div>
-                <p>notifications updates and preferences will be available in a later version.</p>
+                <p>Notifications updates and preferences will be available in a later version.</p>
                 
                 <div class="text-end mt-4">
                   <button type="submit" class="btn btn-primary" disabled>
@@ -262,73 +267,177 @@
                   </button>
                 </div>
               </form>
-            </div>                       
-
-<!-- Profile Picture Modal -->
-<div class="modal fade" id="changeProfilePicModal" tabindex="-1" aria-labelledby="changeProfilePicModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="changeProfilePicModalLabel">Change Profile Picture</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form action="/users/profilePicture" method="POST" enctype="multipart/form-data">
-          <div class="mb-3 text-center">
-            <img src="<%= user.profileImage %>" alt="Current profile" class="rounded-circle img-thumbnail mb-3" style="width: 150px; height: 150px; object-fit: cover;">
-            <div class="input-group mb-3">
-              <input type="file" class="form-control" id="profileImage" name="profileImage" accept="image/*" required>
+            </div>
+            
+            <!-- E-Signature Tab -->
+            <div class="tab-pane fade" id="signature" role="tabpanel" aria-labelledby="signature-tab">
+              <h5 class="card-title mb-4">E-Signature Settings</h5>
+              
+              <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Your e-signature will be used when signing contracts and other legal documents on RE-Marketplace.
+              </div>
+              
+              <form action="/users/signaturePreferences" method="POST">
+                <div class="row mb-4">
+                  <div class="col-md-6">
+                    <label for="signatureFont" class="form-label">Signature Font</label>
+                    <select class="form-select" id="signatureFont" name="font">
+                      <option value="Dancing Script" <%= user.signaturePreferences?.font === 'Dancing Script' ? 'selected' : '' %>>Dancing Script</option>
+                      <option value="Pacifico" <%= user.signaturePreferences?.font === 'Pacifico' ? 'selected' : '' %>>Pacifico</option>
+                      <option value="Satisfy" <%= user.signaturePreferences?.font === 'Satisfy' ? 'selected' : '' %>>Satisfy</option>
+                      <option value="Great Vibes" <%= user.signaturePreferences?.font === 'Great Vibes' ? 'selected' : '' %>>Great Vibes</option>
+                      <option value="Caveat" <%= user.signaturePreferences?.font === 'Caveat' ? 'selected' : '' %>>Caveat</option>
+                      <option value="Sacramento" <%= user.signaturePreferences?.font === 'Sacramento' ? 'selected' : '' %>>Sacramento</option>
+                      <option value="Allura" <%= user.signaturePreferences?.font === 'Allura' ? 'selected' : '' %>>Allura</option>
+                      <option value="Tangerine" <%= user.signaturePreferences?.font === 'Tangerine' ? 'selected' : '' %>>Tangerine</option>
+                    </select>
+                  </div>
+                  
+                  <div class="col-md-3">
+                    <label for="signatureSize" class="form-label">Size</label>
+                    <select class="form-select" id="signatureSize" name="size">
+                      <option value="small" <%= user.signaturePreferences?.size === 'small' ? 'selected' : '' %>>Small</option>
+                      <option value="medium" <%= user.signaturePreferences?.size === 'medium' ? 'selected' : '' %>>Medium</option>
+                      <option value="large" <%= user.signaturePreferences?.size === 'large' ? 'selected' : '' %>>Large</option>
+                    </select>
+                  </div>
+                  
+                  <div class="col-md-3">
+                    <label for="signatureColor" class="form-label">Color</label>
+                    <input type="color" class="form-control form-control-color w-100" id="signatureColor" name="color" value="<%= user.signaturePreferences?.color || '#000000' %>">
+                  </div>
+                </div>
+                
+                <div class="card mb-4">
+                  <div class="card-header bg-light">
+                    <h6 class="mb-0">Signature Preview</h6>
+                  </div>
+                  <div class="card-body text-center py-4">
+                    <div id="signaturePreview" class="border-bottom pb-2 d-inline-block">
+                      <%= user.name %>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="text-end">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i> Save Signature Settings
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
-          <div class="text-center">
-            <button type="submit" class="btn btn-primary">Upload New Photo</button>
+        </div>
+      </div>
+      
+      <!-- Profile Picture Modal -->
+      <div class="modal fade" id="changeProfilePicModal" tabindex="-1" aria-labelledby="changeProfilePicModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="changeProfilePicModalLabel">Change Profile Picture</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form action="/users/profilePicture" method="POST" enctype="multipart/form-data">
+                <div class="mb-3 text-center">
+                  <img src="<%= user.profileImage %>" alt="Current profile" class="rounded-circle img-thumbnail mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                  <div class="input-group mb-3">
+                    <input type="file" class="form-control" id="profileImage" name="profileImage" accept="image/*" required>
+                  </div>
+                </div>
+                <div class="text-center">
+                  <button type="submit" class="btn btn-primary">Upload New Photo</button>
+                </div>
+              </form>
+            </div>
           </div>
-        </form>
+        </div>
+      </div>
+
+      <!-- Change Password Modal -->
+      <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form action="/users/changePassword" method="POST">
+                <div class="mb-3">
+                  <label for="currentPassword" class="form-label">Current Password</label>
+                  <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+                </div>
+                <div class="mb-3">
+                  <label for="newPassword" class="form-label">New Password</label>
+                  <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+                </div>
+                <div class="mb-3">
+                  <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                  <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                </div>
+                <div class="d-grid">
+                  <button type="submit" class="btn btn-primary">Update Password</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-    <!-- Change Password Modal -->
-    <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-            <form action="/users/changePassword" method="POST">
-            <div class="mb-3">
-                <label for="currentPassword" class="form-label">Current Password</label>
-                <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
-            </div>
-            <div class="mb-3">
-                <label for="newPassword" class="form-label">New Password</label>
-                <input type="password" class="form-control" id="newPassword" name="newPassword" required>
-            </div>
-            <div class="mb-3">
-                <label for="confirmPassword" class="form-label">Confirm New Password</label>
-                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
-            </div>
-            <div class="d-grid">
-                <button type="submit" class="btn btn-primary">Update Password</button>
-            </div>
-            </form>
-        </div>
-        </div>
-    </div>
-    </div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
+<!-- Add Google Fonts for Signatures -->
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script&family=Pacifico&family=Satisfy&family=Great+Vibes&family=Caveat&family=Sacramento&family=Allura&family=Tangerine&display=swap" rel="stylesheet">
+
+<!-- Signature Preview Script -->
 <script>
-  document.getElementById("theme-selector").addEventListener("change", function() {
-    document.documentElement.className = this.value;
-});
+  document.addEventListener('DOMContentLoaded', function() {
+    // Theme selector
+    const themeSelector = document.getElementById('theme-selector');
+    if (themeSelector) {
+      themeSelector.addEventListener('change', function() {
+        document.documentElement.className = this.value;
+      });
+    }
+    
+    // Signature preview
+    const preview = document.getElementById('signaturePreview');
+    const fontSelect = document.getElementById('signatureFont');
+    const sizeSelect = document.getElementById('signatureSize');
+    const colorInput = document.getElementById('signatureColor');
+    
+    if (preview && fontSelect && sizeSelect && colorInput) {
+      // Initial update
+      updateSignaturePreview();
+      
+      // Update on changes
+      fontSelect.addEventListener('change', updateSignaturePreview);
+      sizeSelect.addEventListener('change', updateSignaturePreview);
+      colorInput.addEventListener('input', updateSignaturePreview);
+      
+      function updateSignaturePreview() {
+        // Set font family
+        preview.style.fontFamily = fontSelect.value;
+        
+        // Set size
+        const size = sizeSelect.value;
+        if (size === 'small') {
+          preview.style.fontSize = '1.5rem';
+        } else if (size === 'medium') {
+          preview.style.fontSize = '2rem';
+        } else if (size === 'large') {
+          preview.style.fontSize = '2.5rem';
+        }
+        
+        // Set color
+        preview.style.color = colorInput.value;
+      }
+    }
+  });
 </script>
 
 <%- include('./partials/footer.ejs') %>

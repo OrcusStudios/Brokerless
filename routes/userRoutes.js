@@ -53,6 +53,9 @@ router.post("/profile/image", ensureAuthenticated, userController.updateProfileI
 // Update notification preferences
 router.post("/preferences/notifications", ensureAuthenticated, userController.updateNotificationPreferences);
 
+// Update signature preferences
+router.post("/signaturePreferences", ensureAuthenticated, userController.updateSignaturePreferences);
+
 // ===== Role Management Routes =====
 
 // Activate buyer role

@@ -1,0 +1,319 @@
+<!-- views/inspectorDirectory.ejs -->
+<%- include('partials/layout.ejs') %>
+
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <h1 class="mb-3">Find a Home Inspector</h1>
+            <p class="lead">
+                Connect with qualified home inspectors in your area to schedule an inspection for your property.
+            </p>
+            <p>
+                A thorough home inspection is a critical step in the home buying process. Our directory features licensed and experienced inspectors who can help identify potential issues with the property before you finalize your purchase.
+            </p>
+        </div>
+        <div class="col-lg-4">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">Why Get a Home Inspection?</h5>
+                    <ul class="mb-0">
+                        <li>Identify potential structural issues</li>
+                        <li>Discover hidden problems</li>
+                        <li>Negotiate repairs with the seller</li>
+                        <li>Plan for future maintenance</li>
+                        <li>Peace of mind with your purchase</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form id="inspector-search-form">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="location" class="form-label">Location</label>
+                        <input type="text" class="form-control" id="location" placeholder="City, State, or Zip">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="specialty" class="form-label">Specialty</label>
+                        <select class="form-select" id="specialty">
+                            <option value="">All Specialties</option>
+                            <option value="residential">Residential</option>
+                            <option value="commercial">Commercial</option>
+                            <option value="new-construction">New Construction</option>
+                            <option value="historic">Historic Homes</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="availability" class="form-label">Availability</label>
+                        <select class="form-select" id="availability">
+                            <option value="">Any Time</option>
+                            <option value="this-week">This Week</option>
+                            <option value="next-week">Next Week</option>
+                            <option value="weekend">Weekends Only</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search me-1"></i> Search
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Inspector Listings -->
+    <div class="row" id="inspector-listings">
+        <!-- Inspector Card 1 -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex mb-3">
+                        <div class="flex-shrink-0">
+                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                <i class="bi bi-person-badge fs-1 text-primary"></i>
+                            </div>
+                        </div>
+                        <div class="ms-3">
+                            <h5 class="card-title mb-1">Robert Johnson</h5>
+                            <p class="text-muted mb-1">Johnson Home Inspections</p>
+                            <div class="mb-1">
+                                <span class="badge bg-success">Licensed</span>
+                                <span class="badge bg-info text-dark">Residential</span>
+                                <span class="badge bg-secondary">10+ Years</span>
+                            </div>
+                            <div class="mb-0">
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-half text-warning"></i>
+                                <small class="text-muted">(48 reviews)</small>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="card-text">Specializing in thorough residential inspections with detailed reports including photos and recommendations. Available weekdays and weekends.</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-0"><i class="bi bi-geo-alt me-1"></i> St. Louis, MO</p>
+                            <p class="mb-0"><i class="bi bi-currency-dollar me-1"></i> $350 - $500</p>
+                        </div>
+                        <div>
+                            <a href="/inspectors/schedule/1" class="btn btn-primary">
+                                <i class="bi bi-calendar-check me-1"></i> Schedule
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inspector Card 2 -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex mb-3">
+                        <div class="flex-shrink-0">
+                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                <i class="bi bi-person-badge fs-1 text-primary"></i>
+                            </div>
+                        </div>
+                        <div class="ms-3">
+                            <h5 class="card-title mb-1">Maria Rodriguez</h5>
+                            <p class="text-muted mb-1">Elite Home Inspections</p>
+                            <div class="mb-1">
+                                <span class="badge bg-success">Licensed</span>
+                                <span class="badge bg-info text-dark">Residential</span>
+                                <span class="badge bg-info text-dark">Commercial</span>
+                            </div>
+                            <div class="mb-0">
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star text-warning"></i>
+                                <small class="text-muted">(36 reviews)</small>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="card-text">Certified inspector with expertise in both residential and commercial properties. Thermal imaging included with all inspections.</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-0"><i class="bi bi-geo-alt me-1"></i> Kansas City, MO</p>
+                            <p class="mb-0"><i class="bi bi-currency-dollar me-1"></i> $375 - $550</p>
+                        </div>
+                        <div>
+                            <a href="/inspectors/schedule/2" class="btn btn-primary">
+                                <i class="bi bi-calendar-check me-1"></i> Schedule
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inspector Card 3 -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex mb-3">
+                        <div class="flex-shrink-0">
+                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                <i class="bi bi-person-badge fs-1 text-primary"></i>
+                            </div>
+                        </div>
+                        <div class="ms-3">
+                            <h5 class="card-title mb-1">David Chen</h5>
+                            <p class="text-muted mb-1">Precision Home Inspections</p>
+                            <div class="mb-1">
+                                <span class="badge bg-success">Licensed</span>
+                                <span class="badge bg-info text-dark">Residential</span>
+                                <span class="badge bg-info text-dark">New Construction</span>
+                            </div>
+                            <div class="mb-0">
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <small class="text-muted">(52 reviews)</small>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="card-text">Former contractor with extensive knowledge of building codes and construction practices. Specializes in new construction and pre-drywall inspections.</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-0"><i class="bi bi-geo-alt me-1"></i> Springfield, MO</p>
+                            <p class="mb-0"><i class="bi bi-currency-dollar me-1"></i> $400 - $600</p>
+                        </div>
+                        <div>
+                            <a href="/inspectors/schedule/3" class="btn btn-primary">
+                                <i class="bi bi-calendar-check me-1"></i> Schedule
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inspector Card 4 -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex mb-3">
+                        <div class="flex-shrink-0">
+                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                <i class="bi bi-person-badge fs-1 text-primary"></i>
+                            </div>
+                        </div>
+                        <div class="ms-3">
+                            <h5 class="card-title mb-1">Sarah Williams</h5>
+                            <p class="text-muted mb-1">Heritage Home Inspections</p>
+                            <div class="mb-1">
+                                <span class="badge bg-success">Licensed</span>
+                                <span class="badge bg-info text-dark">Residential</span>
+                                <span class="badge bg-info text-dark">Historic</span>
+                            </div>
+                            <div class="mb-0">
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-half text-warning"></i>
+                                <small class="text-muted">(41 reviews)</small>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="card-text">Specializing in historic homes and older properties. Extensive knowledge of period-specific building techniques and common issues in older homes.</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-0"><i class="bi bi-geo-alt me-1"></i> Columbia, MO</p>
+                            <p class="mb-0"><i class="bi bi-currency-dollar me-1"></i> $375 - $525</p>
+                        </div>
+                        <div>
+                            <a href="/inspectors/schedule/4" class="btn btn-primary">
+                                <i class="bi bi-calendar-check me-1"></i> Schedule
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <nav aria-label="Inspector pagination">
+        <ul class="pagination justify-content-center">
+            <li class="page-item disabled">
+                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+            </li>
+            <li class="page-item active" aria-current="page">
+                <a class="page-link" href="#">1</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">2</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">3</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">Next</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<!-- Information Section -->
+<section class="bg-light py-5 mt-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="mb-4">What to Expect During a Home Inspection</h2>
+                <p class="lead mb-5">
+                    A typical home inspection takes 2-3 hours and covers all major systems and components of the house.
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="bi bi-house-door text-primary" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <h5 class="card-title">Structural Elements</h5>
+                        <p class="card-text">Foundation, framing, roof structure, walls, ceilings, floors, stairs, and other structural components.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="bi bi-lightning-charge text-primary" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <h5 class="card-title">Systems & Components</h5>
+                        <p class="card-text">Electrical, plumbing, HVAC, water heater, appliances, and other mechanical systems.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="bi bi-file-earmark-text text-primary" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <h5 class="card-title">Detailed Report</h5>
+                        <p class="card-text">Comprehensive report with photos, findings, and recommendations for repairs or further evaluation.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<%- include('partials/footer.ejs') %>

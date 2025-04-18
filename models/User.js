@@ -142,6 +142,27 @@ const UserSchema = new mongoose.Schema({
     pushNotifications: { type: Boolean, default: true },
     marketingEmails: { type: Boolean, default: false }
   },
+  
+  // E-Signature preferences
+  signaturePreferences: {
+    font: { 
+      type: String, 
+      default: 'Dancing Script' // A good default handwriting-style font
+    },
+    size: {
+      type: String,
+      enum: ['small', 'medium', 'large'],
+      default: 'medium'
+    },
+    color: {
+      type: String,
+      default: '#000000' // Black
+    },
+    lastUpdated: { 
+      type: Date, 
+      default: Date.now 
+    }
+  },
 
   // Account information
   lastLoginAt: { type: Date },
@@ -335,6 +356,17 @@ UserSchema.methods.removeAdminPermission = function(permission) {
   if (!this.isAdmin) return Promise.resolve(this);
   
   this.adminPermissions = this.adminPermissions.filter(p => p !== permission);
+  return this.save();
+};
+
+// Update signature preferences
+UserSchema.methods.updateSignaturePreferences = function(preferences) {
+  if (preferences.font) this.signaturePreferences.font = preferences.font;
+  if (preferences.size) this.signaturePreferences.size = preferences.size;
+  if (preferences.color) this.signaturePreferences.color = preferences.color;
+  
+  this.signaturePreferences.lastUpdated = new Date();
+  
   return this.save();
 };
 

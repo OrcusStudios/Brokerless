@@ -197,6 +197,7 @@ app.use(cors({
 app.use("/users", require("./routes/userRoutes"));
 app.use("/listings", require("./routes/propertyRoutes"));
 app.use("/offers", require("./routes/offerRoutes"));
+app.use("/offer-tasks", require("./routes/offerTaskRoutes"));
 app.use("/messages", require("./routes/messageRoutes"));
 app.use("/schedule", require("./routes/scheduleRoutes"));
 app.use("/professionals", require("./routes/professionalRoutes"));
@@ -212,6 +213,7 @@ app.use("/pricing", require("./routes/pricingRoutes"));
 app.use("/disclosures", require("./routes/disclosureRoutes"));
 app.use("/admin", require("./routes/adminRoutes"));
 app.use("/photographers", require("./routes/photographerRoutes"));
+app.use("/inspectors", require("./routes/inspectorRoutes"));
 
 // Home Route
 app.get('/', (req, res) => {

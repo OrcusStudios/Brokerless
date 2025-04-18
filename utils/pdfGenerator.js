@@ -2,6 +2,7 @@ const fs = require('fs');
 const ejs = require('ejs');
 const puppeteer = require('puppeteer');
 const path = require('path');
+const signatureUtils = require('./signatureUtils');
 
 /**
  * Generates a PDF for an offer
@@ -287,9 +288,119 @@ async function generateDisclosurePdf(listing) {
     }
 };  
 
+/**
+ * Generates a PDF with signatures
+ * @param {Object} document - The document object (offer, disclosure, etc.)
+ * @param {Object} signers - Object containing user objects who will sign the document
+ * @param {String} templateFile - Path to the EJS template file
+ * @param {Object} options - Additional options for PDF generation
+ * @returns {Buffer} PDF buffer with signatures
+ */
+async function generateSignedPdf(document, signers, templateFile, options = {}) {
+    try {
+        // Launch puppeteer with appropriate settings
+        const browser = await puppeteer.launch({ 
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+            headless: 'new'
+        });
+        
+        const page = await browser.newPage();
+
+        // Configure viewport for letter size paper
+        await page.setViewport({
+            width: 816,
+            height: 1056,
+            deviceScaleFactor: 1
+        });
+
+        // Define absolute path to views directory
+        const viewsDir = path.resolve(__dirname, '../views/contracts/');
+
+        // Path to the template
+        const templatePath = path.join(viewsDir, templateFile);
+
+        const bootstrapPath = path.resolve(__dirname, '../public/bootstrap/css/bootstrap.min.css');
+        
+        // Generate signature HTML for each signer
+        const signatures = {};
+        for (const [role, user] of Object.entries(signers)) {
+            if (user) {
+                signatures[role] = signatureUtils.generateSignatureHTML(user);
+            }
+        }
+        
+        // Add signature certificate data
+        const signatureCertificate = signatureUtils.createSignatureCertificate(
+            signers.primary || Object.values(signers)[0], // Use primary signer or first signer
+            { name: options.documentName || 'Document' }
+        );
+
+        // Prepare data for the template
+        const templateData = {
+            document,
+            signatures,
+            signatureCertificate,
+            formattedDate: new Date().toLocaleDateString(),
+            cssPath: `file://${bootstrapPath}`,
+            ...options
+        };
+
+        // Render the template
+        const html = await ejs.renderFile(
+            templatePath,
+            templateData,
+            { root: viewsDir }
+        );
+
+        // Set the content and wait for network activity to finish
+        await page.setContent(html, { 
+            waitUntil: 'networkidle0',
+            timeout: 30000
+        });
+
+        // Generate PDF with improved settings
+        const pdfBuffer = await page.pdf({
+            format: 'Letter',
+            printBackground: true,
+            margin: {
+                top: '0.5in',
+                right: '0.5in',
+                bottom: '1in',
+                left: '0.5in'
+            },
+            displayHeaderFooter: true,
+            headerTemplate: `<div></div>`,
+            footerTemplate: `
+                <div style="
+                    font-size:10px;
+                    color:#3c3e40;
+                    width:100%;
+                    padding:5px 20px;
+                    border-top:1px solid #dee2e6;
+                    display:flex;
+                    justify-content: center;
+                    align-items: center;
+                ">
+                    ${options.documentTitle || 'Signed Document'} | Generated on ${new Date().toLocaleDateString()} | Page <span class="pageNumber"></span> of <span class="totalPages"></span>
+                </div>
+            `,
+            preferCSSPageSize: true
+        });
+
+        // Close browser to free resources
+        await browser.close();
+
+        return pdfBuffer;
+    } catch (error) {
+        console.error('Error generating signed PDF:', error);
+        throw error;
+    }
+}
+
 module.exports = {
     generateOfferPdf,
     generatePdfFromTemplate,
     generateAndSavePdf,
-    generateDisclosurePdf
+    generateDisclosurePdf,
+    generateSignedPdf
 };

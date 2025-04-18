@@ -1,18 +1,22 @@
-
 <div class="row mb-4">
   <div class="col-md-12">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <a href="/listings/new" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i>Add New Listing
+      </a>
+    </div>
     
     <!-- Search Form -->
     <div class="card shadow-sm mb-4">
       <div class="card-header bg-light">
-        <h5 class="mb-0">Search Transactions</h5>
+        <h5 class="mb-0">Search Listings</h5>
       </div>
       <div class="card-body">
-        <form action="/admin/transactions" method="GET" id="searchForm">
+        <form action="/admin/listings" method="GET" id="searchForm">
           <div class="row g-3">
             <div class="col-md-4">
               <div class="input-group">
-                <input type="text" class="form-control" name="search" placeholder="Search by buyer, seller, or address" value="<%= query.search || '' %>">
+                <input type="text" class="form-control" name="search" placeholder="Search by address, city, or zip" value="<%= query.search || '' %>">
                 <button class="btn btn-primary" type="submit">
                   <i class="bi bi-search"></i>
                 </button>
@@ -22,12 +26,10 @@
             <div class="col-md-3">
               <select class="form-select" name="status">
                 <option value="" <%= !query.status ? 'selected' : '' %>>All Statuses</option>
+                <option value="active" <%= query.status === 'active' ? 'selected' : '' %>>Active</option>
                 <option value="pending" <%= query.status === 'pending' ? 'selected' : '' %>>Pending</option>
-                <option value="accepted" <%= query.status === 'accepted' ? 'selected' : '' %>>Accepted</option>
-                <option value="rejected" <%= query.status === 'rejected' ? 'selected' : '' %>>Rejected</option>
-                <option value="countered" <%= query.status === 'countered' ? 'selected' : '' %>>Countered</option>
-                <option value="withdrawn" <%= query.status === 'withdrawn' ? 'selected' : '' %>>Withdrawn</option>
-                <option value="closed" <%= query.status === 'closed' ? 'selected' : '' %>>Closed</option>
+                <option value="sold" <%= query.status === 'sold' ? 'selected' : '' %>>Sold</option>
+                <option value="inactive" <%= query.status === 'inactive' ? 'selected' : '' %>>Inactive</option>
               </select>
             </div>
             
@@ -35,7 +37,7 @@
               <select class="form-select" name="sortBy">
                 <option value="createdAt" <%= (!query.sortBy || query.sortBy === 'createdAt') ? 'selected' : '' %>>Sort by Date</option>
                 <option value="price" <%= query.sortBy === 'price' ? 'selected' : '' %>>Sort by Price</option>
-                <option value="status" <%= query.sortBy === 'status' ? 'selected' : '' %>>Sort by Status</option>
+                <option value="views" <%= query.sortBy === 'views' ? 'selected' : '' %>>Sort by Views</option>
               </select>
             </div>
             
@@ -43,7 +45,7 @@
               <button type="submit" class="btn btn-primary me-2">
                 <i class="bi bi-search me-1"></i>Search
               </button>
-              <a href="/admin/transactions" class="btn btn-outline-secondary">
+              <a href="/admin/listings" class="btn btn-outline-secondary">
                 <i class="bi bi-x-circle me-1"></i>Reset
               </a>
             </div>
@@ -74,7 +76,7 @@
             
             <% if (query.sortBy) { %>
               <div class="filter-tag badge bg-primary">
-                Sort by: <%= query.sortBy === 'createdAt' ? 'Date' : (query.sortBy === 'price' ? 'Price' : 'Status') %>
+                Sort by: <%= query.sortBy === 'createdAt' ? 'Date' : (query.sortBy === 'price' ? 'Price' : 'Views') %>
                 <a href="#" class="text-white ms-1 close" data-param="sortBy">×</a>
               </div>
             <% } %>
@@ -86,68 +88,76 @@
     <!-- Results Table -->
     <div class="card shadow-sm">
       <div class="card-body">
-        <% if (transactions && transactions.length > 0) { %>
+        <% if (listings && listings.length > 0) { %>
           <div class="table-responsive">
             <table class="table table-hover">
               <thead>
                 <tr>
-                  <th>Property</th>
-                  <th>Buyer</th>
-                  <th>Seller</th>
+                  <th>Image</th>
+                  <th>Address</th>
                   <th>Price</th>
+                  <th>Seller</th>
                   <th>Status</th>
-                  <th>Date</th>
+                  <th>Listed Date</th>
+                  <th>Views</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                <% transactions.forEach(transaction => { %>
+                <% listings.forEach(listing => { %>
                   <tr>
                     <td>
-                      <% if (transaction.listing) { %>
-                        <%= transaction.listing.address %>
+                      <% if (listing.images && listing.images.length > 0) { %>
+                        <img src="<%= listing.images[0] %>" alt="Property" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
+                      <% } else { %>
+                        <img src="/images/default-home.jpg" alt="Default Property" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
+                      <% } %>
+                    </td>
+                    <td><%= listing.address %></td>
+                    <td>$<%= listing.price ? listing.price.toLocaleString() : 'N/A' %></td>
+                    <td>
+                      <% if (listing.seller && listing.seller.name) { %>
+                        <%= listing.seller.name %>
                       <% } else { %>
                         <span class="text-muted">Unknown</span>
                       <% } %>
                     </td>
                     <td>
-                      <% if (transaction.buyer) { %>
-                        <%= transaction.buyer.name %>
-                      <% } else { %>
-                        <span class="text-muted">Unknown</span>
-                      <% } %>
-                    </td>
-                    <td>
-                      <% if (transaction.seller) { %>
-                        <%= transaction.seller.name %>
-                      <% } else { %>
-                        <span class="text-muted">Unknown</span>
-                      <% } %>
-                    </td>
-                    <td>$<%= transaction.price ? transaction.price.toLocaleString() : 'N/A' %></td>
-                    <td>
-                      <% if (transaction.status === 'pending') { %>
+                      <% if (listing.status === 'active') { %>
+                        <span class="badge bg-success">Active</span>
+                      <% } else if (listing.status === 'pending') { %>
                         <span class="badge bg-warning">Pending</span>
-                      <% } else if (transaction.status === 'accepted') { %>
-                        <span class="badge bg-success">Accepted</span>
-                      <% } else if (transaction.status === 'rejected') { %>
-                        <span class="badge bg-danger">Rejected</span>
-                      <% } else if (transaction.status === 'countered') { %>
-                        <span class="badge bg-info">Countered</span>
-                      <% } else if (transaction.status === 'withdrawn') { %>
-                        <span class="badge bg-secondary">Withdrawn</span>
-                      <% } else if (transaction.status === 'closed') { %>
-                        <span class="badge bg-primary">Closed</span>
+                      <% } else if (listing.status === 'sold') { %>
+                        <span class="badge bg-primary">Sold</span>
+                      <% } else if (listing.status === 'inactive') { %>
+                        <span class="badge bg-secondary">Inactive</span>
                       <% } else { %>
-                        <span class="badge bg-secondary"><%= transaction.status %></span>
+                        <span class="badge bg-secondary"><%= listing.status %></span>
                       <% } %>
                     </td>
-                    <td><%= new Date(transaction.createdAt).toLocaleDateString() %></td>
+                    <td><%= new Date(listing.createdAt).toLocaleDateString() %></td>
+                    <td><%= listing.views || 0 %></td>
                     <td>
                       <div class="btn-group btn-group-sm">
-                        <a href="/admin/transactions/<%= transaction._id %>" class="btn btn-outline-primary">
+                        <a href="/admin/listings/<%= listing._id %>" class="btn btn-outline-primary">
                           <i class="bi bi-eye"></i>
                         </a>
+                        <a href="/admin/listings/<%= listing._id %>/edit" class="btn btn-outline-secondary">
+                          <i class="bi bi-pencil"></i>
+                        </a>
+                        <% if (listing.featured) { %>
+                          <form action="/admin/listings/<%= listing._id %>/unfeature" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-outline-warning" title="Remove from featured">
+                              <i class="bi bi-star-fill"></i>
+                            </button>
+                          </form>
+                        <% } else { %>
+                          <form action="/admin/listings/<%= listing._id %>/feature" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-outline-warning" title="Add to featured">
+                              <i class="bi bi-star"></i>
+                            </button>
+                          </form>
+                        <% } %>
                       </div>
                     </td>
                   </tr>
@@ -158,24 +168,24 @@
           
           <!-- Pagination -->
           <% if (totalPages > 1) { %>
-            <nav aria-label="Transaction pagination" class="mt-4">
+            <nav aria-label="Listing pagination" class="mt-4">
               <ul class="pagination justify-content-center">
                 <li class="page-item <%= hasPrevPage ? '' : 'disabled' %>">
-                  <a class="page-link" href="<%= hasPrevPage ? `/admin/transactions?page=${currentPage - 1}&search=${query.search || ''}&status=${query.status || ''}&sortBy=${query.sortBy || ''}` : '#' %>" aria-label="Previous">
+                  <a class="page-link" href="<%= hasPrevPage ? `/admin/listings?page=${currentPage - 1}&search=${query.search || ''}&status=${query.status || ''}&sortBy=${query.sortBy || ''}` : '#' %>" aria-label="Previous">
                     <span aria-hidden="true">&laquo;</span>
                   </a>
                 </li>
                 
                 <% for (let i = 1; i <= totalPages; i++) { %>
                   <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-                    <a class="page-link" href="/admin/transactions?page=<%= i %>&search=<%= query.search || '' %>&status=<%= query.status || '' %>&sortBy=<%= query.sortBy || '' %>">
+                    <a class="page-link" href="/admin/listings?page=<%= i %>&search=<%= query.search || '' %>&status=<%= query.status || '' %>&sortBy=<%= query.sortBy || '' %>">
                       <%= i %>
                     </a>
                   </li>
                 <% } %>
                 
                 <li class="page-item <%= hasNextPage ? '' : 'disabled' %>">
-                  <a class="page-link" href="<%= hasNextPage ? `/admin/transactions?page=${currentPage + 1}&search=${query.search || ''}&status=${query.status || ''}&sortBy=${query.sortBy || ''}` : '#' %>" aria-label="Next">
+                  <a class="page-link" href="<%= hasNextPage ? `/admin/listings?page=${currentPage + 1}&search=${query.search || ''}&status=${query.status || ''}&sortBy=${query.sortBy || ''}` : '#' %>" aria-label="Next">
                     <span aria-hidden="true">&raquo;</span>
                   </a>
                 </li>
@@ -184,11 +194,11 @@
           <% } %>
           
           <div class="text-center text-muted mt-3">
-            Showing <%= transactions.length %> of <%= total %> transactions
+            Showing <%= listings.length %> of <%= total %> listings
           </div>
         <% } else { %>
           <div class="alert alert-info mb-0">
-            <i class="bi bi-info-circle me-2"></i>No transactions found matching your criteria.
+            <i class="bi bi-info-circle me-2"></i>No listings found matching your criteria.
           </div>
         <% } %>
       </div>
@@ -200,41 +210,50 @@
   <div class="col-md-12">
     <div class="card shadow-sm">
       <div class="card-header bg-light">
-        <h5 class="mb-0">Transaction Statistics</h5>
+        <h5 class="mb-0">Listing Statistics</h5>
       </div>
       <div class="card-body">
         <div class="row">
-          <div class="col-md-4">
+          <div class="col-md-3">
             <div class="card bg-light mb-3">
               <div class="card-body">
-                <h6 class="card-title">Pending Transactions</h6>
-                <h3 class="card-text text-warning"><%= transactions.filter(t => t.status === 'pending').length %></h3>
+                <h6 class="card-title">Active Listings</h6>
+                <h3 class="card-text text-success"><%= listings.filter(l => l.status === 'active').length %></h3>
               </div>
             </div>
           </div>
           
-          <div class="col-md-4">
+          <div class="col-md-3">
             <div class="card bg-light mb-3">
               <div class="card-body">
-                <h6 class="card-title">Accepted Transactions</h6>
-                <h3 class="card-text text-success"><%= transactions.filter(t => t.status === 'accepted').length %></h3>
+                <h6 class="card-title">Pending Listings</h6>
+                <h3 class="card-text text-warning"><%= listings.filter(l => l.status === 'pending').length %></h3>
               </div>
             </div>
           </div>
           
-          <div class="col-md-4">
+          <div class="col-md-3">
             <div class="card bg-light mb-3">
               <div class="card-body">
-                <h6 class="card-title">Closed Transactions</h6>
-                <h3 class="card-text text-primary"><%= transactions.filter(t => t.status === 'closed').length %></h3>
+                <h6 class="card-title">Sold Listings</h6>
+                <h3 class="card-text text-primary"><%= listings.filter(l => l.status === 'sold').length %></h3>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-3">
+            <div class="card bg-light mb-3">
+              <div class="card-body">
+                <h6 class="card-title">Featured Listings</h6>
+                <h3 class="card-text text-info"><%= listings.filter(l => l.featured).length %></h3>
               </div>
             </div>
           </div>
         </div>
         
         <div class="text-center mt-3">
-          <a href="/admin/analytics/transactions" class="btn btn-outline-primary">
-            <i class="bi bi-graph-up me-2"></i>View Detailed Transaction Analytics
+          <a href="/admin/analytics/listings" class="btn btn-outline-primary">
+            <i class="bi bi-graph-up me-2"></i>View Detailed Listing Analytics
           </a>
         </div>
       </div>

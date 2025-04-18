@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= documentTitle || 'Signed Document' %></title>
+  <link rel="stylesheet" href="<%= cssPath %>">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      padding: 20px;
+    }
+    .document-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 20px;
+    }
+    .header h1 {
+      color: #2c3e50;
+      margin-bottom: 10px;
+    }
+    .header p {
+      color: #7f8c8d;
+      font-size: 14px;
+    }
+    .section {
+      margin-bottom: 30px;
+    }
+    .section-title {
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #2c3e50;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 5px;
+    }
+    .signature-section {
+      margin-top: 50px;
+      page-break-inside: avoid;
+    }
+    .signature-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 40px;
+    }
+    .signature-block {
+      flex: 1;
+      margin: 0 15px;
+    }
+    .signature-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    .signature-line {
+      border-bottom: 1px solid #000;
+      height: 40px;
+      margin-bottom: 5px;
+    }
+    .signature-date {
+      font-size: 12px;
+      color: #7f8c8d;
+    }
+    .certificate {
+      margin-top: 50px;
+      border-top: 1px dashed #ddd;
+      padding-top: 20px;
+      font-size: 12px;
+      page-break-inside: avoid;
+    }
+    .certificate-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .certificate-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .certificate-table th, .certificate-table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    .certificate-table th {
+      background-color: #f8f9fa;
+    }
+    .page-break {
+      page-break-before: always;
+    }
+  </style>
+</head>
+<body>
+  <div class="document-container">
+    <!-- Document Header -->
+    <div class="header">
+      <h1><%= documentTitle || 'Signed Document' %></h1>
+      <p>Generated on <%= formattedDate %></p>
+    </div>
+
+    <!-- Document Content -->
+    <div class="document-content">
+      <% if (typeof documentContent === 'string') { %>
+        <%- documentContent %>
+      <% } else { %>
+        <!-- Default document structure if no custom content provided -->
+        <div class="section">
+          <h2 class="section-title">Document Information</h2>
+          <p>
+            This document was electronically signed by the parties listed below.
+            The signatures are legally binding and comply with the E-SIGN Act (Electronic Signatures in Global and National Commerce Act).
+          </p>
+        </div>
+
+        <!-- Document Details -->
+        <div class="section">
+          <h2 class="section-title">Document Details</h2>
+          <table class="table table-bordered">
+            <tbody>
+              <tr>
+                <th style="width: 30%">Document ID</th>
+                <td><%= document.id || signatureCertificate.packageId %></td>
+              </tr>
+              <tr>
+                <th>Document Type</th>
+                <td><%= document.type || documentType || 'Contract' %></td>
+              </tr>
+              <tr>
+                <th>Date Created</th>
+                <td><%= document.createdAt ? new Date(document.createdAt).toLocaleDateString() : formattedDate %></td>
+              </tr>
+              <% if (document.expiresAt) { %>
+              <tr>
+                <th>Expiration Date</th>
+                <td><%= new Date(document.expiresAt).toLocaleDateString() %></td>
+              </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Document Specific Content -->
+        <% if (document.content) { %>
+          <div class="section">
+            <h2 class="section-title">Document Content</h2>
+            <%- document.content %>
+          </div>
+        <% } %>
+
+        <!-- Terms and Conditions -->
+        <div class="section">
+          <h2 class="section-title">Terms and Conditions</h2>
+          <p>
+            By signing this document, all parties acknowledge that they have read and agree to the terms and conditions
+            outlined in this document. This agreement constitutes the entire understanding between the parties and
+            supersedes all prior negotiations, understandings, and agreements.
+          </p>
+        </div>
+      <% } %>
+
+      <!-- Signature Section -->
+      <div class="signature-section">
+        <h2 class="section-title">Signatures</h2>
+        <p>The undersigned hereby acknowledge and agree to the terms and conditions set forth in this document.</p>
+
+        <% if (signatures && Object.keys(signatures).length > 0) { %>
+          <!-- If we have signatures, display them -->
+          <div class="row">
+            <% Object.entries(signatures).forEach(([role, signature], index) => { %>
+              <div class="col-md-6 mb-4">
+                <div class="card">
+                  <div class="card-header">
+                    <strong><%= role.charAt(0).toUpperCase() + role.slice(1) %></strong>
+                  </div>
+                  <div class="card-body text-center">
+                    <%- signature %>
+                    <div class="mt-2 text-muted small">
+                      Signed on <%= formattedDate %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <% if (index % 2 !== 0) { %></div><div class="row"><% } %>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <!-- If no signatures provided, show signature lines -->
+          <div class="signature-row">
+            <div class="signature-block">
+              <div class="signature-title">Signature:</div>
+              <div class="signature-line"></div>
+              <div class="signature-date">Date: ________________</div>
+              <div class="mt-2">Name: ________________</div>
+              <div class="mt-1">Title: ________________</div>
+            </div>
+            
+            <div class="signature-block">
+              <div class="signature-title">Signature:</div>
+              <div class="signature-line"></div>
+              <div class="signature-date">Date: ________________</div>
+              <div class="mt-2">Name: ________________</div>
+              <div class="mt-1">Title: ________________</div>
+            </div>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- Signature Certificate -->
+      <% if (signatureCertificate) { %>
+        <div class="certificate page-break">
+          <h2 class="certificate-title">Electronic Signature Certificate</h2>
+          
+          <table class="certificate-table">
+            <tr>
+              <th colspan="2">Document Information</th>
+            </tr>
+            <tr>
+              <td>Package ID</td>
+              <td><%= signatureCertificate.packageId %></td>
+            </tr>
+            <tr>
+              <td>Status</td>
+              <td><%= signatureCertificate.status %></td>
+            </tr>
+            <tr>
+              <th colspan="2">Originator</th>
+            </tr>
+            <tr>
+              <td>Name</td>
+              <td><%= signatureCertificate.originator.name %></td>
+            </tr>
+            <tr>
+              <td>Email</td>
+              <td><%= signatureCertificate.originator.email %></td>
+            </tr>
+            <tr>
+              <td>IP Address</td>
+              <td><%= signatureCertificate.originator.ipAddress %></td>
+            </tr>
+            <tr>
+              <td>Timestamp</td>
+              <td><%= new Date(signatureCertificate.originator.timestamp).toLocaleString() %></td>
+            </tr>
+          </table>
+          
+          <h3 class="mt-4 mb-2">Signers</h3>
+          <% signatureCertificate.signers.forEach((signer, index) => { %>
+            <table class="certificate-table mb-3">
+              <tr>
+                <th colspan="2">Signer <%= index + 1 %></th>
+              </tr>
+              <tr>
+                <td>Name</td>
+                <td><%= signer.name %></td>
+              </tr>
+              <tr>
+                <td>Email</td>
+                <td><%= signer.email %></td>
+              </tr>
+              <tr>
+                <td>IP Address</td>
+                <td><%= signer.ipAddress %></td>
+              </tr>
+              <tr>
+                <td>Signed At</td>
+                <td><%= new Date(signer.signedAt).toLocaleString() %></td>
+              </tr>
+            </table>
+          <% }); %>
+          
+          <h3 class="mt-4 mb-2">Documents</h3>
+          <% signatureCertificate.documents.forEach((doc, index) => { %>
+            <table class="certificate-table mb-3">
+              <tr>
+                <th colspan="2">Document <%= index + 1 %></th>
+              </tr>
+              <tr>
+                <td>Name</td>
+                <td><%= doc.name %></td>
+              </tr>
+              <tr>
+                <td>Pages</td>
+                <td><%= doc.pages %></td>
+              </tr>
+              <tr>
+                <td>Hash</td>
+                <td><small><%= doc.hash %></small></td>
+              </tr>
+            </table>
+          <% }); %>
+          
+          <h3 class="mt-4 mb-2">Audit Trail</h3>
+          <table class="certificate-table">
+            <tr>
+              <th>Action</th>
+              <th>Actor</th>
+              <th>Timestamp</th>
+            </tr>
+            <% signatureCertificate.history.forEach(event => { %>
+              <tr>
+                <td><%= event.action %></td>
+                <td><%= event.actor %></td>
+                <td><%= new Date(event.timestamp).toLocaleString() %></td>
+              </tr>
+            <% }); %>
+          </table>
+          
+          <div class="mt-4 text-center">
+            <p>This certificate serves as proof of the electronic signature process.</p>
+            <p><small>RE-Marketplace Electronic Signature System</small></p>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</body>
+</html>

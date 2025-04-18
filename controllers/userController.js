@@ -786,3 +786,35 @@ exports.markNotificationsAsRead = async (req, res) => {
         res.status(500).json({ error: "Error marking notifications as read." });
     }
 };
+
+// E-Signature Preferences
+exports.updateSignaturePreferences = async (req, res) => {
+    try {
+        if (!req.user) {
+            req.flash('error', 'You must be logged in to update signature preferences');
+            return res.redirect('/users/login');
+        }
+        
+        const { font, size, color } = req.body;
+        
+        const user = await User.findById(req.user._id);
+        if (!user) {
+            req.flash('error', 'User not found');
+            return res.redirect('/users/profile');
+        }
+        
+        // Update signature preferences
+        await user.updateSignaturePreferences({
+            font,
+            size,
+            color
+        });
+        
+        req.flash('success', 'Signature preferences updated successfully');
+        res.redirect('/users/profile');
+    } catch (error) {
+        console.error("Error updating signature preferences:", error);
+        req.flash('error', 'Failed to update signature preferences');
+        res.redirect('/users/profile');
+    }
+};

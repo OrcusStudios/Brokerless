@@ -1,0 +1,219 @@
+<!-- views/inspectorSchedule.ejs -->
+<%- include('partials/layout.ejs') %>
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="mb-4">
+                <a href="/inspectors" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Inspector Directory
+                </a>
+            </div>
+            
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h4 mb-0">
+                        <i class="bi bi-calendar-check me-2"></i>Schedule Home Inspection
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <!-- Inspector Information -->
+                    <div class="d-flex mb-4 pb-3 border-bottom">
+                        <div class="flex-shrink-0">
+                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                <i class="bi bi-person-badge fs-1 text-primary"></i>
+                            </div>
+                        </div>
+                        <div class="ms-3">
+                            <% 
+                            // In a real implementation, this would be populated from the database
+                            const inspectors = [
+                                { id: "1", name: "Robert Johnson", company: "Johnson Home Inspections", location: "St. Louis, MO", price: "$350 - $500" },
+                                { id: "2", name: "Maria Rodriguez", company: "Elite Home Inspections", location: "Kansas City, MO", price: "$375 - $550" },
+                                { id: "3", name: "David Chen", company: "Precision Home Inspections", location: "Springfield, MO", price: "$400 - $600" },
+                                { id: "4", name: "Sarah Williams", company: "Heritage Home Inspections", location: "Columbia, MO", price: "$375 - $525" }
+                            ];
+                            
+                            const inspector = inspectors.find(i => i.id === inspectorId) || { 
+                                name: "Selected Inspector", 
+                                company: "Professional Home Inspections",
+                                location: "Missouri",
+                                price: "$350 - $500"
+                            };
+                            %>
+                            <h4 class="mb-1"><%= inspector.name %></h4>
+                            <p class="text-muted mb-1"><%= inspector.company %></p>
+                            <p class="mb-0"><i class="bi bi-geo-alt me-1"></i> <%= inspector.location %></p>
+                            <p class="mb-0"><i class="bi bi-currency-dollar me-1"></i> <%= inspector.price %></p>
+                        </div>
+                    </div>
+                    
+                    <!-- Scheduling Form -->
+                    <form action="/inspectors/schedule/<%= inspectorId %>" method="POST">
+                        <!-- Property Information -->
+                        <h5 class="mb-3">Property Information</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-12 mb-3">
+                                <label for="property_address" class="form-label">Property Address</label>
+                                <input type="text" class="form-control" id="property_address" name="property_address" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="property_city" class="form-label">City</label>
+                                <input type="text" class="form-control" id="property_city" name="property_city" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="property_state" class="form-label">State</label>
+                                <input type="text" class="form-control" id="property_state" name="property_state" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="property_zip" class="form-label">ZIP Code</label>
+                                <input type="text" class="form-control" id="property_zip" name="property_zip" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="property_type" class="form-label">Property Type</label>
+                                <select class="form-select" id="property_type" name="property_type" required>
+                                    <option value="">Select Property Type</option>
+                                    <option value="single_family">Single Family Home</option>
+                                    <option value="condo">Condominium</option>
+                                    <option value="townhouse">Townhouse</option>
+                                    <option value="multi_family">Multi-Family</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="square_footage" class="form-label">Square Footage (approx.)</label>
+                                <input type="number" class="form-control" id="square_footage" name="square_footage" required>
+                            </div>
+                        </div>
+                        
+                        <!-- Scheduling Information -->
+                        <h5 class="mb-3">Scheduling Information</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <label for="preferred_date" class="form-label">Preferred Date</label>
+                                <input type="date" class="form-control" id="preferred_date" name="preferred_date" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="preferred_time" class="form-label">Preferred Time</label>
+                                <select class="form-select" id="preferred_time" name="preferred_time" required>
+                                    <option value="">Select Time</option>
+                                    <option value="morning">Morning (8:00 AM - 12:00 PM)</option>
+                                    <option value="afternoon">Afternoon (12:00 PM - 4:00 PM)</option>
+                                    <option value="evening">Evening (4:00 PM - 7:00 PM)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="alternate_date" class="form-label">Alternate Date (Optional)</label>
+                                <input type="date" class="form-control" id="alternate_date" name="alternate_date">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="alternate_time" class="form-label">Alternate Time (Optional)</label>
+                                <select class="form-select" id="alternate_time" name="alternate_time">
+                                    <option value="">Select Time</option>
+                                    <option value="morning">Morning (8:00 AM - 12:00 PM)</option>
+                                    <option value="afternoon">Afternoon (12:00 PM - 4:00 PM)</option>
+                                    <option value="evening">Evening (4:00 PM - 7:00 PM)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Contact Information -->
+                        <h5 class="mb-3">Contact Information</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <label for="contact_name" class="form-label">Your Name</label>
+                                <input type="text" class="form-control" id="contact_name" name="contact_name" value="<%= user.name %>" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="contact_email" class="form-label">Email Address</label>
+                                <input type="email" class="form-control" id="contact_email" name="contact_email" value="<%= user.email %>" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="contact_phone" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="contact_phone" name="contact_phone" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="access_instructions" class="form-label">Access Instructions</label>
+                                <select class="form-select" id="access_instructions" name="access_instructions" required>
+                                    <option value="">Select Option</option>
+                                    <option value="present">I will be present</option>
+                                    <option value="agent">My agent will provide access</option>
+                                    <option value="lockbox">Lockbox available</option>
+                                    <option value="other">Other (specify in notes)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label for="additional_notes" class="form-label">Additional Notes (Optional)</label>
+                                <textarea class="form-control" id="additional_notes" name="additional_notes" rows="3"></textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- Special Requests -->
+                        <h5 class="mb-3">Special Requests</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="radon_testing" name="special_requests[]" value="radon_testing">
+                                    <label class="form-check-label" for="radon_testing">
+                                        Radon Testing (additional fee may apply)
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="mold_testing" name="special_requests[]" value="mold_testing">
+                                    <label class="form-check-label" for="mold_testing">
+                                        Mold Testing (additional fee may apply)
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="termite_inspection" name="special_requests[]" value="termite_inspection">
+                                    <label class="form-check-label" for="termite_inspection">
+                                        Termite/Wood Destroying Insect Inspection (additional fee may apply)
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="water_quality" name="special_requests[]" value="water_quality">
+                                    <label class="form-check-label" for="water_quality">
+                                        Water Quality Testing (additional fee may apply)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Terms and Conditions -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="terms_agreement" name="terms_agreement" required>
+                                <label class="form-check-label" for="terms_agreement">
+                                    I understand that scheduling an inspection does not guarantee availability. The inspector will contact me to confirm the appointment.
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-calendar-check me-2"></i>Schedule Inspection
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Information Card -->
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">What Happens Next?</h5>
+                    <ol class="mb-0">
+                        <li>The inspector will review your request and contact you to confirm availability.</li>
+                        <li>Once confirmed, you'll receive a confirmation email with details about your inspection.</li>
+                        <li>The inspector will conduct the inspection at the scheduled time.</li>
+                        <li>After the inspection, you'll receive a detailed report of the findings.</li>
+                        <li>You can use this report to negotiate repairs with the seller or plan for future maintenance.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer.ejs') %>
